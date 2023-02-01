@@ -1,6 +1,6 @@
 import scala.scalanative.build.*
 
-scalaVersion := "3.2.1"
+scalaVersion := "3.2.2"
 enablePlugins(ScalaNativePlugin)
 
 nativeConfig ~= {
@@ -13,4 +13,4 @@ githubSuppressPublicationWarning := true
 githubTokenSource := TokenSource.GitConfig("github.token")
 
 resolvers += Resolver.githubPackages("lafeychine")
-libraryDependencies += "io.github.lafeychine" %%% "scala-native-sfml" % "0.2.3"
+libraryDependencies += "io.github.lafeychine" %%% "scala-native-sfml" % "0.3.1"
