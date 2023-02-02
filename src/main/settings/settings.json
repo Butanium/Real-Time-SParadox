@@ -1,0 +1,10 @@
+{
+    "keys": {
+        "move": {
+            "up": "z",
+            "down": "s",
+            "left": "q",
+            "right": "d"
+        }
+    }
+}
