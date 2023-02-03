@@ -6,8 +6,10 @@ import sfml.graphics.RenderTarget
 import sfml.graphics.RenderStates
 import sfml.graphics.Transformable
 import collection.mutable.ListBuffer
+import engine.GameEngine
 
 abstract class GameObject(
+    var engine: GameEngine,
     var active: Boolean = true,
     var parent: Option[GameObject] = None
 ) extends Transformable
@@ -15,7 +17,7 @@ abstract class GameObject(
   onCreation()
   val children: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
   def draw(target: RenderTarget, states: RenderStates): Unit = ()
-  def update(gameInfo: GameInfo): Unit
+  def update(): Unit
   def addChildren(newChildren: GameObject*): Unit = {
     children ++= newChildren
     newChildren.foreach(_.parent = Some(this))
