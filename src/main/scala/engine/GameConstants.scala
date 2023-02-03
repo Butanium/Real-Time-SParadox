@@ -1,5 +1,5 @@
-import scala.annotation.static
-object Constants {
+package engine
+object GameConstants {
   val WINDOW_WIDTH = 1024
   val WINDOW_HEIGHT = 768
 }

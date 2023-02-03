@@ -1,4 +1,4 @@
-package engine.objects
+package engine.graphics
 
 import sfml.graphics.RenderTarget
 import sfml.graphics.RenderStates

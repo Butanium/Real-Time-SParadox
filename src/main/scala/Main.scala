@@ -1,7 +1,26 @@
+
 import sfml.graphics.*
 import sfml.window.*
-import engine.objects.Group
-import Constants.*
+import engine.graphics.Group
+import engine.GameConstants.*
+import sfml.system.Vector2
+
+/*
+  Step by step, your program should look like:
+
+  [Start]
+  Initialize your context
+  Create a sprite
+  Start looping
+    Clear the screen
+    Collect inputs
+    Move your sprite
+    Draw your sprite
+    Display your drawing on the window
+  End looping
+  [Exit]
+*/
+
 @main def main =
   scala.util.Using.Manager { use =>
     val window = use(RenderWindow(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Real Time SParadox"))
@@ -20,7 +39,9 @@ import Constants.*
     group.position = (300, 300)
     group.scale(0.5, 0.5)
     group.add(spriteMid, spriteBottom, spriteRight)
-
+    window.draw(group)
+    window.draw(sprite)
+    val speed = (10,0)
     while window.isOpen() do
       for event <- window.pollEvent() do
         event match {
@@ -28,9 +49,9 @@ import Constants.*
           case _               => ()
         }
 
-      window.clear(Color.Black())
-      window.draw(group)
-      window.draw(sprite)
+      // window.clear(Color.Black())
+      // group.move()
+      
       // window.draw(spriteBottom)
       // window.draw(spriteRight)
       window.display()
