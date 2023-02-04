@@ -4,9 +4,10 @@ import scala.collection.mutable.ListBuffer
 import engine.objects.GameObject
 import sfml.graphics.RenderWindow
 
-class GameEngine() {
+class GameEngine(
+    val gameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
+) {
   val gameInfo: GameInfo = new GameInfo
-  val gameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
   def step(delta: Float) =
     gameObjects.foreach(_.update())
     gameObjects.filter(x =>
