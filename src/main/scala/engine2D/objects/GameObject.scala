@@ -1,14 +1,15 @@
-package engine.objects
+package engine2D.objects
 
-import engine.GameInfo
+import engine2D.GameInfo
 import sfml.graphics.Drawable
 import sfml.graphics.RenderTarget
 import sfml.graphics.RenderStates
 import sfml.graphics.Transformable
 import collection.mutable.ListBuffer
-import engine.GameEngine
+import engine2D.GameEngine
 
 import DeleteState.*
+import engine2D.graphics.GrUtils
 
 /** Base class for all game objects. It's transformable, can have children, can
   * be drawn, and can be updated.
@@ -23,10 +24,10 @@ import DeleteState.*
   */
 abstract class GameObject(
     var engine: GameEngine,
-    var parent: Option[GameObject] = None,
     var active: Boolean = true
 ) extends Transformable
     with Drawable {
+  var parent: Option[GameObject] = None
 
   /** The unique id of this GameObject. Used for comparison.
     */
@@ -35,15 +36,38 @@ abstract class GameObject(
   /** Whether or not this GameObject should be deleted.
     */
   var deleteState: DeleteState = Nope
-  onCreation()
   val children: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
-  def draw(target: RenderTarget, states: RenderStates): Unit = ()
+  protected def onDraw(target: RenderTarget, states: RenderStates): Unit =
+    children.foreach(_.draw(target, GrUtils.newState(states, transform)))
+  def draw(target: RenderTarget, states: RenderStates): Unit =
+    if active then onDraw(target, states)
+
+  /** Called when this GameObject is updated. This method is called only if this
+    * GameObject is active.
+    */
+  protected def onUpdate(): Unit = children.foreach(_.update())
+
+  /** Updates this GameObject and all its children.
+    */
   def update(): Unit =
-    children.foreach(_.update())
+    if active then onUpdate()
+
+  /** Adds children to this GameObject.
+    * @param newChildren
+    */
   def addChildren(newChildren: GameObject*): Unit = {
     children ++= newChildren
     newChildren.foreach(_.parent = Some(this))
   }
+
+  /** Alias for addChildren
+    * @param newChildren
+    */
+  def add(newChildren: GameObject*): Unit = addChildren(newChildren: _*)
+
+  /** Removes children from this GameObject.
+    * @param to_remove
+    */
   def removeChildren(to_remove: GameObject*): Unit = {
     children --= to_remove
     to_remove.foreach(_.parent = None)
@@ -51,21 +75,18 @@ abstract class GameObject(
 
   /** Called when this GameObject is deleted.
     */
-  private def onDeletion(): Unit = ()
+  protected def onDeletion(): Unit = ()
 
-  /** Called when this GameObject is created. TODO : check if overriding it
-    * works
+  /** Called when this GameObject is created.
     */
-  private def onCreation(): Unit = ()
+  protected def onCreation(): Unit = ()
 
-  /** Deletes this GameObject and all its children.
+  /** Deletes this GameObject and all its children. The parent of this
+    * GameObject will remove it from its children list in deleteIfNeeded.
     */
   def delete(): Unit =
     deleteState = Deleted
     onDeletion()
-    parent.foreach(
-      _.removeChildren(this)
-    ) // If parent exists, remove self from parent's children
     parent = None
     children.foreach(_.delete())
     children.clear()
@@ -85,6 +106,10 @@ abstract class GameObject(
       case _             => false
     }
 
+  /* Call the onCreation method. Note that this is the last line of the
+   * constructor, so the object is fully initialized when this method is called.
+   */
+  onCreation()
 }
 
 object GameObject {

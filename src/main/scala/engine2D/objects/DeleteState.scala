@@ -1,4 +1,4 @@
-package engine.objects
+package engine2D.objects
 
 /** The state of a GameObject's deletion.
   * @param Deleted

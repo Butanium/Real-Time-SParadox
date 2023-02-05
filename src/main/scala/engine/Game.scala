@@ -1,5 +1,0 @@
-package engine
-
-class Game {
-  
-}
