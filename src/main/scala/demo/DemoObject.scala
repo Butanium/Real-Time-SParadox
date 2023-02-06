@@ -44,6 +44,7 @@ class DemoObject(
     }
     health = maxHealth
     changeDirection(direction * -1)
+    super.onDeath()
   }
   override def onUpdate(): Unit = {
     health -= 1
