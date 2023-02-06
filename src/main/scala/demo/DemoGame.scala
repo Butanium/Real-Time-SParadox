@@ -5,8 +5,9 @@ import engine2D.graphics.Group
 import engine2D.GameEngine
 import engine2D.objects.GraphicObject
 import engine2D.Game
-class DemoGame extends Game(60, sfml.graphics.Color.apply(0, 0, 100)) {
-  val engine = GameEngine(1)
+class DemoGame(debug: Boolean = true)
+    extends Game(60, sfml.graphics.Color.apply(0, 0, 100), debug = debug) {
+  val engine = GameEngine(1, debug = debug)
   def init() = {
     val ourObject = DemoObject(engine = engine)
     engine.spawn(ourObject)
