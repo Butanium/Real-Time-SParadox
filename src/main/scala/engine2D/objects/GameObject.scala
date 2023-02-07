@@ -1,6 +1,5 @@
 package engine2D.objects
 
-import engine2D.GameInfo
 import sfml.graphics.Drawable
 import sfml.graphics.RenderTarget
 import sfml.graphics.RenderStates
