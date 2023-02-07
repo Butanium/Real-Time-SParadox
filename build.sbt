@@ -13,5 +13,5 @@ githubSuppressPublicationWarning := true
 githubTokenSource := TokenSource.GitConfig("github.token")
 
 resolvers += Resolver.githubPackages("lafeychine")
-libraryDependencies += "io.github.lafeychine" %%% "scala-native-sfml" % "0.3.3"
-libraryDependencies += "com.lihaoyi" %% "upickle" % "3.0.0-M1" // for json
+libraryDependencies += "io.github.lafeychine" %%% "scala-native-sfml" % "0.3.4"
+// libraryDependencies += "com.lihaoyi" %% "upickle" % "3.0.0-M1" // for json
