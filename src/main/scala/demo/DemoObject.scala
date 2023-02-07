@@ -2,6 +2,7 @@ import engine2D.objects.GameUnit
 import engine2D.objects.GameObject
 import engine2D.GameEngine
 import sfml.system.Vector2
+import engine2D.graphics.TextureManager
 
 /** An example object that extends GameUnit.
   */
@@ -20,7 +21,7 @@ class DemoObject(
     DemoObject.nb_spawn += 1
     val sprite =
       engine2D.objects.SpriteObject(
-        engine.textureManager.getTexture("aircraft.png"),
+        TextureManager.getTexture("aircraft.png"),
         engine
       )
     sprite.scale(0.1f, 0.1f)
