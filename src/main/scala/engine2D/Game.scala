@@ -26,6 +26,7 @@ abstract class Game(
   def init() = {
     window.framerateLimit = targetFps
   }
+  var lastTime = 0f
 
   /** Perform a step of the game.
     * @note
@@ -36,6 +37,11 @@ abstract class Game(
   def step() = {
     window.clear(backgroundColor)
     engine.step()
+    if debug then
+      // print sps
+      val sps: Int =
+        (1.0 / ((System.nanoTime() - lastTime) / 1000000000.0)).toInt
+      println(s"Engine Step per seconds: $sps")
     engine.render(window)
     window.display()
   }
@@ -51,7 +57,7 @@ abstract class Game(
     */
   def gameLoop(): Unit = {
     init()
-    var lastTime = System.nanoTime()
+    lastTime = System.nanoTime()
     while window.isOpen() do
       for event <- window.pollEvent() do
         event match {
@@ -60,12 +66,6 @@ abstract class Game(
         }
       if debug then println()
       step()
-
-      if debug then
-        // print sps
-        val sps: Int =
-          (1.0 / ((System.nanoTime() - lastTime) / 1000000000.0)).toInt
-        println(s"Step per seconds: $sps")
 
       val currentTime = System.nanoTime()
       if debug then
