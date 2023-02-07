@@ -5,7 +5,8 @@ import sfml.graphics.Texture
 import sfml.graphics.Sprite
 import engine2D.objects.GraphicObject
 
-class StaticGame extends engine2D.Game {
+class StaticGame(window: sfml.graphics.RenderWindow)
+    extends engine2D.Game(window) {
   val engine = GameEngine(1)
   def init(): Unit = {
     val sfml_img = Texture()

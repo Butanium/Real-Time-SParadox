@@ -21,6 +21,6 @@ import demo.StaticGame
  */
 
 @main def main =
-  val demo = DemoGame()
   val window = RenderWindow(VideoMode(800, 800), "Demo Game")
-  demo.gameLoop(window)
+  val demo = DemoGame(window)
+  demo.gameLoop()
