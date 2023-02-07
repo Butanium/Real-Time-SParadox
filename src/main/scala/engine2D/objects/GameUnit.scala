@@ -24,6 +24,9 @@ class GameUnit(
     baseRotation: Float = 0,
     active: Boolean = true
 ) extends MovingObject(speed, engine, baseRotation, active) {
+
+  /** The current health of this GameUnit.
+    */
   var health = maxHealth
 
   /** Called when this GameUnit dies (health <= 0). Will be checked only when

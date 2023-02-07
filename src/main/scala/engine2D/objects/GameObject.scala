@@ -33,9 +33,31 @@ abstract class GameObject(
   val id: Int = GameObject.getNextId
 
   /** Whether or not this GameObject should be deleted.
+    * @note
+    *   This variable is used to delete the GameObject at the end of the current
     */
   var deleteState: DeleteState = Nope
+
+  /** The children of this GameObject.
+    * @note
+    *   The children are drawn and updated after this GameObject. The children
+    *   are drawn and updated in the order they were added.
+    * @note
+    *   The children are deleted when this GameObject is deleted.
+    * @note
+    *   The transform of the children is relative to the transform of this
+    *   GameObject. i.e. if this GameObject is translated by (10, 10), the
+    *   children will be translated by (10, 10) as well.
+    */
   val children: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
+
+  /** Is called when this GameObject is drawn. This method is called only if
+    * this GameObject is active.
+    * @param target
+    *   The RenderTarget to draw on.
+    * @param states
+    *   The RenderStates to use.
+    */
   protected def onDraw(target: RenderTarget, states: RenderStates): Unit =
     children.foreach(_.draw(target, GrUtils.newState(states, transform)))
   def draw(target: RenderTarget, states: RenderStates): Unit =
@@ -46,7 +68,7 @@ abstract class GameObject(
     */
   protected def onUpdate(): Unit = children.foreach(_.update())
 
-  /** Updates this GameObject and all its children.
+  /** Updates this GameObject and all its children if it's active.
     */
   def update(): Unit =
     if active then onUpdate()
@@ -99,6 +121,15 @@ abstract class GameObject(
     if deleteState == ToDelete then delete()
     children.filterInPlace(!_.deleteIfNeeded())
     deleteState == Deleted
+
+  /** Tests if this GameObject is equal to another GameObject.
+    * @param x
+    *   The other GameObject.
+    * @return
+    *   Whether or not this GameObject is equal to the other GameObject.
+    * @note
+    *   Two GameObjects are equal if they have the same id.
+    */
   override def equals(x: Any): Boolean =
     x match {
       case x: GameObject => x.id == id
@@ -112,7 +143,16 @@ abstract class GameObject(
 }
 
 object GameObject {
+
+  /** The last id that was given to a GameObject.
+    */
   private var lastId: Int = 0
+
+  /** Gets the next id for a GameObject.
+    *
+    * @return
+    *   The next id.
+    */
   private def getNextId: Int = {
     lastId += 1
     lastId - 1

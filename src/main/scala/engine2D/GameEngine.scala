@@ -11,16 +11,26 @@ import scala.collection.mutable.ListBuffer
   *   The time between each step of the game engine.
   * @param gameObjectss
   *   The list of game objects.
+  * @param debug
+  *   If true, print debug information.
   */
 class GameEngine(
     val deltaTime: Float,
     val gameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject],
     val debug: Boolean = false
 ) {
-  var newGameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
-  val textureManager = new graphics.TextureManager()
+
+  /** The list of game objects to add at the end of the current step.
+    */
+  private var newGameObjects: ListBuffer[GameObject] =
+    ListBuffer.empty[GameObject]
 
   /** Performs a step of the game engine.
+    * @note
+    *   It will
+    *   - add the game objects created during the last step
+    *   - call the update method of all game objects
+    *   - delete game objects that need to be deleted
     */
   def step() =
     val size = gameObjects.size
@@ -34,15 +44,15 @@ class GameEngine(
     gameObjects.filterInPlace(!_.deleteIfNeeded())
     if debug then
       println(s"Step: deleted ${size - gameObjects.size} game objects")
-      println(s"Step: performed in ${(System.nanoTime() - time)* 1000 } ms")
+      println(s"Step: performed in ${(System.nanoTime() - time) * 1000} ms")
 
-  /** Renders all game objects.
-    *
+  /** Renders the game objects on the window.
     * @param window
+    *   the window to render the game objects on
     */
   def render(window: RenderWindow) =
     var time = 0f
-    if debug then 
+    if debug then
       println(s"Render: ${gameObjects.size} game objects")
       time = System.nanoTime()
     gameObjects.foreach(window.draw(_))
