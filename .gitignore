@@ -18,3 +18,5 @@ target/
 
 # Custom
 .vscode
+misc/*
+.idea
