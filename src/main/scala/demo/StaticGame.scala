@@ -7,7 +7,7 @@ import engine2D.objects.GraphicObject
 
 class StaticGame(window: sfml.graphics.RenderWindow)
     extends engine2D.Game(window) {
-  val engine = GameEngine(1)
+  val engine = GameEngine(1, window)
   override def init(): Unit = {
     val sfml_img = Texture()
     sfml_img.loadFromFile("src/main/resources/sfml-logo.png")
