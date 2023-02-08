@@ -24,12 +24,12 @@ class MovingObject(
     var speed: Float,
     engine: GameEngine,
     var baseRotation: Float = 0,
-    var rooted: Boolean = false,
-    var rotationEnabled: Boolean = true,
     active: Boolean = true
 ) extends GameObject(engine, active) {
   private var direction: Vector2[Float] = (0, 0)
   rotation = baseRotation
+  var rooted: Boolean = false
+  var rotationEnabled: Boolean = true
 
   /** Sets the direction of this MovingObject. The direction will be normalized.
     * @param newDirection
