@@ -1,8 +1,8 @@
 package engine2D.event
 
-import sfml.window.Window
+import sfml.graphics.RenderWindow
 
-class EventManager(window : Window) {
-  def handleEvents(): Unit = 
+class EventManager(window: RenderWindow) {
+  def handleEvents(): Unit =
     ()
 }
