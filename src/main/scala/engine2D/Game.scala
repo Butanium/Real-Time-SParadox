@@ -42,7 +42,7 @@ abstract class Game(
       val sps: Int =
         (1.0 / ((System.nanoTime() - lastTime) / 1000000000.0)).toInt
       println(s"Engine Step per seconds: $sps")
-    engine.render(window)
+    engine.render()
     window.display()
   }
 
@@ -59,11 +59,6 @@ abstract class Game(
     init()
     lastTime = System.nanoTime()
     while window.isOpen() do
-      for event <- window.pollEvent() do
-        event match {
-          case _: sfml.window.Event.Closed => window.closeWindow()
-          case _                           => ()
-        }
       if debug then println()
       step()
 
