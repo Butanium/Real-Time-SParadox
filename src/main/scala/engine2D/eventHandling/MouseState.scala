@@ -14,11 +14,11 @@ class MouseState(window: RenderWindow) {
 
   /** The position of the mouse in the window
     */
-  private var mousePos: Vector2[Int] = Vector2(0, 0)
+  private var _mousePos: Vector2[Int] = Vector2(0, 0)
 
   /** The position of the mouse in the world
     */
-  private var worldPos: Vector2[Float] = Vector2(0, 0)
+  private var _worldPos: Vector2[Float] = Vector2(0, 0)
 
   /** The state of the mouse buttons. True if pressed, false if not
     */
@@ -27,7 +27,7 @@ class MouseState(window: RenderWindow) {
 
   /** Returns the position of the mouse in the window
     */
-  def getMousePos: Vector2[Int] = mousePos
+  def mousePos: Vector2[Int] = _mousePos
 
   /** Sets the position of the mouse in the window. Also updates the world
     * position
@@ -35,14 +35,14 @@ class MouseState(window: RenderWindow) {
     * @param newPos
     *   the new position of the mouse
     */
-  def setMousePos(newPos: Vector2[Int]): Unit =
-    mousePos = newPos
-    worldPos = window.mapPixelToCoords(newPos)
+  def mousePos_=(newPos: Vector2[Int]) =
+    _mousePos = newPos
+    _worldPos = window.mapPixelToCoords(newPos)
 
   /** @return
     *   the position of the mouse in the world
     */
-  def getWorldPos(): Vector2[Float] = worldPos
+  def worldPos: Vector2[Float] = _worldPos
 
   /** @param button
     *   the button to check

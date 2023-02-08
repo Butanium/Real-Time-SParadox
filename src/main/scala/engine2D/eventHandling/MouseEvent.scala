@@ -1,6 +1,6 @@
 package engine2D.eventHandling
 
-import sfml.graphics.Rect
+import engine2D.objects.Boundable
 import sfml.window.Mouse.Button
 import scala.collection.mutable.Queue
 
@@ -13,13 +13,16 @@ import scala.collection.mutable.Queue
   * @param active
   *   whether the event is active or not. If it's not active, it won't be
   *   triggered even if the conditions are met
+  * @param toRemove
+  *   whether the event has to be removed from the event queue
   * @note
   *   I'm not sure if we'll really need eventId and active
   */
 enum MouseEvent(
     val isPermanent: Boolean,
     val eventId: Int,
-    var active: Boolean = true
+    var active: Boolean = true,
+    var toRemove: Boolean = false
 ) {
 
   /** Triggered when the mouse is moved
@@ -52,7 +55,7 @@ enum MouseEvent(
   // Clicked would be a combination of pressed and released
   // I don't think it's necessary but I'll leave it here for now
   // case ButtonClicked(val button: Button)
-  // case BoundClicked(val bound: Rect[Float], val button: Button)
+  // case BoundClicked(val bound: Boundable, val button: Button)
 
   /** Triggered when the mouse enters a bound
     * @param bound
@@ -61,7 +64,7 @@ enum MouseEvent(
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case MouseInBound(val bound: Rect[Float], _isPermanent: Boolean)
+  case MouseInBound(val bound: Boundable, _isPermanent: Boolean)
       extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
   /** Triggered when the mouse leaves a bound
@@ -71,7 +74,7 @@ enum MouseEvent(
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case MouseOutBound(val bound: Rect[Float], _isPermanent: Boolean)
+  case MouseOutBound(val bound: Boundable, _isPermanent: Boolean)
       extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
   /** Triggered when a button is pressed while the mouse is in a bound
@@ -84,7 +87,7 @@ enum MouseEvent(
     *   removed from the event queue once it's triggered
     */
   case BoundPressed(
-      val bound: Rect[Float],
+      val bound: Boundable,
       val button: Button,
       _isPermanent: Boolean
   ) extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
@@ -99,7 +102,7 @@ enum MouseEvent(
     *   removed from the event queue once it's triggered
     */
   case BoundReleased(
-      val bound: Rect[Float],
+      val bound: Boundable,
       val button: Button,
       _isPermanent: Boolean
   ) extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())

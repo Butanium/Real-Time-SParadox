@@ -7,7 +7,7 @@ import sfml.graphics.RenderWindow
 import sfml.window.Mouse.Button
 import engine2D.eventHandling.MouseEvent.*
 import sfml.window.Mouse
-import sfml.graphics.Rect
+import engine2D.objects.Boundable
 
 /** Enum to indicate the condition to check for an event. This is used to group
   * events that are checked in the same way.
@@ -16,7 +16,7 @@ private enum EventCheckCondition {
 
   /** The mouse position has changed
     */
-  case NewPosition
+  case CheckNewPosition
 
   /** A button has been pressed
     * @param button
@@ -42,13 +42,13 @@ private object EventCheckCondition {
     *   the condition to check for the event
     */
   def from(event: MouseEvent): EventCheckCondition = event match {
-    case MouseMoved(_) => EventCheckCondition.NewPosition
+    case MouseMoved(_) => EventCheckCondition.CheckNewPosition
     case ButtonPressed(button, _) =>
       EventCheckCondition.CheckButtonPressed(button)
     case ButtonReleased(button, _) =>
       EventCheckCondition.CheckButtonReleased(button)
-    case MouseInBound(_, _)  => EventCheckCondition.NewPosition
-    case MouseOutBound(_, _) => EventCheckCondition.NewPosition
+    case MouseInBound(_, _)  => EventCheckCondition.CheckNewPosition
+    case MouseOutBound(_, _) => EventCheckCondition.CheckNewPosition
     case BoundPressed(_, button, _) =>
       EventCheckCondition.CheckButtonPressed(button)
     case BoundReleased(_, button, _) =>
@@ -111,11 +111,16 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     *   the event to handle
     */
   def handleEvent(event: sfml.window.Event): Unit =
+    mergeNewEvents()
     event match {
-      case Event.MouseMoved(x, y) => handleMouseMoved(x, y)
+      case Event.MouseMoved(x, y) =>
+        if (debug) println(s"Mouse moved to $x, $y")
+        handleMouseMoved(x, y)
       case Event.MouseButtonPressed(button, x, y) =>
+        if (debug) println(s"Button $button pressed")
         handleMousePressed(button, x, y)
       case Event.MouseButtonReleased(button, x, y) =>
+        if (debug) println(s"Button $button released")
         handleMouseReleased(button, x, y)
       case _ => ()
     }
@@ -127,10 +132,10 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     mouseEvents
       .getOrElse(condition, ListBuffer.empty)
       .filterInPlace((event, function) =>
-        if (predicate(event)) {
+        if (predicate(event) && event.active && !event.toRemove) {
           function()
           event.isPermanent
-        } else true
+        } else !event.toRemove
       )
 
   private def isTriggeredByMove(
@@ -138,17 +143,21 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
   ): Boolean =
     event match {
       case MouseMoved(_) => true
-      case MouseInBound(bound, _) =>
-        bound.contains(mouseState.getWorldPos())
-      case MouseOutBound(bound, _) =>
-        !bound.contains(mouseState.getWorldPos())
+      case MouseInBound(boundable, _) =>
+        boundable.bounds.contains(mouseState.worldPos)
+      case MouseOutBound(boundable, _) =>
+        !boundable.bounds.contains(mouseState.worldPos)
       case _ =>
         throw new Exception("Impossible mouse event")
     }
 
   private def handleMouseMoved(x: Int, y: Int): Unit = {
-    mouseState.setMousePos(x, y)
-    filterAndTrigger(EventCheckCondition.NewPosition, isTriggeredByMove)
+    mouseState.mousePos = Vector2(x, y)
+    if debug then
+      println(
+        s"${mouseEvents.getOrElse(EventCheckCondition.CheckNewPosition, List.empty).size} mouse moved events to check"
+      )
+    filterAndTrigger(EventCheckCondition.CheckNewPosition, isTriggeredByMove)
   }
 
   private def isTriggeredByButton(
@@ -159,8 +168,8 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     event match {
       case ButtonPressed(b, _)  => b == button
       case ButtonReleased(b, _) => b == button
-      case BoundPressed(bound, b, _) =>
-        b == button && bound.contains(eventPos.x, eventPos.y)
+      case BoundPressed(boundable, b, _) =>
+        b == button && boundable.bounds.contains(eventPos.x, eventPos.y)
       case _ =>
         throw new Exception("Impossible button event")
     }
@@ -168,6 +177,10 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
   private def handleMousePressed(button: Button, x: Int, y: Int): Unit = {
     mouseState.pressButton(button)
     val eventPos = window.mapPixelToCoords(Vector2(x, y))
+    if debug then
+      println(
+        s"${mouseEvents.getOrElse(EventCheckCondition.CheckButtonPressed(button), List.empty).size} mouse pressed events to check"
+      )
     filterAndTrigger(
       EventCheckCondition.CheckButtonPressed(button),
       isTriggeredByButton(_, button, eventPos)
@@ -177,6 +190,10 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
   private def handleMouseReleased(button: Button, x: Int, y: Int): Unit = {
     mouseState.releaseButton(button)
     val eventPos = window.mapPixelToCoords(Vector2(x, y))
+    if debug then
+      println(
+        s"${mouseEvents.getOrElse(EventCheckCondition.CheckButtonReleased(button), List.empty).size} mouse released events to check"
+      )
     filterAndTrigger(
       EventCheckCondition.CheckButtonReleased(button),
       isTriggeredByButton(_, button, eventPos)
@@ -184,8 +201,8 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
   }
 
   /** Registers an even that will be triggered when a bound is clicked and the
-    * mouse is released inside the bound. If the mouse is released outside the
-    * bound, the function will not be called
+    * mouse is released inside the bounds. If the mouse is released outside the
+    * bounds, the function will not be called
     *
     * @param button
     *   the button to check
@@ -202,18 +219,46 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     */
   def registerBoundClickedEvent(
       button: Button,
-      bound: Rect[Float],
+      boundable: Boundable,
       isPermanent: Boolean,
       function: () => Unit
-  ): MouseEvent =
-    val pressEvent = BoundPressed(bound, button, false)
-    val releaseEvent = ButtonReleased(button, false)
+  ): (MouseEvent, MouseEvent) =
+    val pressEvent = BoundPressed(boundable, button, isPermanent)
+    val releaseEvent = ButtonReleased(button, isPermanent)
+    releaseEvent.active = false
     def onReleaseEvent(): Unit =
-      if (bound.contains(mouseState.getWorldPos())) function()
-      if isPermanent then registerMouseEvent(pressEvent, onPressEvent)
+      releaseEvent.active = false
+      if isPermanent then pressEvent.active = true
+      if (boundable.bounds.contains(mouseState.worldPos)) function()
     def onPressEvent(): Unit =
-      registerMouseEvent(releaseEvent, onReleaseEvent)
+      pressEvent.active = false
+      releaseEvent.active = true
     registerMouseEvent(pressEvent, onPressEvent)
-    pressEvent
+    registerMouseEvent(releaseEvent, onReleaseEvent)
+    (pressEvent, releaseEvent)
 
+  def registerClickBoundFlipFlopEvent(
+      button: Button,
+      boundable: Boundable,
+      onFlip: () => Unit,
+      onFlop: () => Unit
+  ): (MouseEvent, MouseEvent, MouseEvent, MouseEvent) = {
+    lazy val (flipPressed, flipReleased) =
+      registerBoundClickedEvent(button, boundable, true, flip)
+    lazy val (flopPressed, flopReleased) =
+      registerBoundClickedEvent(button, boundable, true, flop)
+    def flip(): Unit = {
+      onFlip()
+      flipPressed.active = false
+      flopPressed.active = true
+    }
+    def flop(): Unit = {
+      onFlop()
+      flopPressed.active = false
+      flipPressed.active = true
+    }
+    flopPressed.active = false
+    (flipPressed, flipReleased, flopPressed, flopReleased)
+
+  }
 }
