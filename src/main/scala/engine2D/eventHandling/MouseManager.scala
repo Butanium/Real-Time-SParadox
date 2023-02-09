@@ -99,7 +99,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
 
   /** Adds the new events to the list of events to check
     */
-  def mergeNewEvents(): Unit = {
+  private def mergeNewEvents(): Unit = {
     for ((condition, events) <- newMouseEvents) {
       mouseEvents.getOrElseUpdate(condition, ListBuffer.empty) ++= events
     }
@@ -144,9 +144,9 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     event match {
       case MouseMoved(_) => true
       case MouseInBound(boundable, _) =>
-        boundable.bounds.contains(mouseState.worldPos)
+        boundable.contains(mouseState.worldPos)
       case MouseOutBound(boundable, _) =>
-        !boundable.bounds.contains(mouseState.worldPos)
+        !boundable.contains(mouseState.worldPos)
       case _ =>
         throw new Exception("Impossible mouse event")
     }
@@ -169,7 +169,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
       case ButtonPressed(b, _)  => b == button
       case ButtonReleased(b, _) => b == button
       case BoundPressed(boundable, b, _) =>
-        b == button && boundable.bounds.contains(eventPos.x, eventPos.y)
+        b == button && boundable.contains(eventPos.x, eventPos.y)
       case _ =>
         throw new Exception("Impossible button event")
     }
@@ -200,7 +200,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     )
   }
 
-  /** Registers an even that will be triggered when a bound is clicked and the
+  /** Registers an event that will be triggered when a bound is clicked and the
     * mouse is released inside the bounds. If the mouse is released outside the
     * bounds, the function will not be called
     *
@@ -214,8 +214,6 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     *   the function to call when the event is triggered
     * @return
     *   the event that was registered
-    * @note
-    *   In most cases, you'll certainly ignore the return value
     */
   def registerBoundClickedEvent(
       button: Button,
@@ -229,7 +227,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     def onReleaseEvent(): Unit =
       releaseEvent.active = false
       if isPermanent then pressEvent.active = true
-      if (boundable.bounds.contains(mouseState.worldPos)) function()
+      if (boundable.contains(mouseState.worldPos)) function()
     def onPressEvent(): Unit =
       pressEvent.active = false
       releaseEvent.active = true
@@ -237,6 +235,20 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     registerMouseEvent(releaseEvent, onReleaseEvent)
     (pressEvent, releaseEvent)
 
+  /** Registers an event that will alternate between onFlip and onFlop when the
+    * button is clicked
+    *
+    * @param button
+    *   the button to check
+    * @param bound
+    *   the bound to check
+    * @param onFlip
+    *   the function to call when the event is triggered
+    * @param onFlop
+    *   the function to call when the event is triggered
+    * @return
+    *   the events that were registered
+    */
   def registerClickBoundFlipFlopEvent(
       button: Button,
       boundable: Boundable,

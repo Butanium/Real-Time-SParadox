@@ -3,6 +3,7 @@ package engine2D.objects
 import engine2D.GameEngine
 import sfml.graphics.Rect
 import sfml.graphics.Sprite
+import sfml.system.Vector2
 
 /** A SpriteObject is a GraphicObject that is instantiated with a Texture.
   * @param texture
@@ -53,6 +54,12 @@ class SpriteObject(
   def globalBounds: Rect[Float] =
     globalTransform.transformRect(localBounds)
 
-  def bounds = globalBounds
-
+  /** Check if the sprite contains a point.
+    * @param point
+    *   The point to check.
+    * @return
+    *   True if the sprite contains the point, false if not.
+    */
+  override def contains(point: Vector2[Float]): Boolean =
+    globalBounds.contains(point)
 }
