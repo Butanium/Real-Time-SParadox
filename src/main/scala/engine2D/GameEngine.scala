@@ -16,6 +16,7 @@ import scala.collection.mutable.ListBuffer
   */
 class GameEngine(
     val deltaTime: Float,
+    val window: RenderWindow,
     val gameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject],
     val debug: Boolean = false
 ) {
@@ -24,13 +25,17 @@ class GameEngine(
     */
   private var newGameObjects: ListBuffer[GameObject] =
     ListBuffer.empty[GameObject]
+  val mouseManager = eventHandling.MouseManager(window)
+  private val EventManager = eventHandling.EventManager(window, mouseManager)
+  def mouseState = mouseManager.mouseState
 
   /** Performs a step of the game engine.
     * @note
     *   It will
-    *   - add the game objects created during the last step
-    *   - call the update method of all game objects
-    *   - delete game objects that need to be deleted
+    *   - handle events
+    *     - add the game objects created during the last step
+    *     - call the update method of all game objects
+    *     - delete game objects that need to be deleted
     */
   def step() =
     val size = gameObjects.size
@@ -38,6 +43,7 @@ class GameEngine(
     if debug then
       println(s"Step: $size game objects")
       time = System.nanoTime()
+    EventManager.handleEvents()
     gameObjects ++= newGameObjects
     newGameObjects.clear()
     gameObjects.foreach(_.update())
@@ -47,10 +53,8 @@ class GameEngine(
       println(s"Step: performed in ${(System.nanoTime() - time) * 1000} ms")
 
   /** Renders the game objects on the window.
-    * @param window
-    *   the window to render the game objects on
     */
-  def render(window: RenderWindow) =
+  def render() =
     var time = 0f
     if debug then
       println(s"Render: ${gameObjects.size} game objects")

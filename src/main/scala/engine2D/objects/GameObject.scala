@@ -9,6 +9,8 @@ import engine2D.GameEngine
 
 import DeleteState.*
 import engine2D.graphics.GrUtils
+import sfml.graphics.Transform
+import engine2D.eventHandling.MouseEvent
 
 /** Base class for all game objects. It's transformable, can have children, can
   * be drawn, and can be updated.
@@ -26,11 +28,24 @@ abstract class GameObject(
     var active: Boolean = true
 ) extends Transformable
     with Drawable {
+
+  /** The parent of this GameObject. If it's None, this GameObject has no
+    * parent.
+    * @note
+    *   The parent is drawn and updated before this GameObject. The transform of
+    *   this GameObject is relative to the transform of the parent. i.e. if the
+    *   parent is translated by (10, 10), this GameObject will be translated by
+    *   (10, 10).
+    */
   var parent: Option[GameObject] = None
+
+  /** The events the GameObject listens to.
+    */
+  val listeners: ListBuffer[MouseEvent] = ListBuffer()
 
   /** The unique id of this GameObject. Used for comparison.
     */
-  val id: Int = GameObject.getNextId
+  val id: Int = GameObject.nextId
 
   /** Whether or not this GameObject should be deleted.
     * @note
@@ -96,11 +111,9 @@ abstract class GameObject(
 
   /** Called when this GameObject is deleted.
     */
-  protected def onDeletion(): Unit = ()
-
-  /** Called when this GameObject is created.
-    */
-  protected def onCreation(): Unit = ()
+  protected def onDeletion(): Unit =
+    listeners.foreach(_.toRemove = true)
+    listeners.clear()
 
   /** Deletes this GameObject and all its children. The parent of this
     * GameObject will remove it from its children list in deleteIfNeeded.
@@ -136,10 +149,17 @@ abstract class GameObject(
       case _             => false
     }
 
-  /* Call the onCreation method. Note that this is the last line of the
-   * constructor, so the object is fully initialized when this method is called.
-   */
-  onCreation()
+  /** Gets the global transform of this GameObject.
+    * @return
+    *   The global transform of this GameObject.
+    * @note
+    *   The global transform is the transform of this GameObject relative to the
+    *   global transform of the parent GameObject.
+    */
+  def globalTransform: Transform =
+    parent match
+      case None         => transform
+      case Some(parent) => parent.globalTransform * transform
 }
 
 object GameObject {
@@ -153,7 +173,7 @@ object GameObject {
     * @return
     *   The next id.
     */
-  private def getNextId: Int = {
+  private def nextId: Int = {
     lastId += 1
     lastId - 1
   }
