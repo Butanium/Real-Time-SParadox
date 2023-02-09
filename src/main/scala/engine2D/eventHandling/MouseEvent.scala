@@ -107,6 +107,14 @@ enum MouseEvent(
       _isPermanent: Boolean
   ) extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
+  /** The equals method for mouse events
+    * @param x
+    *   the object to compare to
+    * @return
+    *   whether the two objects are equal or not
+    * @note
+    *   Two mouse events are equal if they have the same id
+    */
   override def equals(x: Any): Boolean =
     x match
       case x: MouseEvent => x.eventId == this.eventId
@@ -115,6 +123,9 @@ enum MouseEvent(
 
 object MouseEvent:
   private var lastId = 0
-  def getNewEventId(): Int =
+
+  /** Returns a new unique id for a mouse event
+    */
+  private def getNewEventId(): Int =
     lastId += 1
     lastId
