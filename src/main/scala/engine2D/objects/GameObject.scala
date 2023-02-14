@@ -64,7 +64,7 @@ abstract class GameObject(
     * @note
     *   This variable is used to delete the GameObject at the end of the current
     */
-  var deleteState: DeleteState = Nope
+  private var deleteState: DeleteState = Nope
 
   /** The children of this GameObject.
     * @note
