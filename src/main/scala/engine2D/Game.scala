@@ -29,7 +29,7 @@ abstract class Game(
   def init() = {
     window.framerateLimit = targetFps
   }
-  var lastTime = 0f
+  var lastTime: Long = 0
 
   /** Perform a step of the game.
     * @note
