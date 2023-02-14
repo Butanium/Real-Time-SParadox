@@ -17,6 +17,9 @@ class EventManager(
     val mouseManager: MouseManager,
     val debug: Boolean = false
 ) {
+
+  /** Polls events and handles them
+    */
   def handleEvents(): Unit =
     for event <- window.pollEvent() do
       event match

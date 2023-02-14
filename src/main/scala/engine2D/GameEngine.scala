@@ -8,7 +8,10 @@ import scala.collection.mutable.ListBuffer
 /** The GameEngine is the main class of the game. It contains all game objects
   *
   * @param deltaTime
-  *   The time between each step of the game engine.
+  *   The time between each step of the game engine. It's not actually used for
+  *   now but might be useful in the future.
+  * @param window
+  *   The window to render on.
   * @param gameObjectss
   *   The list of game objects.
   * @param debug
@@ -27,6 +30,9 @@ class GameEngine(
     ListBuffer.empty[GameObject]
   val mouseManager = eventHandling.MouseManager(window)
   private val EventManager = eventHandling.EventManager(window, mouseManager)
+
+  /** Returns the mouse state.
+    */
   def mouseState = mouseManager.mouseState
 
   /** Performs a step of the game engine.

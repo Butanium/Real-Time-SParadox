@@ -7,7 +7,6 @@ import sfml.graphics.Transformable
 import collection.mutable.ListBuffer
 import engine2D.GameEngine
 
-import DeleteState.*
 import engine2D.graphics.GrUtils
 import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
@@ -17,8 +16,6 @@ import engine2D.eventHandling.MouseEvent
   *
   * @param engine
   *   The GameEngine that this GameObject belongs to.
-  * @param parent
-  *   The parent GameObject of this GameObject.
   * @param active
   *   Whether or not this GameObject is active. If it's not active, it won't be
   *   updated or drawn.
@@ -46,6 +43,22 @@ abstract class GameObject(
   /** The unique id of this GameObject. Used for comparison.
     */
   val id: Int = GameObject.nextId
+
+  /** The state of a GameObject's deletion. This is used to avoid concurrent
+    * modification exceptions when deleting objects
+    */
+  private enum DeleteState {
+
+    /** The GameObject is deleted. */
+    case Deleted
+
+    /** The GameObject should be deleted at the end of the frame. */
+    case ToDelete
+
+    /** The GameObject should not be deleted. */
+    case Nope
+  }
+  import DeleteState.*
 
   /** Whether or not this GameObject should be deleted.
     * @note
@@ -118,22 +131,31 @@ abstract class GameObject(
   /** Deletes this GameObject and all its children. The parent of this
     * GameObject will remove it from its children list in deleteIfNeeded.
     */
-  def delete(): Unit =
+  private def delete(): Unit =
     deleteState = Deleted
     onDeletion()
     parent = None
     children.foreach(_.delete())
     children.clear()
 
+  /** Marks this GameObject for deletion. The GameObject will be deleted at the
+    * end of the current frame.
+    */
+  def markForDeletion() =
+    deleteState = ToDelete
+
   /** Deletes this GameObject if it's marked for deletion. Also deletes all
     * children that are marked for deletion.
+    * @note
+    *   THIS METHOD SHOULD ONLY BE USED BY THE GAME ENGINE. If you want to
+    *   delete a GameObject, use markForDeletion instead.
     * @return
     *   Whether or not this GameObject was deleted.
     */
   def deleteIfNeeded(): Boolean =
     if deleteState == ToDelete then delete()
     children.filterInPlace(!_.deleteIfNeeded())
-    deleteState == Deleted
+    return deleteState == Deleted
 
   /** Tests if this GameObject is equal to another GameObject.
     * @param x
@@ -149,9 +171,7 @@ abstract class GameObject(
       case _             => false
     }
 
-  /** Gets the global transform of this GameObject.
-    * @return
-    *   The global transform of this GameObject.
+  /** Returns the global transform of this GameObject.
     * @note
     *   The global transform is the transform of this GameObject relative to the
     *   global transform of the parent GameObject.
@@ -175,6 +195,6 @@ object GameObject {
     */
   private def nextId: Int = {
     lastId += 1
-    lastId - 1
+    return lastId - 1
   }
 }

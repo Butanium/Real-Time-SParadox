@@ -2,20 +2,19 @@ package engine2D.objects
 
 import engine2D.GameEngine
 import sfml.system.Vector2
-import engine2D.objects.DeleteState.*
 
 /** A GameUnit is a MovingObject that has health and can die.
   *
-  * @param engine
-  *   The GameEngine that this GameUnit belongs to.
-  * @param parent
-  *   The parent GameObject of this GameUnit.
-  * @param active
-  *   Whether or not this GameUnit is active.
   * @param maxHealth
   *   The maximum health of this GameUnit.
   * @param speed
   *   The speed of this GameUnit.
+  * @param engine
+  *   The GameEngine that this GameUnit belongs to.
+  * @param baseRotation
+  *   The base rotation of this GameUnit.
+  * @param active
+  *   Whether or not this GameUnit is active.
   */
 class GameUnit(
     val maxHealth: Int,
@@ -23,7 +22,7 @@ class GameUnit(
     engine: GameEngine,
     baseRotation: Float = 0,
     active: Boolean = true
-) extends MovingObject(speed, engine, baseRotation, active=active) {
+) extends MovingObject(speed, engine, baseRotation, active = active) {
 
   /** The current health of this GameUnit.
     */
@@ -32,7 +31,7 @@ class GameUnit(
   /** Called when this GameUnit dies (health <= 0). Will be checked only when
     * the GameUnit is updated.
     */
-  def onDeath() = deleteState = ToDelete
+  def onDeath() = markForDeletion()
 
   override def onUpdate() = {
     if (health <= 0) then {

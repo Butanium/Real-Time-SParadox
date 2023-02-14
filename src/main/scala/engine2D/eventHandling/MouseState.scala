@@ -5,7 +5,7 @@ import sfml.system.Vector2
 import sfml.window.Mouse.Button
 import sfml.graphics.RenderWindow
 
-/** Stores the state of the mouse
+/** Stores the state of the mouse. i.e the position and the state of the buttons
   *
   * @param window
   *   the window to get the mouse position from

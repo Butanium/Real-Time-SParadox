@@ -19,6 +19,9 @@ abstract class Game(
     val backgroundColor: sfml.graphics.Color = sfml.graphics.Color.Black(),
     val debug: Boolean = false
 ) {
+
+  /** The game engine
+    */
   val engine: GameEngine
 
   /** Initialize the game, called once before starting the game loop
@@ -62,12 +65,12 @@ abstract class Game(
       if debug then println()
       step()
 
-      val currentTime = System.nanoTime()
       if debug then
+        val currentTime = System.nanoTime()
         // print fps
         val fps: Int = (1.0 / (currentTime - lastTime) * 1000000000).toInt
         println(s"Frame per seconds: $fps")
-      lastTime = currentTime
+        lastTime = currentTime
 
   }
 }

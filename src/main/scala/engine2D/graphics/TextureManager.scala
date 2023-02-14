@@ -11,6 +11,14 @@ package engine2D.graphics
 object TextureManager {
   private val textures =
     scala.collection.mutable.Map[String, sfml.graphics.Texture]()
+
+  /** Get a texture from the resources folder.
+    * @param path
+    *   The path to the texture, relative to the resources folder.
+    * @note
+    *   If the texture is already loaded, it will not be loaded again. Instead,
+    *   the already loaded texture will be returned.
+    */
   def getTexture(path: String): sfml.graphics.Texture = {
     if (textures.contains(path)) {
       textures(path)

@@ -2,7 +2,6 @@ package engine2D.objects
 
 import engine2D.GameEngine
 import sfml.system.Vector2
-import engine2D.objects.DeleteState.*
 
 /** A MovingObject is a GameObject that can move.
   * @param speed
@@ -10,26 +9,26 @@ import engine2D.objects.DeleteState.*
   * @param engine
   *   The GameEngine that this MovingObject belongs to.
   * @param baseRotation
-  *   The base rotation of this MovingObject. The rotation will be set to this
-  *   value when the direction is (0, 0).
-  * @param active
-  *   Whether or not this MovingObject is active.
+  *   The base rotation of this MovingObject. The rotation of this MovingObject
+  *   will be set to baseRotation + directionAngle.
   * @param rooted
   *   Whether or not this MovingObject is rooted. If it's rooted, it won't move.
   * @param rotationEnabled
   *   Whether or not this MovingObject can rotate. If it is set to false, the
   *   game object will keep its current rotation.
+  * @param active
+  *   Whether or not this MovingObject is active.
   */
 class MovingObject(
     var speed: Float,
     engine: GameEngine,
     var baseRotation: Float = 0,
+    var rooted: Boolean = false,
+    var rotationEnabled: Boolean = true,
     active: Boolean = true
 ) extends GameObject(engine, active) {
   private var direction: Vector2[Float] = (0, 0)
   rotation = baseRotation
-  var rooted: Boolean = false
-  var rotationEnabled: Boolean = true
 
   /** Sets the direction of this MovingObject. The direction will be normalized.
     * @param newDirection
