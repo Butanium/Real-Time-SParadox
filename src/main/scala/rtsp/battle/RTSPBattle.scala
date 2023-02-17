@@ -35,7 +35,7 @@ class RTSPBattle(private val team1 : List[RTSPWarrior], private val team2 : List
         losers
     }
     // fonction alliés / ennemis
-    def getEnnemies(idTeam : Int) = {
+    def getEnemies(idTeam : Int) = {
         teams(1-idTeam)
     }
 
