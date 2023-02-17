@@ -23,7 +23,7 @@ import engine2D.eventHandling.MouseEvent
 abstract class GameObject(
     var engine: GameEngine,
     var active: Boolean = true
-) extends Transformable
+) extends GameTransorm
     with Drawable {
 
   /** The parent of this GameObject. If it's None, this GameObject has no
