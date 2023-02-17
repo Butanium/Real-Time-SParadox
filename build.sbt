@@ -4,11 +4,11 @@ scalaVersion := "3.2.2"
 enablePlugins(ScalaNativePlugin)
 
 nativeConfig ~= {
-  // _.withIncrementalCompilation(true)
-    _.withLTO(LTO.thin)
+  _.withIncrementalCompilation(true)
+    .withLTO(LTO.thin)
     .withMode(Mode.debug)
 }
-
+scalacOptions ++= Seq("-unchecked", "-deprecation")
 githubSuppressPublicationWarning := true
 githubTokenSource := TokenSource.GitConfig("github.token")
 
