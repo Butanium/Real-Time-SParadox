@@ -9,10 +9,14 @@ import rtsp.battle.Behavior
   Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
 */
 
-class RTSPWarrior (engine: RTSPGameEngine, battle: RTSPBattle, var team: Int, var range : Int, var damage : Int, var behavior : Behavior)
+class RTSPWarrior (engine: RTSPGameEngine, battle: RTSPBattle, var team: Int, var range : Int, var attackDamage : Int, var behavior : Behavior, var attackDelay : Float)
   extends GameUnit(100, 1f, engine, baseRotation = 0, active = true) {
     var target : Option[RTSPWarrior] = None
-    def attack() : Unit = {
+    var currentAttackDelay = attackDelay
+    def attack() : Unit =
+      target match
+        case None => currentAttackDelay = attackDelay
+        case Some(warrior : RTSPWarrior) => if (currentAttackDelay < 0) then {warrior.health -= attackDamage} else {currentAttackDelay -= engine.deltaTime}
       
-    }
+    
 }

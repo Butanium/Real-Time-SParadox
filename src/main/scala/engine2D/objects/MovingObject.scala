@@ -59,7 +59,7 @@ class MovingObject(
     * is not rooted.
     */
   override def onUpdate() = {
-    if !rooted then move(direction * speed)
+    if !rooted then move(direction * speed * engine.deltaTime)
     super.onUpdate()
   }
 
