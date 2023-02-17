@@ -1,5 +1,0 @@
-package rtsp
-
-class RTSPBattle {
-  
-}
