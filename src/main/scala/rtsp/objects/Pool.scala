@@ -1,7 +1,7 @@
 package rtsp.objects
 import util.Random
 import rtsp.objects
-abstract class Pool(type_prob_warrior: Array [Tuple2[ShopWarrior,  Float]]) {
+class Pool(type_prob_warrior: Array [Tuple2[ShopWarrior, Float]]) {
     def coeff_sum (t:Array [Tuple2[ShopWarrior,  Float]]):Float =
         var s:Float = 0
         for i <- 0 to ((t.size) -1) do

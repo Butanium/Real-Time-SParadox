@@ -1,4 +1,5 @@
 package rtsp
+import rtsp.Constants
 class Player {
-  var money : Int = 0
+  var money : Int = Constants.STARTING_MONEY
 }
