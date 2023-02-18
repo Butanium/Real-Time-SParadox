@@ -118,6 +118,6 @@ object Behavior {
   import TargetFilter._
   import TargetType._
   import BehaviorTree._
-  def basicBehavior =
-    Node(List(ActionNode(Attack(Enemy(Closest)))))
+  def basicBehavior(battle : RTSPBattle) =
+    Behavior(Node(List(ActionNode(Attack(Enemy(Closest))))), battle)
 }
