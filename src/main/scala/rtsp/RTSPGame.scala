@@ -21,5 +21,16 @@ class RTSPGame(window: RenderWindow)
     RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle)),
     RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle))
   )
+  // Initialize units position
+  team1(0).position = (100, 100)
+  team1(1).position = (200, 100)
+  team1(2).position = (100, 200)
+  team1(3).position = (200, 200)
+  team2(0).position = (700, 100)
+  team2(1).position = (600, 100)
+  team2(2).position = (700, 200)
+  team2(3).position = (600, 200)
+  battle.team1 = team1
+  battle.team2 = team2
   override def step() = {battle.step(); super.step()}
 }

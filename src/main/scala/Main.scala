@@ -3,6 +3,7 @@ import sfml.window.*
 import engine2D.graphics.Group
 import sfml.system.Vector2
 import demo.StaticGame
+import rtsp.RTSPGame
 
 /*
   Step by step, your program should look like:
@@ -22,5 +23,5 @@ import demo.StaticGame
 
 @main def main =
   val window = RenderWindow(VideoMode(800, 800), "Demo Game")
-  val demo = DemoGame(window)
+  val demo = RTSPGame(window)
   demo.gameLoop()
