@@ -2,7 +2,6 @@ package engine2D.eventHandling
 
 import engine2D.objects.Boundable
 import sfml.window.Mouse.Button
-import scala.collection.mutable.Queue
 
 /** Enum for mouse events that can be handled
   * @param isPermanent
@@ -55,54 +54,54 @@ enum MouseEvent(
   // Clicked would be a combination of pressed and released
   // I don't think it's necessary but I'll leave it here for now
   // case ButtonClicked(val button: Button)
-  // case BoundClicked(val bound: Boundable, val button: Button)
+  // case BoundClicked(val bounds: Boundable, val button: Button)
 
-  /** Triggered when the mouse enters a bound
-    * @param bound
-    *   the bound that the mouse has to enter to trigger the event
+  /** Triggered when the mouse enters a bounds
+    * @param bounds
+    *   the bounds that the mouse has to enter to trigger the event
     * @param _isPermanent
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case MouseInBound(val bound: Boundable, _isPermanent: Boolean)
+  case MouseInBounds(val bounds: Boundable, _isPermanent: Boolean)
       extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
-  /** Triggered when the mouse leaves a bound
-    * @param bound
-    *   the bound that the mouse has to leave to trigger the event
+  /** Triggered when the mouse leaves a bounds
+    * @param bounds
+    *   the bounds that the mouse has to leave to trigger the event
     * @param _isPermanent
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case MouseOutBound(val bound: Boundable, _isPermanent: Boolean)
+  case MouseOutBounds(val bounds: Boundable, _isPermanent: Boolean)
       extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
-  /** Triggered when a button is pressed while the mouse is in a bound
-    * @param bound
-    *   the bound that the mouse has to be in to trigger the event
+  /** Triggered when a button is pressed while the mouse is in a bounds
+    * @param bounds
+    *   the bounds that the mouse has to be in to trigger the event
     * @param button
     *   the button that has to be pressed to trigger the event
     * @param _isPermanent
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case BoundPressed(
-      val bound: Boundable,
+  case BoundsPressed(
+      val bounds: Boundable,
       val button: Button,
       _isPermanent: Boolean
   ) extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
 
-  /** Triggered when a button is released while the mouse is in a bound
-    * @param bound
-    *   the bound that the mouse has to be in to trigger the event
+  /** Triggered when a button is released while the mouse is in a bounds
+    * @param bounds
+    *   the bounds that the mouse has to be in to trigger the event
     * @param button
     *   the button that has to be released to trigger the event
     * @param _isPermanent
     *   whether the event is permanent or not. If it's not permanent, it will be
     *   removed from the event queue once it's triggered
     */
-  case BoundReleased(
-      val bound: Boundable,
+  case BoundsReleased(
+      val bounds: Boundable,
       val button: Button,
       _isPermanent: Boolean
   ) extends MouseEvent(_isPermanent, MouseEvent.getNewEventId())
