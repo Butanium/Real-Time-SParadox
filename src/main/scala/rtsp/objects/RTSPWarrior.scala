@@ -85,7 +85,7 @@ object RTSPWarrior {
       behavior,
       0.5f,
       engine2D.objects.SpriteObject(
-      TextureManager.getTexture("warriors/barbarian.png"),
+      TextureManager.getTexture("warriors/warrior.png"),
       engine
       )
   )
