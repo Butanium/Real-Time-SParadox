@@ -66,7 +66,7 @@ object RTSPWarrior {
       behavior,
       1f,
       engine2D.objects.SpriteObject(
-      TextureManager.getTexture("archer.png"),
+      TextureManager.getTexture("warriors/archer.png"),
       engine
       )
     )
@@ -85,7 +85,7 @@ object RTSPWarrior {
       behavior,
       0.5f,
       engine2D.objects.SpriteObject(
-      TextureManager.getTexture("barbarian.png"),
+      TextureManager.getTexture("warriors/barbarian.png"),
       engine
       )
   )
