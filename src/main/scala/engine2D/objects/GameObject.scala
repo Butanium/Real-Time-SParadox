@@ -23,7 +23,7 @@ import engine2D.eventHandling.MouseEvent
 abstract class GameObject(
     var engine: GameEngine,
     var active: Boolean = true
-) extends GameTransorm
+) extends GameTransform
     with Drawable {
 
   /** The parent of this GameObject. If it's None, this GameObject has no
@@ -155,7 +155,7 @@ abstract class GameObject(
   def deleteIfNeeded(): Boolean =
     if deleteState == ToDelete then delete()
     children.filterInPlace(!_.deleteIfNeeded())
-    return deleteState == Deleted
+    deleteState == Deleted
 
   /** Tests if this GameObject is equal to another GameObject.
     * @param x
@@ -195,6 +195,6 @@ object GameObject {
     */
   private def nextId: Int = {
     lastId += 1
-    return lastId - 1
+    lastId - 1
   }
 }
