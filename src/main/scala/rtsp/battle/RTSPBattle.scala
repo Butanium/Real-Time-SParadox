@@ -14,7 +14,6 @@ class RTSPBattle(private val team1 : List[RTSPWarrior], private val team2 : List
         val losers = ListBuffer[Int]()
         for (team <- teams) {
             var dead = true
-
             for (warrior <- team) {
                 if (warrior.health > 0) {
                     dead = false

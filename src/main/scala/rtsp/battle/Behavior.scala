@@ -1,5 +1,6 @@
 package rtsp.battle
 import rtsp.objects.RTSPWarrior
+import rtsp.battle.WarriorAction
 import scala.util.control.NonLocalReturns
 
 enum Action(val targetType: TargetType) {
@@ -24,11 +25,10 @@ enum BehaviorTree {
   case Node(children: List[BehaviorTree])
   // case ConditionNode()
 }
+
 class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
 
   def evaluate(warrior: RTSPWarrior) = {
-    warrior.target = None
-    warrior.rooted = true
     evaluateNode(warrior, tree)
   }
   def evaluateNode(warrior: RTSPWarrior, tree: BehaviorTree): Boolean = {
@@ -60,7 +60,7 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
         ) match {
           case None => false
           case Some(target) =>
-            warrior.target = Some(target)
+            warrior.action = WarriorAction.Attack(target)
             true
         }
       }
@@ -73,7 +73,7 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
           case None => false
           case Some(target) =>
             warrior.rooted = false
-            warrior.changeDirectionTo(target)
+            warrior.action = WarriorAction.Move(target)
             true
         }
 
