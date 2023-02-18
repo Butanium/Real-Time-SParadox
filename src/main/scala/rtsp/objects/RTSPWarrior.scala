@@ -6,27 +6,32 @@ import rtsp.battle.Behavior
 import rtsp.battle.WarriorAction
 import engine2D.objects.SpriteObject
 import engine2D.graphics.TextureManager
+import engine2D.GameEngine
 /*
   Utiliser l'arbre de comportement
   Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
  */
 
 class RTSPWarrior(
-    engine: RTSPGameEngine,
+    engine: GameEngine,
     battle: RTSPBattle,
     var team: Int,
+    var maxHP: Int,
     var range: Int,
     var attackDamage: Int,
     var behavior: Behavior,
     var attackDelay: Float,
-    val sprite: SpriteObject
-) extends GameUnit(100, 1f, engine, baseRotation = 0, active = true) {
+    val sprite: SpriteObject,
+    val debug: Boolean = false
+) extends GameUnit(maxHP, 1f, engine, baseRotation = 0, active = true) {
   import WarriorAction.*
   var action = Idle
   var currentAttackDelay = attackDelay
-  def attack(target: RTSPWarrior): Unit =
+  add(sprite)
+  def attack(target: RTSPWarrior): Unit = {
+    rooted = true
     if (currentAttackDelay < 0) then { target.health -= attackDamage }
-    else { currentAttackDelay -= engine.deltaTime }
+    else { currentAttackDelay -= engine.deltaTime }}
 
   def executeMove(target: engine2D.objects.GameTransform): Unit = {
     rooted = false
@@ -36,8 +41,8 @@ class RTSPWarrior(
   def executeAction(): Unit = {
     action match
       case Attack(target) => sprite.color = sfml.graphics.Color.Blue(); attack(target); target.sprite.color = sfml.graphics.Color.Red()
-      case Move(target)   => executeMove(target)
-      case Idle           => ()
+      case Move(target)   => executeMove(target); currentAttackDelay = attackDelay
+      case Idle           => currentAttackDelay = attackDelay
   }
   def canAttack(target: RTSPWarrior): Boolean = {
     distanceTo(target) <= range
@@ -47,20 +52,27 @@ class RTSPWarrior(
   override def update(): Unit = {
     super.update()
     executeAction()
+    if (debug) {
+      println(s"Warrior $this")
+      println(s"  team: $team")
+      println(s"  action: $action")
+      println(s"  behavior: $behavior")}
   }
 }
 
 object RTSPWarrior {
   def createArcher(
-      engine: RTSPGameEngine,
+      engine: GameEngine,
       battle: RTSPBattle,
       team: Int,
-      behavior: Behavior
+      behavior: Behavior,
+      debug: Boolean = false
   ) =
     new RTSPWarrior(
       engine,
       battle,
       team,
+      1000,
       5,
       10,
       behavior,
@@ -68,25 +80,29 @@ object RTSPWarrior {
       engine2D.objects.SpriteObject(
       TextureManager.getTexture("warriors/archer.png"),
       engine
-      )
+      ),
+      debug = debug
     )
   def createBarbarian(
-      engine: RTSPGameEngine,
+      engine: GameEngine,
       battle: RTSPBattle,
       team: Int,
-      behavior: Behavior
+      behavior: Behavior,
+      debug: Boolean = false
   ) =
     new RTSPWarrior(
       engine,
       battle,
       team,
+      1800,
       1,
       20,
       behavior,
       0.5f,
       engine2D.objects.SpriteObject(
       TextureManager.getTexture("warriors/warrior.png"),
-      engine
-      )
+      engine,
+      ),
+      debug = debug
   )
 }
