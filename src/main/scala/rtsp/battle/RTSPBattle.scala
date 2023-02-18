@@ -10,11 +10,12 @@ class RTSPBattle() {
   // Lancer la bataille: faire bouger les warriors non morts
     var team1 = List[RTSPWarrior]()
     var team2 = List[RTSPWarrior]()
-    private val teams = Array[List[RTSPWarrior]](team1, team2)
+    //private val teams = Array[List[RTSPWarrior]](team1, team2)
     def step() = {
         // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)
-        val losers = ListBuffer[Int]()
-        for (team <- teams) {
+        var losers = ListBuffer[Int]()
+        var idTeam = 1
+        for (team <- List(team1, team2)) {
             var dead = true
             for (warrior <- team) {
                 if (warrior.health > 0) {
@@ -22,10 +23,15 @@ class RTSPBattle() {
                 }
             }
             if (dead) {
-                losers += teams.indexOf(team)
+                losers += idTeam
+            }
+            if (idTeam == 1) {
+                idTeam = 2
+            } else {
+                idTeam = 1
             }
         }
-        for (team <- teams) {
+        for (team <- List(team1, team2)) {
             for (warrior <- team) {
                 if (warrior.health > 0) {
                     // Le warrior agit
@@ -37,11 +43,19 @@ class RTSPBattle() {
     }
     // fonction alliés / ennemis
     def getEnemies(idTeam : Int) = {
-        teams(1-idTeam)
+        if (idTeam == 1) {
+            team2
+        } else {
+            team1
+        }
     }
 
     def getAllies(idTeam : Int) = {
-        teams(idTeam)
+        if (idTeam == 1) {
+            team1
+        } else {
+            team2
+        }
     }
     
 }
