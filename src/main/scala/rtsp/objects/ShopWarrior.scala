@@ -16,9 +16,10 @@ class ShopWarrior(
     with Buyable {
         val sprite = SpriteObject(spriteTexture, engine)
         addChildren(sprite)
-        def when_clicked = 
+        def when_clicked =
             // TODO: définir la condition banc plein pour ne pas acheter de warrior quand il l'est 
             if affordable then
+                print("Un warrior a été acheté!")
                 player.money -= price
                 shop.replace(shop_position)
                 //TODO: définir une fonction qui envoie le RTSPWarrior sur le banc
