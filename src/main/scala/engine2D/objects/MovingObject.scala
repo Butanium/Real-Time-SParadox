@@ -25,8 +25,7 @@ class MovingObject(
     var baseRotation: Float = 0,
     var rooted: Boolean = false,
     var rotationEnabled: Boolean = true,
-    active: Boolean = true
-) extends GameObject(engine, active) {
+) extends GameObject(engine) {
   private var _direction: Vector2[Float] = (0, 0)
   rotation = baseRotation
 
@@ -59,7 +58,7 @@ class MovingObject(
     * @param newDirection
     *   The new direction of this MovingObject.
     */
-  def direction_(newDirection: Vector2[Float]) = changeDirection(newDirection)
+  def direction_=(newDirection: Vector2[Float]) = changeDirection(newDirection)
 
   def changeDirectionTo(target: GameTransform) = {
     changeDirection(target.position + (position * -1))

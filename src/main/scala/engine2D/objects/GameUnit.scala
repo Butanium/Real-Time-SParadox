@@ -21,8 +21,7 @@ class GameUnit(
     speed: Float,
     engine: GameEngine,
     baseRotation: Float = 0,
-    active: Boolean = true
-) extends MovingObject(speed, engine, baseRotation, active = active) {
+) extends MovingObject(speed, engine, baseRotation) {
 
   /** The current health of this GameUnit.
     */
