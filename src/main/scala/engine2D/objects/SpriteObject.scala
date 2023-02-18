@@ -15,7 +15,7 @@ import sfml.system.Vector2
   *   updated or drawn.
   */
 class SpriteObject(
-    texture: sfml.graphics.Texture,
+    val texture: sfml.graphics.Texture,
     engine: GameEngine
 ) extends GraphicObject(sfml.graphics.Sprite(texture), engine)
     with Boundable {
@@ -70,12 +70,62 @@ class SpriteObject(
 
   def width: Float = sprite.globalBounds.width
   def height: Float = sprite.globalBounds.height
+
+  /** Set the width of the sprite.
+    * @param width
+    *   The new width of the sprite.
+    * @param keepRatio
+    *   Whether or not to keep the ratio of the sprite.
+    */
   def setWidth(width: Float, keepRatio: Boolean = true): Unit =
     val scaleRatio = width / sprite.globalBounds.width
     if keepRatio then sprite.scale(scaleRatio, scaleRatio)
     else sprite.scale(scaleRatio, 1)
+
+  /** Set the height of the sprite.
+    * @param height
+    *   The new height of the sprite.
+    * @param keepRatio
+    *   Whether or not to keep the ratio of the sprite.
+    */
   def setHeight(height: Float, keepRatio: Boolean = true): Unit =
     val scaleRatio = height / sprite.globalBounds.height
     if keepRatio then sprite.scale(scaleRatio, scaleRatio)
     else sprite.scale(1, scaleRatio)
+
+  /** Set the size of the sprite. It will use the smallest scale ratio to ensure
+    * that the sprite fits in the given dimensions.
+    * @param width
+    *   The new width of the sprite.
+    * @param height
+    *   The new height of the sprite.
+    * @note
+    *   This method will not change the position of the sprite.
+    */
+  def boundDimensions(width: Float, height: Float): Unit =
+    val scaleRatio = math.min(
+      width / sprite.globalBounds.width,
+      height / sprite.globalBounds.height
+    )
+    sprite.scale(scaleRatio, scaleRatio)
+
+  /** Set the size of the sprite. It will use the smallest scale ratio to ensure
+    * that the sprite fits in the given dimensions. It will also center the
+    * sprite in the given dimensions.
+    * @param rect
+    *   The new dimensions of the sprite.
+    * @note
+    *   This methode WILL change the position of the sprite.
+    */
+  def boundAndCenter(rect: Rect[Float]): Unit =
+    val scaleRatio = math.min(
+      rect.width / sprite.globalBounds.width,
+      rect.height / sprite.globalBounds.height
+    )
+    sprite.scale(scaleRatio, scaleRatio)
+    sprite.position = Vector2(
+      rect.left + (rect.width - sprite.globalBounds.width) / 2f,
+      rect.top + (rect.height - sprite.globalBounds.height) / 2f
+    )
+
 }
