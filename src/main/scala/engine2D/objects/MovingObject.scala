@@ -27,7 +27,7 @@ class MovingObject(
     var rotationEnabled: Boolean = true,
     active: Boolean = true
 ) extends GameObject(engine, active) {
-  private var direction: Vector2[Float] = (0, 0)
+  private var _direction: Vector2[Float] = (0, 0)
   rotation = baseRotation
 
   /** Sets the direction of this MovingObject. The direction will be normalized.
@@ -35,31 +35,41 @@ class MovingObject(
     *   The new direction of this MovingObject.
     */
   def changeDirection(newDirection: Vector2[Float]) = {
-    if newDirection.x == 0 && newDirection.y == 0 then direction = newDirection
+    if newDirection.x == 0 && newDirection.y == 0 then _direction = newDirection
     else
-      direction = newDirection * (1 / math.sqrt(
+      _direction = newDirection * (1 / math.sqrt(
         newDirection.x * newDirection.x + newDirection.y * newDirection.y
       )).toFloat
       if rotationEnabled then
         rotation = baseRotation +
-          math.atan2(-direction.y, direction.x).toFloat * 180 / math.Pi.toFloat
+          math
+            .atan2(-_direction.y, _direction.x)
+            .toFloat * 180 / math.Pi.toFloat
   }
 
   /** Resets the rotation of this MovingObject to the base rotation.
     */
   def resetRotation() = rotation = baseRotation
 
-  /** Returns the direction of this MovingObject.
-    * @return
-    *   The direction of this MovingObject.
+  /** The direction of this MovingObject.
     */
-  def getDirection(): Vector2[Float] = direction
+  def direction: Vector2[Float] = _direction
+
+  /** Changes the direction of this MovingObject.
+    * @param newDirection
+    *   The new direction of this MovingObject.
+    */
+  def direction_(newDirection: Vector2[Float]) = changeDirection(newDirection)
+
+  def changeDirectionTo(target: GameTransform) = {
+    changeDirection(target.position + (position * -1))
+  }
 
   /** Called when this MovingObject is updated. Will move the MovingObject if it
     * is not rooted.
     */
   override def onUpdate() = {
-    if !rooted then move(direction * speed * engine.deltaTime)
+    if !rooted then move(_direction * speed * engine.deltaTime)
     super.onUpdate()
   }
 
