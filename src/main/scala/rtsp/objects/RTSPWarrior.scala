@@ -9,6 +9,12 @@ import rtsp.battle.Behavior
   Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
  */
 
+enum WarriorAction(target: RTSPWarrior) {
+  case Attack(_target: RTSPWarrior) extends WarriorAction(_target)
+  case Move(_target: RTSPWarrior) extends WarriorAction(_target)
+  case Idle extends WarriorAction(null)
+}
+
 class RTSPWarrior(
     engine: RTSPGameEngine,
     battle: RTSPBattle,
@@ -18,14 +24,23 @@ class RTSPWarrior(
     var behavior: Behavior,
     var attackDelay: Float
 ) extends GameUnit(100, 1f, engine, baseRotation = 0, active = true) {
-  var target: Option[RTSPWarrior] = None
+  import WarriorAction.*
+  var action = Idle
   var currentAttackDelay = attackDelay
-  def attack(): Unit =
-    target match
-      case None => currentAttackDelay = attackDelay
-      case Some(warrior: RTSPWarrior) =>
-        if (currentAttackDelay < 0) then { warrior.health -= attackDamage }
-        else { currentAttackDelay -= engine.deltaTime }
+  def attack(target: RTSPWarrior): Unit =
+    if (currentAttackDelay < 0) then { target.health -= attackDamage }
+    else { currentAttackDelay -= engine.deltaTime }
+
+  def executeMove(target: engine2D.objects.GameTransform): Unit = {
+
+  }
+
+  def executeAction(): Unit = {
+    action match
+      case Attack(target) => attack(target)
+      case Move(target)   => executeMove(target)
+      case Idle           => ()
+  }
   def canAttack(target: RTSPWarrior): Boolean = {
     distanceTo(target) <= range
   }
