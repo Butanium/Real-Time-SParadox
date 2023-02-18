@@ -33,11 +33,16 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
   }
   def evaluateNode(warrior: RTSPWarrior, tree: BehaviorTree): Boolean = {
     import BehaviorTree._
-    tree match
-      case ActionNode(action) => return evaluateAction(warrior, action)
-      case Node(children) =>
-        children.exists(evaluateNode(warrior, _))
-    false
+    val actionFound = {
+      tree match
+        case ActionNode(action) => return evaluateAction(warrior, action)
+        case Node(children) =>
+          children.exists(evaluateNode(warrior, _))
+    }
+    if (!actionFound) {
+      warrior.action = WarriorAction.Idle
+    }
+    actionFound
   }
 
   /** Evaluate if an action is valid. If it is, the action is executed.
@@ -118,6 +123,14 @@ object Behavior {
   import TargetFilter._
   import TargetType._
   import BehaviorTree._
-  def basicBehavior(battle : RTSPBattle) =
-    Behavior(Node(List(ActionNode(Attack(Enemy(Closest))))), battle)
+  def basicBehavior(battle: RTSPBattle) =
+    Behavior(
+      Node(
+        List(
+          ActionNode(Attack(Enemy(Closest))),
+          ActionNode(Move(Enemy(Closest)))
+        )
+      ),
+      battle
+    )
 }
