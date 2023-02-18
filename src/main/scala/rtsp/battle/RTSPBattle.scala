@@ -6,8 +6,10 @@ import scala.collection.mutable.ListBuffer
     Il faut stocker les équipes dans une liste de liste de warriors: List[List[RTSPWarriors]]
 */
 
-class RTSPBattle(private val team1 : List[RTSPWarrior], private val team2 : List[RTSPWarrior]) {
+class RTSPBattle() {
   // Lancer la bataille: faire bouger les warriors non morts
+    var team1 = List[RTSPWarrior]()
+    var team2 = List[RTSPWarrior]()
     private val teams = Array[List[RTSPWarrior]](team1, team2)
     def step() = {
         // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)

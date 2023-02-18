@@ -6,13 +6,14 @@ import rtsp.battle.Behavior
 import rtsp.battle.WarriorAction
 import engine2D.objects.SpriteObject
 import engine2D.graphics.TextureManager
+import engine2D.GameEngine
 /*
   Utiliser l'arbre de comportement
   Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
  */
 
 class RTSPWarrior(
-    engine: RTSPGameEngine,
+    engine: GameEngine,
     battle: RTSPBattle,
     var team: Int,
     var range: Int,
@@ -52,7 +53,7 @@ class RTSPWarrior(
 
 object RTSPWarrior {
   def createArcher(
-      engine: RTSPGameEngine,
+      engine: GameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior
@@ -71,7 +72,7 @@ object RTSPWarrior {
       )
     )
   def createBarbarian(
-      engine: RTSPGameEngine,
+      engine: GameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior
