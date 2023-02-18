@@ -16,9 +16,8 @@ import sfml.system.Vector2
   */
 class SpriteObject(
     texture: sfml.graphics.Texture,
-    engine: GameEngine,
-    active: Boolean = true
-) extends GraphicObject(sfml.graphics.Sprite(texture), engine, active)
+    engine: GameEngine
+) extends GraphicObject(sfml.graphics.Sprite(texture), engine)
     with Boundable {
 
   /** The Sprite of this SpriteObject.
@@ -62,4 +61,21 @@ class SpriteObject(
     */
   override def contains(point: Vector2[Float]): Boolean =
     globalBounds.contains(point)
+
+  def resize(width: Float, height: Float): Unit =
+    sprite.scale(
+      width / sprite.globalBounds.width,
+      height / sprite.globalBounds.height
+    )
+
+  def width: Float = sprite.globalBounds.width
+  def height: Float = sprite.globalBounds.height
+  def setWidth(width: Float, keepRatio: Boolean = true): Unit =
+    val scaleRatio = width / sprite.globalBounds.width
+    if keepRatio then sprite.scale(scaleRatio, scaleRatio)
+    else sprite.scale(scaleRatio, 1)
+  def setHeight(height: Float, keepRatio: Boolean = true): Unit =
+    val scaleRatio = height / sprite.globalBounds.height
+    if keepRatio then sprite.scale(scaleRatio, scaleRatio)
+    else sprite.scale(1, scaleRatio)
 }
