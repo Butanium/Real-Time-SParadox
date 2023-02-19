@@ -2,6 +2,7 @@ package engine2D.objects
 
 import engine2D.GameEngine
 import sfml.system.Vector2
+import scala.annotation.newMain
 
 /** A MovingObject is a GameObject that can move.
   * @param speed
@@ -10,7 +11,8 @@ import sfml.system.Vector2
   *   The GameEngine that this MovingObject belongs to.
   * @param baseRotation
   *   The base rotation of this MovingObject. The rotation of this MovingObject
-  *   will be set to baseRotation + directionAngle.
+  *   will be set to baseRotation + directionAngle. This has to be given in
+  *   degrees.
   * @param rooted
   *   Whether or not this MovingObject is rooted. If it's rooted, it won't move.
   * @param rotationEnabled
@@ -22,9 +24,8 @@ import sfml.system.Vector2
 class MovingObject(
     var speed: Float,
     engine: GameEngine,
-    var baseRotation: Float = 0,
     var rooted: Boolean = false,
-    var rotationEnabled: Boolean = true,
+    var rotationEnabled: Boolean = true
 ) extends GameObject(engine) {
   private var _direction: Vector2[Float] = (0, 0)
   rotation = baseRotation
@@ -40,7 +41,7 @@ class MovingObject(
         newDirection.x * newDirection.x + newDirection.y * newDirection.y
       )).toFloat
       if rotationEnabled then
-        rotation = baseRotation +
+        rotation = _baseRotation +
           math
             .atan2(-_direction.y, _direction.x)
             .toFloat * 180 / math.Pi.toFloat
@@ -59,6 +60,12 @@ class MovingObject(
     *   The new direction of this MovingObject.
     */
   def direction_=(newDirection: Vector2[Float]) = changeDirection(newDirection)
+  private var _baseRotation: Float = 0f
+  def baseRotation: Float = _baseRotation
+  def baseRotation_=(newBaseRotation: Float) = {
+    rotation += newBaseRotation - baseRotation 
+    _baseRotation = newBaseRotation
+  }
 
   def changeDirectionTo(target: GameTransform) = {
     changeDirection(target.position + (position * -1))

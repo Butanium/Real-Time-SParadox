@@ -23,7 +23,7 @@ class RTSPWarrior(
     var attackDelay: Float,
     val sprite: SpriteObject,
     val debug: Boolean = false
-) extends GameUnit(maxHP, 1f, engine, baseRotation = 0) {
+) extends GameUnit(maxHP, 1f, engine) {
   import WarriorAction.*
   var action = Idle
   var currentAttackDelay = attackDelay
