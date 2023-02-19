@@ -106,7 +106,7 @@ abstract class GameObject(
 
   /** Updates this GameObject and all its children if it's active.
     */
-  def update(): Unit =
+  final def update(): Unit =
     if active then onUpdate()
 
   /** Adds children to this GameObject.
