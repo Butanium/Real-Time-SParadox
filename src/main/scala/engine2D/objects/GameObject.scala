@@ -96,7 +96,7 @@ abstract class GameObject(
     */
   protected def onDraw(target: RenderTarget, states: RenderStates): Unit =
     children.foreach(_.draw(target, GrUtils.newState(states, transform)))
-  def draw(target: RenderTarget, states: RenderStates): Unit =
+  final def draw(target: RenderTarget, states: RenderStates): Unit =
     if active then onDraw(target, states)
 
   /** Called when this GameObject is updated. This method is called only if this
@@ -139,7 +139,7 @@ abstract class GameObject(
   /** Deletes this GameObject and all its children. The parent of this
     * GameObject will remove it from its children list in deleteIfNeeded.
     */
-  private def delete(): Unit =
+  final private def delete(): Unit =
     deleteState = Deleted
     onDeletion()
     parent = None
