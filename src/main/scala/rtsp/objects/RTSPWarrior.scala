@@ -19,17 +19,22 @@ class RTSPWarrior(
     var maxHP: Int,
     var range: Int,
     var attackDamage: Int,
-    var behavior: Behavior,
     var attackDelay: Float,
+    speed: Float,
+    var behavior: Behavior,
     val sprite: SpriteObject,
     val debug: Boolean = false
-) extends GameUnit(maxHP, 1f, engine) {
+) extends GameUnit(maxHP, speed, engine) {
+  setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
   var currentAttackDelay = attackDelay
   add(sprite)
   def attack(target: RTSPWarrior): Unit = {
-    if debug then println(f"can attack target: ${canAttack(target)}, distance: ${distanceTo(target)}")
+    if debug then
+      println(
+        f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
+      )
     rooted = true
     if (currentAttackDelay < 0) then { target.health -= attackDamage }
     else { currentAttackDelay -= engine.deltaTime }
@@ -40,7 +45,11 @@ class RTSPWarrior(
     changeDirectionTo(target)
   }
 
+  override def onDeath(): Unit =
+    active = false
+
   def executeAction(): Unit = {
+    assert(active)
     action match
       case Attack(target) =>
         sprite.color = sfml.graphics.Color.Blue(); attack(target);
@@ -53,15 +62,15 @@ class RTSPWarrior(
   }
   def canMove(target: engine2D.objects.GameTransform) = true
 
-  override def update(): Unit = {
-    super.update()
+  override def onUpdate(): Unit = {
     executeAction()
     if (debug) {
-      println(s"Warrior $this")
+      println(s"Warrior ${this.id}")
       println(s"  team: $team")
       println(s"  action: $action")
       println(s"  behavior: $behavior")
     }
+    super.onUpdate()
   }
 }
 
@@ -77,11 +86,12 @@ object RTSPWarrior {
       engine,
       battle,
       team,
-      1000,
-      5,
-      10,
+      maxHP = 1000,
+      range = 100,
+      attackDamage = 10,
+      attackDelay = 1f,
+      speed = 10f,
       behavior,
-      1f,
       engine2D.objects.SpriteObject(
         TextureManager.getTexture("warriors/archer.png"),
         engine
@@ -99,11 +109,12 @@ object RTSPWarrior {
       engine,
       battle,
       team,
-      1800,
-      1,
-      20,
+      maxHP = 1800,
+      range = 10,
+      attackDamage = 20,
+      attackDelay = 0.5f,
+      speed = 20f,
       behavior,
-      0.5f,
       engine2D.objects.SpriteObject(
         TextureManager.getTexture("warriors/warrior.png"),
         engine

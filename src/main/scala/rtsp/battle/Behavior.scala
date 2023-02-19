@@ -95,8 +95,8 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
       targetType: TargetType
   ): List[RTSPWarrior] = {
     targetType match
-      case TargetType.Enemy(filter) => battle.getAllies(warrior.team)
-      case TargetType.Ally(filter)  => battle.getEnemies(warrior.team)
+      case TargetType.Enemy(filter) => battle.getEnemies(warrior.team)
+      case TargetType.Ally(filter)  => battle.getAllies(warrior.team)
   }
 
   /** Evaluate the target filter and return the target

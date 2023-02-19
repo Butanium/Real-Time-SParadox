@@ -10,16 +10,16 @@ class RTSPGame(window: RenderWindow)
   val engine = new RTSPGameEngine(1f/60, window, debug = false)
   val battle = new RTSPBattle()
   val team1 = List(
-    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug = true),
-    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug = false),
-    RTSPWarrior.createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug = false),
-    RTSPWarrior.createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug = false)
+    RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug)
   )
   val team2 = List(
-    RTSPWarrior.createArcher(engine, battle, 2, Behavior.basicBehavior(battle), debug = false),
-    RTSPWarrior.createArcher(engine, battle, 2, Behavior.basicBehavior(battle), debug = false),
-    RTSPWarrior.createArcher(engine, battle, 2, Behavior.basicBehavior(battle), debug = false),
-    RTSPWarrior.createBarbarian(engine, battle, 2, Behavior.basicBehavior(battle), debug = true)
+    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug)
   )
   // Initialize units position
   team1(0).position = (100, 100)
@@ -30,12 +30,9 @@ class RTSPGame(window: RenderWindow)
   team2(1).position = (600, 100)
   team2(2).position = (700, 200)
   team2(3).position = (600, 200)
-  battle.team1 = team1
-  battle.team2 = team2
+  battle.team0 = team1
+  battle.team1 = team2
   // Print teams size
-  println("Size team 1:" + team1.size + " Size team 2:" + team2.size)
-
-  println("Size enemies: " + battle.getEnemies(1).size + " Size allies: " + battle.getAllies(1).size)
   
   override def step() = {battle.step(); super.step()}
   override def init() = {
