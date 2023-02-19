@@ -4,6 +4,7 @@ import engine2D.GameEngine
 import sfml.graphics.Rect
 import sfml.graphics.Sprite
 import sfml.system.Vector2
+import engine2D.graphics.TextureManager
 
 /** A SpriteObject is a GraphicObject that is instantiated with a Texture.
   * @param texture
@@ -128,4 +129,28 @@ class SpriteObject(
       rect.top + (rect.height - sprite.globalBounds.height) / 2f
     )
 
+}
+
+object SpriteObject {
+
+  /** Create a new SpriteObject from a file.
+    * @param filename
+    *   The path to the file.
+    * @param engine
+    *   The GameEngine that this GameObject belongs to.
+    * @param active
+    *   Whether or not this GameObject is active. If it's not active, it won't
+    *   be updated or drawn.
+    */
+  def apply(filename: String, engine: GameEngine): SpriteObject =
+    new SpriteObject(TextureManager.getTexture(filename), engine)
+
+  /** Create a new SpriteObject from a texture.
+    * @param texture
+    *   The texture to use.
+    * @param engine
+    *   The GameEngine that this GameObject belongs to.
+    */
+  def apply(texture: sfml.graphics.Texture, engine: GameEngine): SpriteObject =
+    new SpriteObject(texture, engine)
 }
