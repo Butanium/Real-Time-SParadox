@@ -8,7 +8,7 @@ nativeConfig ~= {
   // use this if you want a more explicit stack trace:
   // _.withLTO(LTO.full).withMode(Mode.debug)
   // Use this for faster compilation:
-  _.withMode(Mode.debug)
+  _.withLTO(LTO.thin).withMode(Mode.debug)
 }
 
 githubSuppressPublicationWarning := true
