@@ -28,7 +28,8 @@ abstract class GameObject(
 
   def active: Boolean = _active
   def active_=(newValue: Boolean) =
-    // TODO: Make sure it doesn't cause bug because of listeners
+    // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
+    // states of listner and restore them when active is set to true.
     if newValue != active then
       _active = newValue
       listeners.foreach(_.active = false)
@@ -133,17 +134,17 @@ abstract class GameObject(
     */
   protected def onDeletion(): Unit =
     listeners.foreach(_.toRemove = true)
-  listeners.clear()
+    listeners.clear()
 
   /** Deletes this GameObject and all its children. The parent of this
     * GameObject will remove it from its children list in deleteIfNeeded.
     */
   private def delete(): Unit =
     deleteState = Deleted
-  onDeletion()
-  parent = None
-  children.foreach(_.delete())
-  children.clear()
+    onDeletion()
+    parent = None
+    children.foreach(_.delete())
+    children.clear()
 
   /** Marks this GameObject for deletion. The GameObject will be deleted at the
     * end of the current frame.
