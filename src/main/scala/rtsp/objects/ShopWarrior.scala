@@ -13,6 +13,7 @@ import sfml.graphics.Color
 import sfml.graphics.RectangleShape
 import engine2D.objects.GraphicObject
 import engine2D.objects.RectangleObject
+import sfml.window.Mouse
 
 class ShopWarrior(
     val warrior_id: Int,
@@ -32,7 +33,7 @@ class ShopWarrior(
   addChildren(text_price)
   text_price.position =
     (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
-  val text_type = new TextObject(type_string, engine, charSize = 20)
+  val text_type = new TextObject(type_string, engine, charSize = 16)
   text_type.fillColor = (Color(236, 191, 42))
   addChildren(text_type)
   text_type.position =
@@ -43,17 +44,18 @@ class ShopWarrior(
   rectangle.outlineThickness = 5
   rectangle.fillColor = Color(165, 245, 73, 20)
   addChildren(rectangle)
-  var shop_position: Int = (-1)
-  def change_shop_position_to(i: Int) =
-    shop_position = i
+  var shop_index: Int = (-1)
+  def change_shop_index_to(i: Int) =
+    shop_index = i
     position = shop.positionBuyable(i)
-  def when_clicked =
+  def when_clicked() =
     // TODO: définir la condition banc plein pour ne pas acheter de warrior quand il l'est
     if affordable then
       print("Un warrior a été acheté!")
       player.money -= price
-      shop.replace(shop_position)
+      shop.replace(shop_index)
       // TODO: définir une fonction qui envoie le RTSPWarrior sur le banc
+  listenToBoundsClicked(Mouse.Button.Left,rectangle,true,when_clicked)
 }
 
 object ShopWarrior {

@@ -15,8 +15,8 @@ class RTSPShopGame(window: RenderWindow)
     val joueur = new Player(0)
     val shop = new Shop(joueur, engine)
     shop.position = (
-      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness/2f,
-      window.size.y * (1 - SHOP_HEIGHT_RATIO)
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shop.thickness
     )
     engine.spawn(shop)
   }
