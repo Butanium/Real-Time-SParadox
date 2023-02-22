@@ -8,9 +8,14 @@ package engine2D.graphics
   *   It is recommended to use the texture manager to load textures. It will
   *   prevent loading the same texture twice, which can be a performance issue.
   */
-object TextureManager {
-  private val textures =
-    scala.collection.mutable.Map[String, sfml.graphics.Texture]()
+object TextureManager
+    extends GameResourceManager[sfml.graphics.Texture](
+      createResource = path => {
+        val texture = sfml.graphics.Texture()
+        texture.loadFromFile(path)
+        texture
+      }
+    ) {
 
   /** Get a texture from the resources folder.
     * @param path
@@ -19,14 +24,5 @@ object TextureManager {
     *   If the texture is already loaded, it will not be loaded again. Instead,
     *   the already loaded texture will be returned.
     */
-  def getTexture(path: String): sfml.graphics.Texture = {
-    if (textures.contains(path)) {
-      textures(path)
-    } else {
-      val texture = sfml.graphics.Texture()
-      texture.loadFromFile("src/main/resources/" + path)
-      textures(path) = texture
-      texture
-    }
-  }
+  def getTexture(path: String): sfml.graphics.Texture = getResource(path)
 }

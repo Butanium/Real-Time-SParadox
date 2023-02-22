@@ -3,6 +3,7 @@ package engine2D.objects
 import sfml.graphics.Font
 import engine2D.GameEngine
 import sfml.graphics.Text
+import engine2D.graphics.FontManager
 
 class TextObject(
     textString: String,
@@ -10,10 +11,8 @@ class TextObject(
     fontFile: String = "basic.ttf",
     charSize: Int = 24
 ) extends GameObject(engine) {
-  val font = Font()
-  font.loadFromFile("src/main/resources/fonts/" + fontFile)
   val text = Text()
-  text.font = font
+  text.font = FontManager.getFont(fontFile)
   text.string = textString
   text.characterSize = charSize
   def fillColor = text.fillColor
