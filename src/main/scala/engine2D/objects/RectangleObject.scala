@@ -6,7 +6,7 @@ class RectangleObject(
     engine: engine2D.GameEngine
 ) extends GraphicObject(sfml.graphics.RectangleShape((1, 1)), engine)
     with Boundable {
-  val rect = drawable
+  val rect = drawable.asInstanceOf[sfml.graphics.RectangleShape]
   scale = (rectWidth, rectHeight)
   def fillColor = rect.fillColor
   def fillColor_=(c: sfml.graphics.Color) = rect.fillColor = c
