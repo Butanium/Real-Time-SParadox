@@ -17,8 +17,8 @@ import engine2D.objects.SpriteObject
   * amount of DemoUnits spawned is limited.
   */
 class DemoUnit(
-    speed: Float = 0.2,
     engine: GameEngine,
+    speed: Float = 0.2,
     direction: Vector2[Float] = (1, 1)
 ) extends GameUnit(
       maxHealth = (1131 / Math.abs(speed)).toInt,
@@ -58,7 +58,7 @@ class DemoUnit(
     DemoUnit.nb_spawn -= 1
     if (DemoUnit.nb_spawn < DemoUnit.SPAWN_LIMIT) {
       for (i <- 0 to 1) {
-        val child = DemoUnit(speed, engine, direction * -1)
+        val child = DemoUnit(engine,speed, direction * -1)
         val randx: Float =
           (Math.random() * 0.33 + 0.66).toFloat * (if Math.random() > 0.5 then 1
                                                    else -1)
@@ -77,11 +77,11 @@ class DemoUnit(
     // Second way to check for mouse events. Here, the mouseState is checked in
     // order to know if the mouse is over the object. If it is, the object will
     // be scaled up. If it isn't, the object will be scaled down.
-    if (sprite.globalBounds.contains(engine.mouseState.worldPos)) {
-      scale = (1.1f, 1.1f)
-    } else {
-      scale = (1f, 1f)
-    }
+    // if (sprite.globalBounds.contains(engine.mouseState.worldPos)) {
+    //   scale = (1.1f, 1.1f)
+    // } else {
+    //   scale = (1f, 1f)
+    // }
 
     health -= 1
     super.onUpdate()

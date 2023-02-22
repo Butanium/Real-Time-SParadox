@@ -47,11 +47,11 @@ private object EventCheckCondition {
       EventCheckCondition.CheckButtonPressed(button)
     case ButtonReleased(button, _) =>
       EventCheckCondition.CheckButtonReleased(button)
-    case MouseInBound(_, _)  => EventCheckCondition.CheckNewPosition
-    case MouseOutBound(_, _) => EventCheckCondition.CheckNewPosition
-    case BoundPressed(_, button, _) =>
+    case MouseInBounds(_, _)  => EventCheckCondition.CheckNewPosition
+    case MouseOutBounds(_, _) => EventCheckCondition.CheckNewPosition
+    case BoundsPressed(_, button, _) =>
       EventCheckCondition.CheckButtonPressed(button)
-    case BoundReleased(_, button, _) =>
+    case BoundsReleased(_, button, _) =>
       EventCheckCondition.CheckButtonReleased(button)
   }
 }
@@ -143,9 +143,9 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
   ): Boolean =
     event match {
       case MouseMoved(_) => true
-      case MouseInBound(boundable, _) =>
+      case MouseInBounds(boundable, _) =>
         boundable.contains(mouseState.worldPos)
-      case MouseOutBound(boundable, _) =>
+      case MouseOutBounds(boundable, _) =>
         !boundable.contains(mouseState.worldPos)
       case _ =>
         throw new Exception("Impossible mouse event")
@@ -168,7 +168,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     event match {
       case ButtonPressed(b, _)  => b == button
       case ButtonReleased(b, _) => b == button
-      case BoundPressed(boundable, b, _) =>
+      case BoundsPressed(boundable, b, _) =>
         b == button && boundable.contains(eventPos.x, eventPos.y)
       case _ =>
         throw new Exception("Impossible button event")
@@ -200,14 +200,14 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     )
   }
 
-  /** Registers an event that will be triggered when a bound is clicked and the
+  /** Registers an event that will be triggered when a bounds is clicked and the
     * mouse is released inside the bounds. If the mouse is released outside the
     * bounds, the function will not be called
     *
     * @param button
     *   the button to check
-    * @param bound
-    *   the bound to check
+    * @param bounds
+    *   the bounds to check
     * @param isPermanent
     *   whether the click event should be permanent
     * @param function
@@ -221,7 +221,7 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
       isPermanent: Boolean,
       function: () => Unit
   ): (MouseEvent, MouseEvent) =
-    val pressEvent = BoundPressed(boundable, button, isPermanent)
+    val pressEvent = BoundsPressed(boundable, button, isPermanent)
     val releaseEvent = ButtonReleased(button, isPermanent)
     releaseEvent.active = false
     def onReleaseEvent(): Unit =
@@ -240,8 +240,8 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     *
     * @param button
     *   the button to check
-    * @param bound
-    *   the bound to check
+    * @param bounds
+    *   the bounds to check
     * @param onFlip
     *   the function to call when the event is triggered
     * @param onFlop
