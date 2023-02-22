@@ -7,19 +7,42 @@ import rtsp.battle.Behavior
 
 class RTSPGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine = new RTSPGameEngine(1f/60, window, debug = false)
+  val engine = new RTSPGameEngine(1f / 60, window, debug = false)
   val battle = new RTSPBattle()
   val team1 = List(
-    RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    RTSPWarrior
+      .createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior
+      .createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createBarbarian(
+      engine,
+      battle,
+      0,
+      Behavior.basicBehavior(battle),
+      debug
+    ),
+    RTSPWarrior.createBarbarian(
+      engine,
+      battle,
+      0,
+      Behavior.basicBehavior(battle),
+      debug
+    )
   )
   val team2 = List(
-    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
-    RTSPWarrior.createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug)
+    RTSPWarrior
+      .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior
+      .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior
+      .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+    RTSPWarrior.createBarbarian(
+      engine,
+      battle,
+      1,
+      Behavior.basicBehavior(battle),
+      debug
+    )
   )
   // Initialize units position
   team1(0).position = (100, 100)
@@ -33,11 +56,11 @@ class RTSPGame(window: RenderWindow)
   battle.team0 = team1
   battle.team1 = team2
   // Print teams size
-  
-  override def step() = {battle.step(); super.step()}
+
+  override def step() = { battle.step(); super.step() }
   override def init() = {
-    engine.spawn(team1:_*)
-    engine.spawn(team2:_*)
+    engine.spawn(team1: _*)
+    engine.spawn(team2: _*)
     super.init()
   }
 }
