@@ -7,6 +7,9 @@ import rtsp.battle.WarriorAction
 import engine2D.objects.SpriteObject
 import engine2D.graphics.TextureManager
 import engine2D.GameEngine
+import engine2D.objects.Grabbable
+import sfml.window.Mouse
+
 /*
   Utiliser l'arbre de comportement
   Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
@@ -24,7 +27,8 @@ class RTSPWarrior(
     var behavior: Behavior,
     val sprite: SpriteObject,
     val debug: Boolean = false
-) extends GameUnit(maxHP, speed, engine) {
+) extends GameUnit(maxHP, speed, engine)
+with Grabbable(Mouse.Button.Left, engine, debug = debug) {
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
