@@ -5,7 +5,8 @@ object Constants {
   object ShopConstants {
     val SHOP_HEIGHT_RATIO: Float = 0.2f
     val SHOP_WIDTH_RATIO: Float = 0.9f
-    val SHOP_THICKNESS_RATIO : Float = Math.min(SHOP_HEIGHT_RATIO,SHOP_WIDTH_RATIO)*0.05f
+    val SHOP_THICKNESS_RATIO: Float =
+      Math.min(SHOP_HEIGHT_RATIO, SHOP_WIDTH_RATIO) * 0.05f
     val SPACE_FOR_BUYABLE: Float = 0.8f
     val INIT_NB_BUYABLE: Int = 3
     val MAX_NB_BUYABLE: Int = 3
