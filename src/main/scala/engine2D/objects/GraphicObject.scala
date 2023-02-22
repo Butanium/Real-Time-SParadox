@@ -17,8 +17,7 @@ import engine2D.graphics.GrUtils
 class GraphicObject(
     var drawable: Drawable,
     engine: GameEngine,
-    active: Boolean = true
-) extends GameObject(engine, active) {
+) extends GameObject(engine) {
 
   /** Will draw the drawable and call the super method. The super method will
     * draw the children of this GameObject.

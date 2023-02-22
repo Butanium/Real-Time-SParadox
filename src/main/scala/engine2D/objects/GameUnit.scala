@@ -19,10 +19,8 @@ import sfml.system.Vector2
 class GameUnit(
     val maxHealth: Int,
     speed: Float,
-    engine: GameEngine,
-    baseRotation: Float = 0,
-    active: Boolean = true
-) extends MovingObject(speed, engine, baseRotation, active = active) {
+    engine: GameEngine
+) extends MovingObject(speed, engine) {
 
   /** The current health of this GameUnit.
     */

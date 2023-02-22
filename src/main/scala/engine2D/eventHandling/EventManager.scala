@@ -23,7 +23,7 @@ class EventManager(
   def handleEvents(): Unit =
     for event <- window.pollEvent() do
       event match
-        case _: Event.Closed => window.closeWindow()
+        case _: Event.Closed => window.close()
         case _               => mouseManager.handleEvent(event)
 
 }

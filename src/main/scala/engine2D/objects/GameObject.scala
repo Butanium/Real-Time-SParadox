@@ -21,10 +21,18 @@ import engine2D.eventHandling.MouseEvent
   *   updated or drawn.
   */
 abstract class GameObject(
-    var engine: GameEngine,
-    var active: Boolean = true
-) extends Transformable
+    var engine: GameEngine
+) extends GameTransform
     with Drawable {
+  private var _active: Boolean = true
+
+  def active: Boolean = _active
+  def active_=(newValue: Boolean) =
+    // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
+    // states of listner and restore them when active is set to true.
+    if newValue != active then
+      _active = newValue
+      listeners.foreach(_.active = false)
 
   /** The parent of this GameObject. If it's None, this GameObject has no
     * parent.
@@ -88,7 +96,7 @@ abstract class GameObject(
     */
   protected def onDraw(target: RenderTarget, states: RenderStates): Unit =
     children.foreach(_.draw(target, GrUtils.newState(states, transform)))
-  def draw(target: RenderTarget, states: RenderStates): Unit =
+  final def draw(target: RenderTarget, states: RenderStates): Unit =
     if active then onDraw(target, states)
 
   /** Called when this GameObject is updated. This method is called only if this
@@ -98,7 +106,7 @@ abstract class GameObject(
 
   /** Updates this GameObject and all its children if it's active.
     */
-  def update(): Unit =
+  final def update(): Unit =
     if active then onUpdate()
 
   /** Adds children to this GameObject.
@@ -131,7 +139,7 @@ abstract class GameObject(
   /** Deletes this GameObject and all its children. The parent of this
     * GameObject will remove it from its children list in deleteIfNeeded.
     */
-  private def delete(): Unit =
+  final private def delete(): Unit =
     deleteState = Deleted
     onDeletion()
     parent = None
@@ -155,7 +163,7 @@ abstract class GameObject(
   def deleteIfNeeded(): Boolean =
     if deleteState == ToDelete then delete()
     children.filterInPlace(!_.deleteIfNeeded())
-    return deleteState == Deleted
+    deleteState == Deleted
 
   /** Tests if this GameObject is equal to another GameObject.
     * @param x
@@ -195,6 +203,6 @@ object GameObject {
     */
   private def nextId: Int = {
     lastId += 1
-    return lastId - 1
+    lastId - 1
   }
 }
