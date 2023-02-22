@@ -14,9 +14,9 @@ import engine2D.graphics.GrUtils
   *   Whether or not this GameObject is active. If it's not active, it won't be
   *   updated or drawn.
   */
-class GraphicObject(
-    var drawable: Drawable,
-    engine: GameEngine,
+class GraphicObject[T <: Drawable](
+    var drawable: T,
+    engine: GameEngine
 ) extends GameObject(engine) {
 
   /** Will draw the drawable and call the super method. The super method will

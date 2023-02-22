@@ -11,7 +11,7 @@ class TextObject(
     fontFile: String = "basic.ttf",
     charSize: Int = 24
 ) extends GraphicObject(Text(), engine) {
-  val text = drawable.asInstanceOf[Text]
+  val text = drawable
   text.font = FontManager.getFont(fontFile)
   text.string = textString
   text.characterSize = charSize
