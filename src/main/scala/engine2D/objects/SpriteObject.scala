@@ -64,13 +64,13 @@ class SpriteObject(
     globalBounds.contains(point)
 
   def resize(width: Float, height: Float): Unit =
-    sprite.scale(
-      width / sprite.globalBounds.width,
-      height / sprite.globalBounds.height
+    scale(
+      width / globalBounds.width,
+      height / globalBounds.height
     )
 
-  def width: Float = sprite.globalBounds.width
-  def height: Float = sprite.globalBounds.height
+  def width: Float = globalBounds.width
+  def height: Float = globalBounds.height
 
   /** Set the width of the sprite.
     * @param width
@@ -79,9 +79,9 @@ class SpriteObject(
     *   Whether or not to keep the ratio of the sprite.
     */
   def setWidth(width: Float, keepRatio: Boolean = true): Unit =
-    val scaleRatio = width / sprite.globalBounds.width
-    if keepRatio then sprite.scale(scaleRatio, scaleRatio)
-    else sprite.scale(scaleRatio, 1)
+    val scaleRatio = width / globalBounds.width
+    if keepRatio then scale(scaleRatio, scaleRatio)
+    else scale(scaleRatio, 1)
 
   /** Set the height of the sprite.
     * @param height
@@ -90,9 +90,9 @@ class SpriteObject(
     *   Whether or not to keep the ratio of the sprite.
     */
   def setHeight(height: Float, keepRatio: Boolean = true): Unit =
-    val scaleRatio = height / sprite.globalBounds.height
-    if keepRatio then sprite.scale(scaleRatio, scaleRatio)
-    else sprite.scale(1, scaleRatio)
+    val scaleRatio = height / globalBounds.height
+    if keepRatio then scale(scaleRatio, scaleRatio)
+    else scale(1, scaleRatio)
 
   /** Set the size of the sprite. It will use the smallest scale ratio to ensure
     * that the sprite fits in the given dimensions.
@@ -105,10 +105,10 @@ class SpriteObject(
     */
   def boundDimensions(width: Float, height: Float): Unit =
     val scaleRatio = math.min(
-      width / sprite.globalBounds.width,
-      height / sprite.globalBounds.height
+      width / globalBounds.width,
+      height / globalBounds.height
     )
-    sprite.scale(scaleRatio, scaleRatio)
+    scale(scaleRatio, scaleRatio)
 
   /** Set the size of the sprite. It will use the smallest scale ratio to ensure
     * that the sprite fits in the given dimensions. It will also center the
@@ -120,13 +120,13 @@ class SpriteObject(
     */
   def boundAndCenter(rect: Rect[Float]): Unit =
     val scaleRatio = math.min(
-      rect.width / sprite.globalBounds.width,
-      rect.height / sprite.globalBounds.height
+      rect.width / globalBounds.width,
+      rect.height / globalBounds.height
     )
-    sprite.scale(scaleRatio, scaleRatio)
-    sprite.position = Vector2(
-      rect.left + (rect.width - sprite.globalBounds.width) / 2f,
-      rect.top + (rect.height - sprite.globalBounds.height) / 2f
+    scale(scaleRatio, scaleRatio)
+    position = Vector2(
+      rect.left + (rect.width - globalBounds.width) / 2f,
+      rect.top + (rect.height - globalBounds.height) / 2f
     )
 
 }
