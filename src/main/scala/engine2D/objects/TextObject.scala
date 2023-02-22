@@ -10,8 +10,8 @@ class TextObject(
     engine: GameEngine,
     fontFile: String = "basic.ttf",
     charSize: Int = 24
-) extends GameObject(engine) {
-  val text = Text()
+) extends GraphicObject(Text(), engine) {
+  val text = drawable.asInstanceOf[Text]
   text.font = FontManager.getFont(fontFile)
   text.string = textString
   text.characterSize = charSize
@@ -23,12 +23,5 @@ class TextObject(
   def string_=(s: String) = text.string = s
   def characterSize = text.characterSize
   def characterSize_=(s: Int) = text.characterSize = s
-  override def onDraw(
-      target: sfml.graphics.RenderTarget,
-      states: sfml.graphics.RenderStates
-  ) = {
-    target.draw(text, states)
-    super.onDraw(target, states)
-  }
 
 }
