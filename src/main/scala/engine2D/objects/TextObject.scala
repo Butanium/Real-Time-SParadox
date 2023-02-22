@@ -16,8 +16,10 @@ class TextObject(
   text.font = font
   text.string = textString
   text.characterSize = charSize
-  def color = text.color
-  def color_=(c: sfml.graphics.Color) = text.color = c
+  def fillColor = text.fillColor
+  def fillColor_=(c: sfml.graphics.Color) = text.fillColor = c
+  def outlineColor = text.outlineColor
+  def outlineColor_=(c: sfml.graphics.Color) = text.outlineColor = c
   def string = text.string
   def string_=(s: String) = text.string = s
   def characterSize = text.characterSize
