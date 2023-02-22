@@ -10,6 +10,7 @@ import engine2D.GameEngine
 import engine2D.graphics.GrUtils
 import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
+import sfml.window.Mouse.Button
 
 /** Base class for all game objects. It's transformable, can have children, can
   * be drawn, and can be updated.
@@ -29,7 +30,7 @@ abstract class GameObject(
   def active: Boolean = _active
   def active_=(newValue: Boolean) =
     // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
-    // states of listner and restore them when active is set to true.
+    // states of listener and restore them when active is set to true.
     if newValue != active then
       _active = newValue
       listeners.foreach(_.active = false)
@@ -47,6 +48,38 @@ abstract class GameObject(
   /** The events the GameObject listens to.
     */
   val listeners: ListBuffer[MouseEvent] = ListBuffer()
+
+  /** Listens to a mouse event.
+    * @param mouseEvent
+    *   The mouse event to listen to.
+    * @param action
+    *   The action to perform when the mouse event is triggered.
+    */
+  def listenToMouseEvent(mouseEvent: MouseEvent, action: () => Unit): Unit =
+    listeners += mouseEvent
+    engine.mouseManager.registerMouseEvent(mouseEvent, action)
+
+  /** Listens to a bounds clicked event.
+    * @param button
+    *   The button to listen to.
+    * @param boundable
+    *   The boundable to listen to.
+    * @param isPermanent
+    *   Whether or not the listener should be permanent. If it's not permanent,
+    *   it will be deleted after the first time it's triggered.
+    * @param action
+    *   The action to perform when the mouse event is triggered.
+    */
+  def listenToBoundsClicked(
+      button: Button,
+      boundable: Boundable,
+      isPermanent: Boolean,
+      action: () => Unit
+  ): Unit =
+    listeners ++=
+      engine.mouseManager
+        .registerBoundClickedEvent(button, boundable, isPermanent, action)
+        .toList
 
   /** The unique id of this GameObject. Used for comparison.
     */
