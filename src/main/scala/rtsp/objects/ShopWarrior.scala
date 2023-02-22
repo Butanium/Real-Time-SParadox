@@ -12,6 +12,7 @@ import engine2D.objects.TextObject
 import sfml.graphics.Color
 import sfml.graphics.RectangleShape
 import engine2D.objects.GraphicObject
+import engine2D.objects.RectangleObject
 
 class ShopWarrior(
     val warrior_id: Int,
@@ -36,12 +37,11 @@ class ShopWarrior(
   addChildren(text_type)
   text_type.position =
     (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
-  val sprite_rectangle =
-    RectangleShape(shop.max_width_buyable, shop.max_height_buyable)
-  val rectangle = GraphicObject(sprite_rectangle, engine)
-  sprite_rectangle.outlineColor = Color(236, 151, 22)
-  sprite_rectangle.outlineThickness = 5
-  sprite_rectangle.fillColor = Color(165, 245, 73, 20)
+  val rectangle =
+    RectangleObject(shop.max_width_buyable, shop.max_height_buyable,engine)
+  rectangle.outlineColor = Color(236, 151, 22)
+  rectangle.outlineThickness = 5
+  rectangle.fillColor = Color(165, 245, 73, 20)
   addChildren(rectangle)
   var shop_position: Int = (-1)
   def change_shop_position_to(i: Int) =

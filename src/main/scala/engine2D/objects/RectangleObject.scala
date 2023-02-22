@@ -10,7 +10,6 @@ class RectangleObject(
     )
     with Boundable {
   val rect = drawable.asInstanceOf[sfml.graphics.RectangleShape]
-  scale = (rectWidth, rectHeight)
   def fillColor = rect.fillColor
   def fillColor_=(c: sfml.graphics.Color) = rect.fillColor = c
   def outlineColor = rect.outlineColor

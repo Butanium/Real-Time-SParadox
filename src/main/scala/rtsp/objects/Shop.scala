@@ -44,11 +44,10 @@ class Shop(val player: Player, engine: GameEngine) extends GameObject(engine) {
   def change_shop() =
     for i <- 0 to (nb_buyable - 1) do replace(i)
   init_shop()
-  val sprite = RectangleShape((real_width, real_height))
-  val rectangle = new GraphicObject(sprite, engine)
-  sprite.outlineColor = Color(107, 76, 30)
-  sprite.outlineThickness = thickness
-  sprite.fillColor = Color(93, 247, 150, 50)
+  val rectangle = RectangleObject(real_width, real_height,engine)
+  rectangle.outlineColor = Color(107, 76, 30)
+  rectangle.outlineThickness = thickness
+  rectangle.fillColor = Color(93, 247, 150, 50)
   addChildren(rectangle)
 
 }
