@@ -89,7 +89,11 @@ Le moteur de jeu n'est pas totalement terminé. Il contient toute les fonctionna
 todo
 
 ### Shop
-todo
+Le shop implémenté a pour objectif de permettre à un joueur d'acheter des combattants, pour pouvoir ensuite les placer sur le banc puis les placer pour combattre.
+- Pour ce faire, le shop est défini comme appartenant à la classe `Shop`, qui prend en argument un joueur de la classe `Player` qui dispose d'un montant d'argent à dépenser dans le shop. Les combattants sont représentés dans le shop par un type `ShopWarrior` qui dispose du trait `Buyable` et qui permet l'affichage des combattants dans le shop. Pour permettre au joueur d'acheter des combattants le shop lui met à disposition un nombre constant (qui pourra peut-être évoluer plus tard) de champions qui sont tirés aléatoirement par un `Pool`.
+- Le `Pool` permet de sélectionner aléatoirement un champion parmi tout les champions disponibles afin qu'il soit mis à l'achat dans le shop, il n'y a pour l'instant que deux types de champions différent, les barbares et les archers qui apparaissent avec la même probabilité mais il y aura plus de combattants plus tard avec éventuellemnt des coefficients d'apparition différents.
+- Il y a aussi une possibilité pour le joueur de renouveler complètement le shop à sa disposition pour un certain montant d'argent, auquel cas chaque combattant du shop est remplacé par un champion du pool de la même manière que si ils étaient choisis un par un.
+- Finalement, chaque champion acheté par le shop est envoyé sur le banc, duquel il pourra être envoyé au combat.
 
 ### Banc
 todo
