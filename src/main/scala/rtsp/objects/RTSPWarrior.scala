@@ -18,7 +18,8 @@ import sfml.system.Vector2
 
 class RTSPWarrior(
     engine: GameEngine,
-    var team: Int,
+    battle: RTSPBattle,
+    val team: Int,
     var maxHP: Int,
     var range: Int,
     var attackDamage: Int,
@@ -34,6 +35,9 @@ with Grabbable(Mouse.Button.Left, engine, debug = debug) {
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
+  var grabLocation: Vector2[Float] = Vector2(0, 0)
+  /** The position before the battle started */
+  var initialPosition: Vector2[Float] = Vector2(0, 0)
   var currentAttackDelay = attackDelay
   add(sprite)
   def attack(target: RTSPWarrior): Unit = {
@@ -78,10 +82,7 @@ with Grabbable(Mouse.Button.Left, engine, debug = debug) {
     }
     super.onUpdate()
   }
-  def removeFromBenchIfGrabbed(): Unit = {
-      benched = false
-  }
-  setOnGrab(() => removeFromBenchIfGrabbed())
+  setOnGrab(() => {grabLocation = position})
 
 
 }
@@ -89,6 +90,7 @@ with Grabbable(Mouse.Button.Left, engine, debug = debug) {
 object RTSPWarrior {
   def createArcher(
       engine: GameEngine,
+      battle : RTSPBattle,
       team: Int,
       behavior: Behavior,
       debug: Boolean = false,
@@ -96,6 +98,7 @@ object RTSPWarrior {
   ) =
     new RTSPWarrior(
       engine,
+      battle,
       team,
       maxHP = 1000,
       range = 100,
@@ -111,6 +114,7 @@ object RTSPWarrior {
     )
   def createBarbarian(
       engine: GameEngine,
+      battle : RTSPBattle,
       team: Int,
       behavior: Behavior,
       debug: Boolean = false,
@@ -118,6 +122,7 @@ object RTSPWarrior {
   ) =
     new RTSPWarrior(
       engine,
+      battle,
       team,
       maxHP = 1800,
       range = 10,

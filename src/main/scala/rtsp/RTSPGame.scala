@@ -53,8 +53,8 @@ class RTSPGame(window: RenderWindow)
   team2(1).position = (600, 100)
   team2(2).position = (700, 200)
   team2(3).position = (600, 200)
-  battle.team0 = team1
-  battle.team1 = team2
+  battle.addWarriors(team1*)
+  battle.addWarriors(team2*)
   // Print teams size
 
   override def step() = { battle.step(); super.step() }
