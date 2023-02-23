@@ -1,7 +1,5 @@
 # Rapport de projet 1
 
-## Gameplay
-todo
 
 ## Le moteur de jeu
 ```
@@ -34,7 +32,7 @@ src/main/scala/engine2D/
 ### Boucle de jeu
 Le moteur de jeu repose principalement sur la classe `GameEngine` qui gère l'ensemble des objets du jeu. Les objets du jeu héritent tous de la classe `GameObject` qui hérite de `Transform` et implémente le trait `Drawable`. Chaque gameObject peut avoir des enfants ce qui permet d'avoir des objets plus complexes. Le transform des enfants est relatif à celui de son parent. Tous les objets du jeu sont stockés dans une liste `GameEngine.gameObjects` qui est mise à jour à chaque frame.
 
-La classe `Game` appel à chaque frame : `GameEngine.update()` et `GameEngine.draw()`. Ces deux méthodes appellent les méthodes `update()` et `draw()` de tous les objets du jeu.
+La classe `Game` appel à chaque frame : `GameEngine.update()` et `GameEngine.draw()`. Ces deux méthodes appellent les méthodes `update()` et `draw()` de tous les objets du jeu. Notre implémentation est basée sur la librairie `sfml`.
 
 ### Les GameObjects
 Les `GameObject` sont des objets qui peuvent être dessinés et qui peuvent être mis à jour. Ils héritent de la classe `GameTransform` qui permet de gérer la position, l'échelle et la rotation de l'objet. `GameTransform` hérite de `Transform` (une classe de la librairie `sfml` qui permet de gérer la position, l'échelle et la rotation d'un objet) et rajoute des méthodes utiles comme la méthode `distanceTo` qui permet de calculer la distance entre deux `GameTransform`.
@@ -73,3 +71,25 @@ Ces deux exemples sont équivalents mais supposent que l'objet est un `Boundable
 ### Gestion des ressources
 Pour éviter de charger plusieurs fois les mêmes ressources, le moteur de jeu utilise des `GameResourceManager` qui est une classe abstraite. Pour l'instancier, il suffit de lui donner un chemin vers là où se trouvent les ressources et une fonction qui permet de charger une ressource à partir d'un fichier.
 Les objets `TextureManager` et `FontManager` héritent de cette classe.
+
+### Limitations
+Le moteur de jeu n'est pas totalement terminé. Il contient toute les fonctionnalités nécessaires pour faire ce premier rendu mais manque de fonctionnalités qui pourraient s'avérer utile dans le futur. Voici une liste non exhaustive de ces fonctionnalités :
+- Gestion des évènements clavier. Elle est quasiment terminée mais nous n'en aurons peut-être pas besoin.
+- Gestion du son. Le binding scala de la librairie `sfml` ne permet pas de gérer le son pour le moment.
+- Gestion des collisions. Nous avons implémenté un système de hitbox mais nous n'avons pas implémenté de système de collision. Cela pourra être utile pour éviter que les unités se superposent.
+- Gestion des animations. Nous avons implémenté un système de sprites mais nous n'avons pas implémenté de système d'animation. Cela pourra être utile pour faire bouger les unités.
+- Gestion de la caméra. Pour l'instant nous n'utilisons pas de caméra. Cela pourra être utile pour faire des zooms et des déplacements sur la carte. Mais aussi pour avoir une GUI.
+- Gestion de la profondeur. Pour l'instant les objets sont dessinés dans l'ordre où ils sont ajoutés à la liste des objets du jeu. Cela pourra être utile de les dessiner en fonction d'un attribut `zIndex` par exemple.
+
+
+
+
+## Gameplay du prototype
+### Combat
+todo
+
+### Shop
+todo
+
+### Banc
+todo
