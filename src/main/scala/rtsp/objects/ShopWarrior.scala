@@ -50,9 +50,8 @@ class ShopWarrior(
     position = shop.positionBuyable(i)
   def when_clicked() =
     // TODO: définir la condition banc plein pour ne pas acheter de warrior quand il l'est
-    if affordable then
+    if player.buy(price) then
       print("Un warrior a été acheté!")
-      player.money -= price
       shop.replace(shop_index)
       // TODO: définir une fonction qui envoie le RTSPWarrior sur le banc
   listenToBoundsClicked(Mouse.Button.Left,rectangle,true,when_clicked)

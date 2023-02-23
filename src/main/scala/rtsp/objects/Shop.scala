@@ -63,6 +63,8 @@ class Shop(val player: Player, engine: GameEngine) extends GameObject(engine) {
   money_text.fillColor = (Color(236, 191, 42))
   addChildren(money_text)
   money_text.position = money_rectangle.position
+  var actualiseButton = ActualiseButton(player, this, engine)
+  addChildren (actualiseButton)
   override def onUpdate() = {
     money_text.string = "Money:" + player.money.toString
     super.onUpdate()
