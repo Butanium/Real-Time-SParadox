@@ -86,7 +86,9 @@ Le moteur de jeu n'est pas totalement terminé. Il contient toute les fonctionna
 
 ## Gameplay du prototype
 ### Combat
-todo
+Le système de combat a pour but de permettre la simulation des combats entre combattants de deux équipes qui s'opposent après que chacun d'entre eux aient été placés.
+- Un combattant est un objet de la classe RTSPWarrior qui prend de nombreux arguments, notamment l'identifiant de son équipe qui sert à reconnaître alliés et ennemis, ou ses statistiques. Cette classe extend GameUnit. On y gère les conséquences d'une attaque (baisse des PV de l'ennemi visé, immobilisation du combattant pour qu'il lance son attaque), l'état de benched ou de non benched, la mort, et le lancement d'actions (idle, bouger, attaquer). Ces actions sont permises par un comportement en argument faisant partie de la classe Behaviour qui aura à terme pour but de représenter les arbres de comportement des combattants ayant pour but de guider les actions des combattants selon des directives bien précises. Pour l'instant, le comportement se réduit à attaquer l'ennemi le plus proche.
+- Un combat appartient à la classe RTSPBattle. A chaque step, on vérifie s'il y a une équipe perdante ou non. Dès qu'au moins une équipe est considérée comme perdante (il peut y avoir match nul), le combat s'arrête. Cette vérification consiste en un check-up sur l'état des combattants de chaque équipe. Si le combat n'est pas terminé, on fait évaluer le comportement de chaque combattant pour qu'il puisse effectuer l'action qu'il souhaite.
 
 ### Shop
 Le shop implémenté a pour objectif de permettre à un joueur d'acheter des combattants, pour pouvoir ensuite les placer sur le banc puis les placer pour combattre.
@@ -96,4 +98,4 @@ Le shop implémenté a pour objectif de permettre à un joueur d'acheter des com
 - Finalement, chaque champion acheté par le shop est envoyé sur le banc, duquel il pourra être envoyé au combat.
 
 ### Banc
-todo
+Le banc stocke les combattants achetés. Ils peuvent être placés sur le terrain avant le début du combat. Il a une certaine capacité que l'on fixe parmi les constantes du jeu. Les combattants sur le banc ne sont pas concernés par un combat en cours. Pour l'instant, le jeu étant en PvE, le banc ne contient que des combattants de l'équipe du joueur, mais à terme, si 2 joueurs peuvent s'affronter, il pourra dépendre du joueur qui souhaite l'utiliser grâce à un argument player de la classe Player. Nous avons fait en sorte que le banc soit satisfaisant d'un point de vue graphique en fixant une zone de combattant par slot du banc, avec un positionnement du combattant au centre du slot. 
