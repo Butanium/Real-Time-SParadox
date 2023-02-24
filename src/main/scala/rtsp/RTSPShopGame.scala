@@ -60,8 +60,8 @@ class RTSPShopGame(window: RenderWindow)
       }
     )
     shop.position = (
-      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness / 2f,
-      window.size.y * (1 - SHOP_HEIGHT_RATIO)
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shop.thickness
     )
     bench.position = (
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
