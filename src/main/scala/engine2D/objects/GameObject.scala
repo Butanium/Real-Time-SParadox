@@ -30,10 +30,11 @@ abstract class GameObject(
   def active: Boolean = _active
   def active_=(newValue: Boolean) =
     // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
-    // states of listener and restore them when active is set to true.
+    // states of listener and restore them when active is set to true. We'll handle this
+    // in the functions that create the listeners.
     if newValue != active then
       _active = newValue
-      listeners.foreach(_.active = false)
+      // listeners.foreach(_.active = false)
 
   /** The parent of this GameObject. If it's None, this GameObject has no
     * parent.
@@ -57,7 +58,10 @@ abstract class GameObject(
     */
   def listenToMouseEvent(mouseEvent: MouseEvent, action: () => Unit): Unit =
     listeners += mouseEvent
-    engine.mouseManager.registerMouseEvent(mouseEvent, action)
+    engine.mouseManager.registerMouseEvent(
+      mouseEvent,
+      () => if active then action()
+    )
 
   /** Listens to a bounds clicked event.
     * @param button
@@ -78,7 +82,12 @@ abstract class GameObject(
   ): Unit =
     listeners ++=
       engine.mouseManager
-        .registerBoundClickedEvent(button, boundable, isPermanent, action)
+        .registerBoundClickedEvent(
+          button,
+          boundable,
+          isPermanent,
+          () => if active then action()
+        )
         .toList
 
   /** The unique id of this GameObject. Used for comparison.
