@@ -46,7 +46,7 @@ abstract class GameObject(
     */
   var parent: Option[GameObject] = None
 
-  /** The events the GameObject listens to.
+  /** The events the GameObject listens to. TODO: Refactor and make it private
     */
   val listeners: ListBuffer[MouseEvent] = ListBuffer()
 
