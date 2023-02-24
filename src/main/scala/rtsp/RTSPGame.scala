@@ -1,4 +1,4 @@
-package rtsp
+/* package rtsp
 import engine2D.Game
 import sfml.graphics.RenderWindow
 import rtsp.battle.RTSPBattle
@@ -64,3 +64,4 @@ class RTSPGame(window: RenderWindow)
     super.init()
   }
 }
+ */

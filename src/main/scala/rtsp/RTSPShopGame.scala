@@ -14,10 +14,10 @@ class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
   val engine = new RTSPGameEngine(1f / 60, window, debug = false)
 
-  val joueur = Player(0)
-  val shop = Shop(joueur, engine)
-  val battle = RTSPBattle()
-  val bench = Bench(engine, joueur, battle)
+  val player = Player(0)
+  val shop = Shop(player, engine)
+  val battle = RTSPBattle(player, debug)
+  val bench = Bench(engine, player, battle)
   override def init() = {
 
     val team1 = List(
@@ -55,7 +55,9 @@ class RTSPShopGame(window: RenderWindow)
           Mouse.Button.Right,
           true
         ),
-      () => battle.active = !battle.active
+      () => {
+        battle.active = !battle.active;
+      }
     )
     shop.position = (
       window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness / 2f,
@@ -86,6 +88,17 @@ class RTSPShopGame(window: RenderWindow)
       )
     )
   }
-  override def step() = { battle.step(); super.step() }
+  override def step() = {
+    val losers = battle.step()
+    if losers.nonEmpty then {
+      player.earnMoney(
+        2 * battle.enemies(player.id).count(w => !w.active && !w.benched)
+          + 10 * (if ((!losers.contains(player.id))) then 1 else 0)
+      )
+      battle.reset()
+
+    }
+    super.step()
+  }
 
 }

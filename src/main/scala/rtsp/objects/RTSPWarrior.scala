@@ -30,12 +30,13 @@ class RTSPWarrior(
     val debug: Boolean = false,
     var benched: Boolean = false
 ) extends GameUnit(maxHP, speed, engine)
-with Grabbable(Mouse.Button.Left, engine, debug = debug) {
+    with Grabbable(Mouse.Button.Left, engine, debug = debug) {
   def contains(point: Vector2[Float]) = sprite.globalBounds.contains(point)
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
   var grabLocation: Vector2[Float] = Vector2(0, 0)
+
   /** The position before the battle started */
   var initialPosition: Vector2[Float] = Vector2(0, 0)
   var currentAttackDelay = attackDelay
@@ -60,10 +61,10 @@ with Grabbable(Mouse.Button.Left, engine, debug = debug) {
 
   def executeAction(): Unit = {
     assert(active)
+    sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Blue(); attack(target);
-        target.sprite.color = sfml.graphics.Color.Red()
+        sprite.color = sfml.graphics.Color.Red(); attack(target);
       case Move(target) => executeMove(target); currentAttackDelay = attackDelay
       case Idle         => currentAttackDelay = attackDelay; rooted = true
   }
@@ -82,15 +83,29 @@ with Grabbable(Mouse.Button.Left, engine, debug = debug) {
     }
     super.onUpdate()
   }
-  setOnGrab(() => {grabLocation = position})
+  setOnGrab(() => { grabLocation = position })
 
+  private def resetSprite() = {
+    sprite.color = sfml.graphics.Color.White()
+  }
+
+  def reset(): Unit = {
+    resetSprite()
+    active = true
+    health = maxHP
+    position = initialPosition
+    action = Idle
+    currentAttackDelay = attackDelay
+    rooted = true
+    rotation = baseRotation
+  }
 
 }
 
 object RTSPWarrior {
   def createArcher(
       engine: GameEngine,
-      battle : RTSPBattle,
+      battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
       debug: Boolean = false,
@@ -114,7 +129,7 @@ object RTSPWarrior {
     )
   def createBarbarian(
       engine: GameEngine,
-      battle : RTSPBattle,
+      battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
       debug: Boolean = false,
@@ -136,4 +151,17 @@ object RTSPWarrior {
       ),
       debug = debug
     )
+  private val warriorTypes = Array(createArcher, createBarbarian)
+  def apply(
+      typeId: Int,
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior = null,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    val _behavior =
+      if behavior == null then Behavior.basicBehavior(battle) else behavior
+    warriorTypes(typeId)(engine, battle, team, _behavior, debug, benched)
 }
