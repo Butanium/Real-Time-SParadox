@@ -10,7 +10,7 @@ nativeConfig ~= {
   // Use this for faster compilation:
   _.withLTO(LTO.thin).withMode(Mode.debug)
 }
-
+scalacOptions ++= Seq("-unchecked", "-deprecation")
 githubSuppressPublicationWarning := true
 githubTokenSource := TokenSource.GitConfig("github.token")
 

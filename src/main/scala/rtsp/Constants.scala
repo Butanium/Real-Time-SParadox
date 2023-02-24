@@ -24,4 +24,7 @@ object Constants {
   val STARTING_MONEY: Int = 20
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
+  val BENCH_SIZE: Int = 4
+  val BENCH_WIDTH_RATIO: Float = 1f
+  val BENCH_HEIGHT_RATIO: Float = 0.2f
 }

@@ -9,4 +9,5 @@ class Player(val id: Int) {
       true
     else
       false
+  def earnMoney(amount: Int): Unit = money += amount
 }
