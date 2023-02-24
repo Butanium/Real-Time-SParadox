@@ -1,13 +1,14 @@
 package rtsp
 import rtsp.Constants
-import scala.compiletime.ops.boolean
+import rtsp.objects.Buyable
 class Player(val id: Int) {
   var money: Int = Constants.STARTING_MONEY
-  def buy(price: Int) :Boolean =
+  def buy(price: Int): Boolean =
     if money >= price then
       money -= price
       true
-    else
-      false
+    else false
+  def buy(buyable: Buyable): Boolean = buy(buyable.price)
+
   def earnMoney(amount: Int): Unit = money += amount
 }

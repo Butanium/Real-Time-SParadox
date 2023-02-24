@@ -15,9 +15,9 @@ class RTSPShopGame(window: RenderWindow)
   val engine = new RTSPGameEngine(1f / 60, window, debug = false)
 
   val player = Player(0)
-  val shop = Shop(player, engine)
   val battle = RTSPBattle(player, debug)
   val bench = Bench(engine, player, battle)
+  val shop = Shop(player, bench, engine)
   override def init() = {
 
     val team1 = List(
@@ -69,24 +69,24 @@ class RTSPShopGame(window: RenderWindow)
     )
     engine.spawn(bench)
     engine.spawn(shop)
-    bench.addBoughtWarrior(
-      RTSPWarrior.createBarbarian(
-        engine,
-        battle,
-        0,
-        Behavior.basicBehavior(battle),
-        debug
-      )
-    )
-    bench.addBoughtWarrior(
-      RTSPWarrior.createArcher(
-        engine,
-        battle,
-        0,
-        Behavior.basicBehavior(battle),
-        debug
-      )
-    )
+    // bench.addBoughtWarrior(
+    //   RTSPWarrior.createBarbarian(
+    //     engine,
+    //     battle,
+    //     0,
+    //     Behavior.basicBehavior(battle),
+    //     debug
+    //   )
+    // )
+    // bench.addBoughtWarrior(
+    //   RTSPWarrior.createArcher(
+    //     engine,
+    //     battle,
+    //     0,
+    //     Behavior.basicBehavior(battle),
+    //     debug
+    //   )
+    // )
   }
   override def step() = {
     val losers = battle.step()

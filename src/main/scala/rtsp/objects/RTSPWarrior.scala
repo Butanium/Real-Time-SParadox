@@ -10,6 +10,7 @@ import engine2D.GameEngine
 import engine2D.objects.Grabbable
 import sfml.window.Mouse
 import sfml.system.Vector2
+import rtsp.Constants
 
 /*
   Utiliser l'arbre de comportement
@@ -151,7 +152,11 @@ object RTSPWarrior {
       ),
       debug = debug
     )
-  private val warriorTypes = Array(createArcher, createBarbarian)
+  private val warriorTypes: Array[
+    (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
+  ] = new Array(2)
+  warriorTypes(Constants.ID_ARCHER) = createArcher
+  warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
   def apply(
       typeId: Int,
       engine: GameEngine,

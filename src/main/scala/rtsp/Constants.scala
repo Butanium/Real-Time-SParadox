@@ -12,8 +12,8 @@ object Constants {
     val RATIO_HEIGHT_MONEY: Float = 0.3f
     val INIT_NB_BUYABLE: Int = 3
     val MAX_NB_BUYABLE: Int = 3
-    val PRICE_ARCHER: Int = 3
-    val PRICE_BARBARIAN: Int = 4
+    val PRICE_ARCHER: Int = 4
+    val PRICE_BARBARIAN: Int = 2
     val ACTUALISE_PRICE: Int = 1
     val BASIC_POOL_REPARTITION: Array[Tuple2[(Shop) => ShopWarrior, Float]] =
       Array(
@@ -21,7 +21,7 @@ object Constants {
         (ShopWarrior.create_shop_Archer, 1f)
       )
   }
-  val STARTING_MONEY: Int = 20
+  val STARTING_MONEY: Int = 6
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
   val BENCH_SIZE: Int = 4

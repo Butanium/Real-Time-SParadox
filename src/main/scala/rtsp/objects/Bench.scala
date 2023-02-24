@@ -26,8 +26,10 @@ class Bench(engine: GameEngine, player: Player, battle: RTSPBattle)
     val y = position.y + 5
     return Vector2[Float](x, y)
   }
-  def addBoughtWarrior(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
+  def isNotFull: Boolean = takenSlots < BENCH_SIZE
+  def addBoughtWarrior(shopWarrior: ShopWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
     var i = 0
+    val warrior = shopWarrior.convertToWarrior(battle)
     while (benchArray(i) != null) do {
       i += 1
       if (i == BENCH_SIZE) then return false
