@@ -7,15 +7,19 @@ import rtsp.battle.WarriorAction
 import engine2D.objects.SpriteObject
 import engine2D.graphics.TextureManager
 import engine2D.GameEngine
+import engine2D.objects.Grabbable
+import sfml.window.Mouse
+import sfml.system.Vector2
+
 /*
   Utiliser l'arbre de comportement
-  Chaque warrior a une équipe: 0 = joueur, 1 = ennemi
+  Chaque warrior a un id d'équipe
  */
 
 class RTSPWarrior(
     engine: GameEngine,
     battle: RTSPBattle,
-    var team: Int,
+    val team: Int,
     var maxHP: Int,
     var range: Int,
     var attackDamage: Int,
@@ -23,11 +27,18 @@ class RTSPWarrior(
     speed: Float,
     var behavior: Behavior,
     val sprite: SpriteObject,
-    val debug: Boolean = false
-) extends GameUnit(maxHP, speed, engine) {
+    val debug: Boolean = false,
+    var benched: Boolean = false
+) extends GameUnit(maxHP, speed, engine)
+    with Grabbable(Mouse.Button.Left, engine, debug = debug) {
+  def contains(point: Vector2[Float]) = sprite.globalBounds.contains(point)
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
+  var grabLocation: Vector2[Float] = Vector2(0, 0)
+
+  /** The position before the battle started */
+  var initialPosition: Vector2[Float] = Vector2(0, 0)
   var currentAttackDelay = attackDelay
   add(sprite)
   def attack(target: RTSPWarrior): Unit = {
@@ -50,10 +61,10 @@ class RTSPWarrior(
 
   def executeAction(): Unit = {
     assert(active)
+    sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Blue(); attack(target);
-        target.sprite.color = sfml.graphics.Color.Red()
+        sprite.color = sfml.graphics.Color.Red(); attack(target);
       case Move(target) => executeMove(target); currentAttackDelay = attackDelay
       case Idle         => currentAttackDelay = attackDelay; rooted = true
   }
@@ -72,6 +83,23 @@ class RTSPWarrior(
     }
     super.onUpdate()
   }
+  setOnGrab(() => { grabLocation = position })
+
+  private def resetSprite() = {
+    sprite.color = sfml.graphics.Color.White()
+  }
+
+  def reset(): Unit = {
+    resetSprite()
+    active = true
+    health = maxHP
+    position = initialPosition
+    action = Idle
+    currentAttackDelay = attackDelay
+    rooted = true
+    rotation = baseRotation
+  }
+
 }
 
 object RTSPWarrior {
@@ -80,7 +108,8 @@ object RTSPWarrior {
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
-      debug: Boolean = false
+      debug: Boolean = false,
+      benched: Boolean = false
   ) =
     new RTSPWarrior(
       engine,
@@ -103,7 +132,8 @@ object RTSPWarrior {
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
-      debug: Boolean = false
+      debug: Boolean = false,
+      benched: Boolean = false
   ) =
     new RTSPWarrior(
       engine,
@@ -121,4 +151,17 @@ object RTSPWarrior {
       ),
       debug = debug
     )
+  private val warriorTypes = Array(createArcher, createBarbarian)
+  def apply(
+      typeId: Int,
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior = null,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    val _behavior =
+      if behavior == null then Behavior.basicBehavior(battle) else behavior
+    warriorTypes(typeId)(engine, battle, team, _behavior, debug, benched)
 }

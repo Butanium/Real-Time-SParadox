@@ -94,7 +94,7 @@ trait Grabbable(
   engine.mouseManager.registerMouseEvent(pressEvent, pressedAction)
   engine.mouseManager.registerMouseEvent(releaseEvent, releasedAction)
   engine.mouseManager.registerMouseEvent(moveEvent, movedAction)
-  listeners += (pressEvent, releaseEvent, moveEvent)
+  listeners ++= List(pressEvent, releaseEvent, moveEvent)
 
   /** Whether or not the object is grabbable.
     */
@@ -119,5 +119,6 @@ trait Grabbable(
         releaseEvent.active = false
         moveEvent.active = false
       }
+    grabbable = value
 
 }
