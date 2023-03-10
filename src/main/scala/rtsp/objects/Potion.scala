@@ -1,7 +1,7 @@
 package rtsp.objects
 import rtsp.objects.RTSPWarrior
 // Classe contenant différentes fonctions de buffs pour un warrior
-class Buffs {
+class Potion {
     def attackBuff(warrior: RTSPWarrior): Unit = {
         warrior.attackDamage += 10
     }
