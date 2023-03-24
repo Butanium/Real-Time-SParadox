@@ -21,6 +21,15 @@ object Constants {
         (ShopWarrior.create_shop_Archer, 1f)
       )
   }
+  object BattleC {
+    // initial hp of the base
+    val BASE_HP: Int = 10_000
+    val BASE_RANGE: Int = 150
+    val BASE_ATTACK_DAMAGE: Int = 100
+    val BASE_ATTACK_DELAY: Float = 5f
+    val TIMEOUT_DURATION: Float = 10f
+    val ARENA_BOUNDS = sfml.graphics.Rect[Float](300f, 300f)
+  }
   val STARTING_MONEY: Int = 6
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1

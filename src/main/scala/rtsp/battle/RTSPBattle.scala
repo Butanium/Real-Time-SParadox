@@ -1,6 +1,9 @@
 package rtsp.battle
 import rtsp.objects.RTSPWarrior
 import scala.collection.mutable.ListBuffer
+import rtsp.objects.RTSPBase
+import rtsp.Constants
+import sfml.system.Vector2
 
 /*
     Il faut stocker les équipes dans une liste de liste de warriors: List[List[RTSPWarriors]]
@@ -12,6 +15,14 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   private val team0 = ListBuffer[RTSPWarrior]()
   private val team1 = ListBuffer[RTSPWarrior]()
   private val _teams = Array[ListBuffer[RTSPWarrior]](team0, team1)
+  val bases = Array[RTSPBase](null, null)
+  def addBase(base: RTSPBase, player: Int): Unit = {
+    bases(player) = base
+    _teams(player) += base
+    val bounds = Constants.BattleC.ARENA_BOUNDS
+    base.position = Vector2(bounds.width, bounds.height) * (1 - player).toFloat
+
+  }
   def teams = _teams
   def enemies(team: Int) = _teams(1 - team)
   def battleWarriors = team0.toList ++ (team1.toList)
@@ -34,18 +45,30 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     }
     _active = newActive
 
+  private val losers = ListBuffer[Int]()
+
+  /** Ajoute un perdant à la liste des perdants
+    * @param id
+    *   l'id du joueur qui a perdu
+    * @note
+    *   Cette liste sera prise en compte par la fonction step. Cette fonction
+    *   est appelée par les bases des équipes si elles sont détruites.
+    */
+  def addLoser(id: Int): Unit = losers += id
+  private var timeOut = -1
   def reset(): Unit = {
     if debug then println("reset battle")
-
     battleWarriors.foreach(w => {
       w.reset(); w.isGrabbable = w.team == player.id
     })
     active = false
+    losers.clear()
+    timeOut = -1
   }
 
   def step(): List[Int] = {
     // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)
-    var losers = ListBuffer[Int]()
+    var allDeadTeams = ListBuffer[Int]()
     if (active) then {
       for (i <- 0 to teams.size - 1) {
         var dead = true
@@ -55,11 +78,9 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
             dead = false
           }
         }
-        if (dead) {
-          losers += i
-        }
+        if (dead) then allDeadTeams += i
       }
-      for (team <- List(team0, team1)) {
+      for (team <- teams) {
         for (warrior <- team) {
           if (warrior.active && !warrior.benched) {
             // Le warrior agit
@@ -67,6 +88,11 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
           }
         }
       }
+    }
+    if allDeadTeams.length == teams.length then {
+      allDeadTeams
+    } else if allDeadTeams.nonEmpty then {
+      timeOut
     }
     losers.toList
 
