@@ -38,7 +38,8 @@ class RTSPWarrior(
   def stunned = stunTime > 0
 
   /** Stuns the warrior
-    * @param duration The duration of the stun in seconds
+    * @param duration
+    *   The duration of the stun in seconds
     */
   def stun(duration: Float): Unit = stunTime =
     math.max(stunTime / engine.deltaTime, duration.toFloat).ceil.toInt
@@ -184,4 +185,7 @@ object RTSPWarrior {
     val _behavior =
       if behavior == null then Behavior.basicBehavior(battle) else behavior
     warriorTypes(typeId)(engine, battle, team, _behavior, debug, benched)
+
+  implicit def ordering: Ordering[RTSPWarrior] =
+    Ordering.by(e => e.id)
 }
