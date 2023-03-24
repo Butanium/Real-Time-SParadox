@@ -15,6 +15,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   private val team0 = ListBuffer[RTSPWarrior]()
   private val team1 = ListBuffer[RTSPWarrior]()
   private val _teams = Array[ListBuffer[RTSPWarrior]](team0, team1)
+  private def warriors = team0.toList ++ team1.toList
   val bases = Array[RTSPBase](null, null)
   def addBase(base: RTSPBase, player: Int): Unit = {
     bases(player) = base
@@ -70,24 +71,12 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)
     var allDeadTeams = ListBuffer[Int]()
     if (active) then {
-      for (i <- 0 to teams.size - 1) {
-        var dead = true
-        val team = teams(i)
-        for (warrior <- team) {
-          if (warrior.health > 0 && !warrior.benched) {
-            dead = false
-          }
-        }
-        if (dead) then allDeadTeams += i
-      }
-      for (team <- teams) {
-        for (warrior <- team) {
-          if (warrior.active && !warrior.benched) {
-            // Le warrior agit
-            warrior.behavior.evaluate(warrior)
-          }
-        }
-      }
+      allDeadTeams = teams.indices
+        .filter(i => teams(i).forall(w => w.health <= 0 || w.benched))
+        .to(ListBuffer)
+      warriors
+        .filter(w => w.active && !w.benched)
+        .foreach(w => w.behavior.evaluate(w))
     }
     if allDeadTeams.length == teams.length then {
       allDeadTeams
@@ -99,7 +88,6 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   }
   // fonction alliés / ennemis
   def getEnemies(idTeam: Int): List[RTSPWarrior] = {
-    // if debug then
     teams(1 - idTeam).toList.filter(w => w.active && !w.benched)
   }
 
