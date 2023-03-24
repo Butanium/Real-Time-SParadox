@@ -23,7 +23,7 @@ class GameEngine(
     val debug: Boolean = false
 ) {
 
-  /** The list of game objects to add at the end of the current step.
+  /** The set of game objects to add at the end of the current step.
     */
   private var newGameObjects: SortedSet[GameObject] =
     SortedSet.empty[GameObject]
