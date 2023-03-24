@@ -1,9 +1,8 @@
 package engine2D
 
-import scala.collection.mutable.ListBuffer
 import engine2D.objects.GameObject
 import sfml.graphics.RenderWindow
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.SortedSet
 
 /** The GameEngine is the main class of the game. It contains all game objects
   *
@@ -20,14 +19,14 @@ import scala.collection.mutable.ListBuffer
 class GameEngine(
     val deltaTime: Float,
     val window: RenderWindow,
-    val gameObjects: ListBuffer[GameObject] = ListBuffer.empty[GameObject],
+    val gameObjects: SortedSet[GameObject] = SortedSet.empty[GameObject],
     val debug: Boolean = false
 ) {
 
   /** The list of game objects to add at the end of the current step.
     */
-  private var newGameObjects: ListBuffer[GameObject] =
-    ListBuffer.empty[GameObject]
+  private var newGameObjects: SortedSet[GameObject] =
+    SortedSet.empty[GameObject]
   val mouseManager = eventHandling.MouseManager(window)
   private val EventManager = eventHandling.EventManager(window, mouseManager)
 
@@ -45,7 +44,7 @@ class GameEngine(
     */
   def step() =
     val size = gameObjects.size
-    var time : Long = 0
+    var time: Long = 0
     if debug then
       println(s"Step: $size game objects")
       time = System.nanoTime()
@@ -61,7 +60,7 @@ class GameEngine(
   /** Renders the game objects on the window.
     */
   def render() =
-    var time : Long = 0
+    var time: Long = 0
     if debug then
       println(s"Render: ${gameObjects.size} game objects")
       time = System.nanoTime()
