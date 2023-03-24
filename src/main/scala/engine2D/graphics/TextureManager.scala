@@ -14,7 +14,8 @@ object TextureManager
         val texture = sfml.graphics.Texture()
         texture.loadFromFile(path)
         texture
-      }
+      },
+      subfolderPath = "textures/"
     ) {
 
   /** Get a texture from the resources folder.

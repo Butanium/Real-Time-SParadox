@@ -4,11 +4,11 @@ scalaVersion := "3.2.2"
 enablePlugins(ScalaNativePlugin)
 
 nativeConfig ~= {
-  // not sure what it does: _.withIncrementalCompilation(true)
   // use this if you want a more explicit stack trace:
   // _.withLTO(LTO.full).withMode(Mode.debug)
   // Use this for faster compilation:
   _.withLTO(LTO.thin).withMode(Mode.debug)
+  .withIncrementalCompilation(true) // for faster compilation: it allows to reuse the previous compilation
 }
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 githubSuppressPublicationWarning := true

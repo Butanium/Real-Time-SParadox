@@ -45,7 +45,7 @@ class GameEngine(
     */
   def step() =
     val size = gameObjects.size
-    var time = 0f
+    var time : Long = 0
     if debug then
       println(s"Step: $size game objects")
       time = System.nanoTime()
@@ -61,7 +61,7 @@ class GameEngine(
   /** Renders the game objects on the window.
     */
   def render() =
-    var time = 0f
+    var time : Long = 0
     if debug then
       println(s"Render: ${gameObjects.size} game objects")
       time = System.nanoTime()

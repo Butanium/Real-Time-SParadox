@@ -78,7 +78,11 @@ class Bench(engine: GameEngine, player: Player, battle: RTSPBattle)
     }
   }
   val rectangle =
-    RectangleObject(engine.window.size.x, engine.window.size.y / 16, engine)
+    RectangleObject(
+      engine.window.size.x.toFloat,
+      engine.window.size.y.toFloat / 16f,
+      engine
+    )
   rectangle.fillColor = Color(165, 245, 73, 50)
   addChildren(rectangle)
 }

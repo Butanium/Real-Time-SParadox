@@ -11,10 +11,6 @@ import sfml.system.Vector2
   *   The speed of this GameUnit.
   * @param engine
   *   The GameEngine that this GameUnit belongs to.
-  * @param baseRotation
-  *   The base rotation of this GameUnit.
-  * @param active
-  *   Whether or not this GameUnit is active.
   */
 class GameUnit(
     val maxHealth: Int,
