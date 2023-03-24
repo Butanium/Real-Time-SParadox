@@ -2,24 +2,22 @@ package rtsp
 import engine2D.Game
 import sfml.graphics.RenderWindow
 import rtsp.battle.RTSPBattle
-import rtsp.objects.RTSPWarrior
 import rtsp.battle.Behavior
-import rtsp.objects.Shop
+import rtsp.objects.*
 import rtsp.Constants.ShopConstants.*
 import rtsp.Constants.*
-import rtsp.objects.Bench
 import sfml.window.Mouse
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
   val engine = new RTSPGameEngine(1f / 60, window, debug = false)
 
-  val player = Player(0)
+  val player = Player(0, "You")
+  val bot = Player(1, "Bot")
   val battle = RTSPBattle(player, debug)
   val bench = Bench(engine, player, battle)
   val shop = Shop(player, bench, engine)
   override def init() = {
-
     val team1 = List(
       RTSPWarrior
         .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
@@ -45,10 +43,21 @@ class RTSPShopGame(window: RenderWindow)
     team1(1).position = (200, 100)
     team1(2).position = (100, 200)
     team1(3).position = (200, 200)
+    val basePlayer = RTSPBase(engine, battle, player)
+    engine.spawn(basePlayer)
+    battle.addBase(
+      basePlayer,
+      player
+    )
+    val baseBot = RTSPBase(engine, battle, bot)
+    engine.spawn(baseBot)
+    battle.addBase(
+      baseBot,
+      bot
+    )
 
     battle.addWarriors(team1*)
-
-    engine.spawn(team1: _*)
+    engine.spawn(team1*)
     engine.mouseManager.registerMouseEvent(
       engine2D.eventHandling.MouseEvent
         .ButtonPressed(
@@ -69,24 +78,6 @@ class RTSPShopGame(window: RenderWindow)
     )
     engine.spawn(bench)
     engine.spawn(shop)
-    // bench.addBoughtWarrior(
-    //   RTSPWarrior.createBarbarian(
-    //     engine,
-    //     battle,
-    //     0,
-    //     Behavior.basicBehavior(battle),
-    //     debug
-    //   )
-    // )
-    // bench.addBoughtWarrior(
-    //   RTSPWarrior.createArcher(
-    //     engine,
-    //     battle,
-    //     0,
-    //     Behavior.basicBehavior(battle),
-    //     debug
-    //   )
-    // )
   }
   override def step() = {
     val losers = battle.step()
