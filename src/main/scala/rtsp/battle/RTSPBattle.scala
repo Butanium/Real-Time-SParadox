@@ -83,6 +83,11 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     } else if allDeadTeams.nonEmpty then {
       timeOut
     }
+    if allDeadTeams.length == teams.length then {
+      allDeadTeams
+    } else if allDeadTeams.nonEmpty then {
+      timeOut
+    }
     losers.toList
 
   }
