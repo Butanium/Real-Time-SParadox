@@ -11,6 +11,8 @@ enum Action(val targetType: TargetType) {
 enum TargetType(val targetFilter: TargetFilter) {
   case Enemy(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
   case Ally(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
+  case AllyBase(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
+  case EnemyBase(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
 }
 
 enum TargetFilter {
@@ -95,8 +97,11 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
       targetType: TargetType
   ): List[RTSPWarrior] = {
     targetType match
-      case TargetType.Enemy(filter) => battle.getEnemies(warrior.team)
-      case TargetType.Ally(filter)  => battle.getAllies(warrior.team)
+      case TargetType.Enemy(filter)     => battle.getEnemies(warrior.team)
+      case TargetType.Ally(filter)      => battle.getAllies(warrior.team)
+      case TargetType.EnemyBase(filter) => List(battle.bases(1 - warrior.team))
+      case TargetType.AllyBase(filter)  => List(battle.bases(warrior.team))
+
   }
 
   /** Evaluate the target filter and return the target
