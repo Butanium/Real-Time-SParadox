@@ -7,7 +7,6 @@ import rtsp.battle.Behavior
 import rtsp.objects.Shop
 import rtsp.Constants.ShopConstants.*
 import rtsp.Constants.*
-import rtsp.objects.Bench
 import sfml.window.Mouse
 import rtsp.objects.WarriorBench
 import rtsp.objects.EffectBench
@@ -17,10 +16,9 @@ class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
   val engine = new RTSPGameEngine(1f / 60, window, debug = false)
 
-  val player = Player(0)
+  val player = Player(0, "uwu")
   val battle = RTSPBattle(player, debug)
   val bench = WarriorBench(engine, player, battle, BENCH_SIZE)
-  val benchOld = Bench(engine, player, battle)
   val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
   val shop = Shop(player, bench, engine)
   override def init() = {
