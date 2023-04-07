@@ -17,8 +17,15 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   def addBase(base: RTSPBase, player: Int): Unit = {
     bases(player) = base
     val bounds = Constants.BattleC.ARENA_BOUNDS
-    base.position = Vector2(bounds.width, bounds.height) * (1 - player).toFloat
-    println(base.position)
+    val spriteScale = Vector2[Float](
+      base.sprite.globalBounds.width,
+      base.sprite.globalBounds.height
+    )
+    base.position = Vector2(
+      bounds.width,
+      bounds.height
+    ) * (1 - player).toFloat + spriteScale * (1 / 2f) * (if player == 0 then -1f
+                                                         else 1f)
   }
   def teams = _teams
   def enemies(team: Int) = _teams(1 - team)
@@ -38,6 +45,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
         })
       } else {
         battleWarriors.foreach(w => w.action = WarriorAction.Idle)
+        bases.foreach(b => b.action = WarriorAction.Idle)
       }
     }
     _active = newActive
@@ -63,28 +71,15 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     timeOut = -1
   }
 
-  def step(): List[Int] = {
+  def step(): Boolean = {
     // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)
-    var allDeadTeams = ListBuffer[Int]()
     if (active) then {
-      allDeadTeams = teams.indices
-        .filter(i => teams(i).forall(w => w.health <= 0 || w.benched))
-        .to(ListBuffer)
       warriors
         .filter(w => w.active && !w.benched)
         .foreach(w => w.behavior.evaluate(w))
     }
-    if allDeadTeams.length == teams.length then {
-      allDeadTeams
-    } else if allDeadTeams.nonEmpty then {
-      timeOut
-    }
-    if allDeadTeams.length == teams.length then {
-      allDeadTeams
-    } else if allDeadTeams.nonEmpty then {
-      timeOut
-    }
-    losers.toList
+    // On vérifie si plus personne n'a de warriors actifs
+    teams.forall(team => team.forall(w => w.isDead || w.benched))
 
   }
   // fonction alliés / ennemis

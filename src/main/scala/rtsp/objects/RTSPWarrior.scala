@@ -61,8 +61,10 @@ class RTSPWarrior(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
       )
     rooted = true
-    if (currentAttackDelay < 0) then { target.health -= attackDamage }
-    else { currentAttackDelay -= engine.deltaTime }
+    if (currentAttackDelay < 0) then {
+      target.takeDamage(attackDamage)
+      currentAttackDelay = attackDelay
+    } else { currentAttackDelay -= engine.deltaTime }
   }
 
   def executeMove(target: engine2D.objects.GameTransform): Unit = {

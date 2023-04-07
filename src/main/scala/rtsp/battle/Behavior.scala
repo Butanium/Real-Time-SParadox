@@ -133,7 +133,9 @@ object Behavior {
       Node(
         List(
           ActionNode(Attack(Enemy(Closest))),
-          ActionNode(Move(Enemy(Closest)))
+          ActionNode(Move(Enemy(Closest))),
+          ActionNode(Attack(EnemyBase(Closest))),
+          ActionNode(Move(EnemyBase(Closest)))
         )
       ),
       battle
