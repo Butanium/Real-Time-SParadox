@@ -10,12 +10,13 @@ import sfml.graphics.RectangleShape
 import sfml.graphics.Color
 
 import util.Random
-class Shop[T <: Buyable](
+class Shop[T <: Buyable with GameObject](
     val player: Player,
     initNbBuyable: Int,
     maxNbBuyable: Int,
     poolRepartition: Array [Float],
     idToBuyable: Int => T,
+    bench: GeneralBench[T],
     engine: GameEngine
 
 ) extends GameObject(engine) {
@@ -30,7 +31,7 @@ class Shop[T <: Buyable](
   var real_width: Float = width - 2f * thickness
 
   // donne le pool associé au shop
-  var pool = new Pool(BASIC_POOL_REPARTITION, this)
+  var pool = new Pool(poolRepartition, this)
 
   // donne le nombre d'objets achetables dans le shop
   var nb_buyable: Int = initNbBuyable
@@ -107,12 +108,10 @@ class Shop[T <: Buyable](
   // fonction pour qu'un joueur achète un objet du shop (TODO)
   def playerWantsToBuy(item: ShopButton[T]) =
     // définir une condition de banc plein
-    if player.buy(item.buyable) then
+    if (bench.isNotFull && player.buy(item.buyable)) then
       // envoyer l'objet sur le banc où il doit aller
       // TODO REPLACE WITH BENCH
-      val w = item.buyable.asInstanceOf[GameObject]
-      engine.spawn(w)
-      w.position = (Random.between(10, 30),Random.between(10, 30))
+      bench.addBought(item.buyable)
       replace(item.index)
 
   // On modifie onUpdate pour que le montant de money soit actualisé

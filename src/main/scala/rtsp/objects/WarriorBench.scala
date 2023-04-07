@@ -11,7 +11,7 @@ import rtsp.battle.RTSPBattle
 
 class WarriorBench(engine: GameEngine, player: Player, battle: RTSPBattle, size: Int)
         extends GeneralBench(engine, player, battle, size, new Array[RTSPWarrior](size), "warrior") {
-    def addBoughtWarrior(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
+    override def addBought(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
         var i = 0
         while (benchArray(i) != null) do {
             i += 1

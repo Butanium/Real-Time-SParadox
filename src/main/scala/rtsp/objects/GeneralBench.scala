@@ -9,7 +9,7 @@ import sfml.system.Vector2
 import rtsp.Player
 import rtsp.battle.RTSPBattle
 
-class GeneralBench[T](engine: GameEngine, player: Player, battle: RTSPBattle, size: Int, array: Array[T], benchType: String)
+abstract class GeneralBench[T](engine: GameEngine, player: Player, battle: RTSPBattle, size: Int, array: Array[T], benchType: String)
         extends GameObject(engine) {
     var x = 0
     var y = 0
@@ -24,6 +24,16 @@ class GeneralBench[T](engine: GameEngine, player: Player, battle: RTSPBattle, si
     else
         throw new Exception("Invalid bench type, must be warrior or effect")
     var takenSlots = 0
+    def addBought(entity: T): Boolean
+    def removeEntity(entity: T): Unit = {
+        var i = 0
+        while (i < size) do {
+        if (benchArray(i) == entity) then
+            benchArray(i) = null.asInstanceOf[T]
+            takenSlots -= 1
+        i += 1
+        }
+    }
     def positionOfIndex(index: Int): Vector2[Float] = {
         val x = (index + 0.5f) * engine.window.size.x / BENCH_SIZE + position.x
         val y = position.y + 5

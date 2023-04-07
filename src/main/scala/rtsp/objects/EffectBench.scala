@@ -6,7 +6,7 @@ import rtsp.battle.RTSPBattle
 
 class EffectBench(engine: GameEngine, player: Player, battle: RTSPBattle, size: Int)
         extends GeneralBench[Effect](engine, player, battle, size, new Array[Effect](size), "effect") {
-    def addEffect(effect: Effect): Boolean = {
+    override def addBought(effect: Effect): Boolean = {
         var i = 0
         while (benchArray(i) != null) do {
             i += 1
@@ -20,7 +20,7 @@ class EffectBench(engine: GameEngine, player: Player, battle: RTSPBattle, size: 
             else {
                 battle.teams(player.id).find(warrior => effect.distanceTo(warrior) <= 5) match {
                     case Some(warrior) => effect.apply(warrior)
-                    case None => effect.position = effect.grabLocation; addEffect(effect)
+                    case None => effect.position = effect.grabLocation; addBought(effect)
                 }
             }
         }
