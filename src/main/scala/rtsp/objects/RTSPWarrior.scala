@@ -27,20 +27,36 @@ class RTSPWarrior(
     var attackDelay: Float,
     speed: Float,
     var behavior: Behavior,
-    val sprite: SpriteObject,
+    val spriteTexture: String,
     val debug: Boolean = false,
     var benched: Boolean = false
 ) extends GameUnit(maxHP, speed, engine)
-    with Grabbable(Mouse.Button.Left, engine, debug = debug) {
+    with Grabbable(Mouse.Button.Left, engine, debug = debug) with Buyable {
+  //TODO make param
+  val price = 2
+  val name = "Warrior"
+  
+  var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
+  /** The amount of frames the warrior is stunned */
+  private var stunTime = 0
+  def stunned = stunTime > 0
+
+  /** Stuns the warrior
+    * @param duration The duration of the stun in seconds
+    */
+  def stun(duration: Float): Unit = stunTime =
+    math.max(stunTime / engine.deltaTime, duration.toFloat).ceil.toInt
+  this.rotationEnabled = false
   def contains(point: Vector2[Float]) = sprite.globalBounds.contains(point)
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
   var action = Idle
-  var grabLocation: Vector2[Float] = Vector2(0, 0)
+  private var grabLocation: Vector2[Float] = Vector2(0, 0)
+  setOnGrab(() => { grabLocation = position })
 
   /** The position before the battle started */
   var initialPosition: Vector2[Float] = Vector2(0, 0)
-  var currentAttackDelay = attackDelay
+  private var currentAttackDelay = attackDelay
   add(sprite)
   def attack(target: RTSPWarrior): Unit = {
     if debug then
@@ -60,7 +76,7 @@ class RTSPWarrior(
   override def onDeath(): Unit =
     active = false
 
-  def executeAction(): Unit = {
+  def executeAction(action: WarriorAction): Unit = {
     assert(active)
     sprite.color = sfml.graphics.Color.White()
     action match
@@ -75,16 +91,19 @@ class RTSPWarrior(
   def canMove(target: engine2D.objects.GameTransform) = true
 
   override def onUpdate(): Unit = {
-    executeAction()
-    if (debug) {
-      println(s"Warrior ${this.id}")
-      println(s"  team: $team")
-      println(s"  action: $action")
-      println(s"  behavior: $behavior")
+    if (stunned) then {
+      stunTime -= 1
+      executeAction(Idle)
+    } else {
+      executeAction(action)
+      if (debug) then
+        println(s"Warrior ${this.id}")
+        println(s"  team: $team")
+        println(s"  action: $action")
+        println(s"  behavior: $behavior")
     }
     super.onUpdate()
   }
-  setOnGrab(() => { grabLocation = position })
 
   private def resetSprite() = {
     sprite.color = sfml.graphics.Color.White()
@@ -122,10 +141,7 @@ object RTSPWarrior {
       attackDelay = 1f,
       speed = 10f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/archer.png"),
-        engine
-      ),
+      "warriors/archer.png",
       debug = debug
     )
   def createBarbarian(
@@ -146,10 +162,7 @@ object RTSPWarrior {
       attackDelay = 0.5f,
       speed = 20f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/warrior.png"),
-        engine
-      ),
+      "warriors/warrior.png",
       debug = debug
     )
   private val warriorTypes: Array[
