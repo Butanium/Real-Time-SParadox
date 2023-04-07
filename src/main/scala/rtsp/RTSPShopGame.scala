@@ -11,6 +11,7 @@ import sfml.window.Mouse
 import rtsp.objects.WarriorBench
 import rtsp.objects.EffectBench
 import rtsp.objects.Effect.createAttackBuff
+import objects.SwitchButton
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
@@ -18,9 +19,14 @@ class RTSPShopGame(window: RenderWindow)
 
   val player = Player(0, "uwu")
   val battle = RTSPBattle(player, debug)
-  val bench = WarriorBench(engine, player, battle, BENCH_SIZE)
+  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE)
   val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
-  val shop = Shop(player, bench, engine)
+  val warriorShop = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_WARRIOR_REPARTITION, idToBuyable, warriorBench, engine)
+  val potionShop = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POTION_REPARTITION, idToBuyable, benchEffects, engine)
+  potionShop.active = false
+  val switchButton = SwitchButton(warriorShop, potionShop, 0, engine)
+  engine.spawn(switchButton)
+  
   override def init() = {
 
     val team1 = List(
