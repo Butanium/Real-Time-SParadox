@@ -29,14 +29,15 @@ class RTSPWarrior(
     var behavior: Behavior,
     val spriteTexture: String,
     val debug: Boolean = false,
-    var benched: Boolean = false
+    var benched: Boolean = false,
+    val price: Int = 1,
+    val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
-    with Grabbable(Mouse.Button.Left, engine, debug = debug) with Buyable {
-  //TODO make param
-  val price = 2
-  val name = "Warrior"
-  
+    with Grabbable(Mouse.Button.Left, engine, debug = debug)
+    with Buyable {
+
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
+
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0
   def stunned = stunTime > 0
@@ -145,6 +146,8 @@ object RTSPWarrior {
       speed = 10f,
       behavior,
       "warriors/archer.png",
+      name = "Archer",
+      price = 4,
       debug = debug
     )
   def createBarbarian(
@@ -166,6 +169,8 @@ object RTSPWarrior {
       speed = 20f,
       behavior,
       "warriors/warrior.png",
+      name = "Barbarian",
+      price = 3,
       debug = debug
     )
   def createGiant(
@@ -176,7 +181,7 @@ object RTSPWarrior {
       debug: Boolean = false,
       benched: Boolean = false
   ) =
-    new RTSPWarrior(
+    val w = new RTSPWarrior(
       engine,
       battle,
       team,
@@ -187,9 +192,12 @@ object RTSPWarrior {
       speed = 7f,
       behavior,
       "warriors/giant.png",
+      name = "Giant",
+      price = 2,
       debug = debug
     )
-  
+    w.scale(1.5f, 1.5f)
+
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
   ] = new Array(2)

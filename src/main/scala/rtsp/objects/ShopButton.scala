@@ -61,9 +61,11 @@ class ShopButton[T <: Buyable with GameObject](
     this.buyable = buyable
     textType.text.string = buyable.name
     text_price.text.string = buyable.price.toString()
-    textType.position =
-      (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
     addChildren(sprite)
     sprite.boundDimensions(shop.max_width_buyable, shop.max_height_buyable)
+    text_price.position =
+      (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
+    textType.position =
+      (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
 
 }

@@ -105,12 +105,11 @@ class Shop[T <: Buyable with GameObject](
   var actualiseButton = ActualiseButton(player, this, ACTUALISE_PRICE, engine)
   addChildren(actualiseButton)
   
-  // fonction pour qu'un joueur achète un objet du shop (TODO)
+  // fonction pour qu'un joueur achète un objet du shop
   def playerWantsToBuy(item: ShopButton[T]) =
     // définir une condition de banc plein
     if (bench.isNotFull && player.buy(item.buyable)) then
       // envoyer l'objet sur le banc où il doit aller
-      // TODO REPLACE WITH BENCH
       bench.addBought(item.buyable)
       replace(item.index)
 
