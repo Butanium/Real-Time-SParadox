@@ -1,28 +1,24 @@
 package rtsp.battle
 import rtsp.objects.RTSPWarrior
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.SortedSet
 import rtsp.objects.RTSPBase
 import rtsp.Constants
 import sfml.system.Vector2
-
-/*
-    Il faut stocker les équipes dans une liste de liste de warriors: List[List[RTSPWarriors]]
- */
+import scala.collection.mutable.ListBuffer
 
 class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   private var _active = false
   // Lancer la bataille: faire bouger les warriors non morts
-  private val team0 = ListBuffer[RTSPWarrior]()
-  private val team1 = ListBuffer[RTSPWarrior]()
-  private val _teams = Array[ListBuffer[RTSPWarrior]](team0, team1)
-  private def warriors = team0.toList ++ team1.toList
+  private val team0 = SortedSet.empty[RTSPWarrior]
+  private val team1 = SortedSet.empty[RTSPWarrior]
+  private val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
+  private def warriors = team0 ++ team1 ++ bases
   val bases = Array[RTSPBase](null, null)
   def addBase(base: RTSPBase, player: Int): Unit = {
     bases(player) = base
-    _teams(player) += base
     val bounds = Constants.BattleC.ARENA_BOUNDS
     base.position = Vector2(bounds.width, bounds.height) * (1 - player).toFloat
-
+    println(base.position)
   }
   def teams = _teams
   def enemies(team: Int) = _teams(1 - team)
@@ -46,7 +42,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     }
     _active = newActive
 
-  private val losers = ListBuffer[Int]()
+  private val losers = SortedSet[Int]()
 
   /** Ajoute un perdant à la liste des perdants
     * @param id
