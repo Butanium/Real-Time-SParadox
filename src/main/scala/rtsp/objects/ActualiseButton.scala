@@ -6,7 +6,7 @@ import engine2D.objects.*
 import rtsp.objects.*
 import sfml.graphics.Color
 import sfml.window.Mouse
-class ActualiseButton[T <: Buyable](val player: Player, shop: Shop[T], val price: Int, engine: GameEngine) extends GameObject(engine) with Buyable{
+class ActualiseButton[T <: Buyable with GameObject](val player: Player, shop: Shop[T], val price: Int, engine: GameEngine) extends GameObject(engine) with Buyable{
   val name = "Actualiser"
   val spriteTexture = "base"
   position = shop.positionBuyable(shop.nb_buyable)

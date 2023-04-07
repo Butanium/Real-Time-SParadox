@@ -10,7 +10,7 @@ import rtsp.Constants.*
 import sfml.window.Mouse
 import rtsp.objects.WarriorBench
 import rtsp.objects.EffectBench
-import rtsp.objects.Effect.createAttackBuff
+import rtsp.objects.Effect.*
 import objects.SwitchButton
 
 class RTSPShopGame(window: RenderWindow)
@@ -21,12 +21,22 @@ class RTSPShopGame(window: RenderWindow)
   val battle = RTSPBattle(player, debug)
   val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE)
   val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
-  val warriorShop = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_WARRIOR_REPARTITION, idToBuyable, warriorBench, engine)
-  val potionShop = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POTION_REPARTITION, idToBuyable, benchEffects, engine)
-  potionShop.active = false
-  val switchButton = SwitchButton(warriorShop, potionShop, 0, engine)
-  engine.spawn(switchButton)
-  
+
+  def idToWarrior(id : Int) = id match {
+    case 0 => RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case 1 => RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case 2 => RTSPWarrior.createGiant(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case _ => throw new Exception(s"Invalid warrior id $id")
+  }
+
+  def idToEffect(id : Int) = id match {
+    case 0 => createAttackBuff(engine, player, battle, debug)
+    case 1 => createSpeedBuff(engine, player, battle, debug)
+    case 2 => createTankBuff(engine, player, battle, debug)
+    case _ => throw new Exception(s"Invalid effect id $id")
+  }
+  // val shopWarriors = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, bench, engine)
+  val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(x=>1), idToEffect, benchEffects, engine)
   override def init() = {
 
     val team1 = List(
@@ -68,11 +78,16 @@ class RTSPShopGame(window: RenderWindow)
         ),
       () => {
         battle.active = !battle.active;
+        //shopWarriors.active = !shopWarriors.active;
       }
     )
-    shop.position = (
-      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness,
-      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shop.thickness
+    // shopWarriors.position = (
+    //   window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarriors.thickness,
+    //   window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarriors.thickness
+    // )
+    shopEffects.position = (
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopEffects.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopEffects.thickness
     )
     bench.position = (
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
@@ -83,10 +98,11 @@ class RTSPShopGame(window: RenderWindow)
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO) - 50
     )
-    benchEffects.addEffect(potionTest)
+    benchEffects.addBought(potionTest)
 
     engine.spawn(benchEffects)
-    engine.spawn(shop)
+    engine.spawn(shopEffects)
+
     // bench.addBoughtWarrior(
     //   RTSPWarrior.createBarbarian(
     //     engine,

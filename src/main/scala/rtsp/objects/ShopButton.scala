@@ -15,7 +15,7 @@ import engine2D.objects.GraphicObject
 import engine2D.objects.RectangleObject
 import sfml.window.Mouse
 
-class ShopButton[T <: Buyable](
+class ShopButton[T <: Buyable with GameObject](
     val index : Int,
     var buyable: T,
     val player: Player,
@@ -55,7 +55,7 @@ class ShopButton[T <: Buyable](
 
   def changeBuyable(buyable : T) =
     removeChildren(this.sprite)
-    println(children.map(_.id))
+    println((children.map(_.id), this.sprite.id))
     this.buyable = buyable
     textType.text.string = buyable.name
     text_price.text.string = buyable.price.toString()

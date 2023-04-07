@@ -165,6 +165,28 @@ object RTSPWarrior {
       "warriors/warrior.png",
       debug = debug
     )
+  def createGiant(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    new RTSPWarrior(
+      engine,
+      battle,
+      team,
+      maxHP = 3000,
+      range = 10,
+      attackDamage = 10,
+      attackDelay = 1f,
+      speed = 7f,
+      behavior,
+      "warriors/giant.png",
+      debug = debug
+    )
+  
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
   ] = new Array(2)
