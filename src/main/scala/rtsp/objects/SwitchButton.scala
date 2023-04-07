@@ -5,17 +5,12 @@ import engine2D.objects.*
 import sfml.graphics.Color
 import sfml.window.Mouse
 
-class SwitchButton(shop0 : Shop[?], shop1 : Shop[?], var currentShop : Int, engine : GameEngine) extends GameObject(engine){
+class SwitchButton(shop0 : Shop[?], shop1 : Shop[?], engine : GameEngine) extends GameObject(engine){
+  val shops = Array(shop0, shop1)
   def switchShop() =
-    if currentShop == 0 then 
-      shop0.active = false
-      shop1.active = true
-      currentShop = 1
-    else
-      shop0.active = true
-      shop1.active = false
-      currentShop = 0
-
+    shops.foreach(s => s.active = !s.active)
+  shop0.active = true
+  shop1.active = false
   position = (engine.window.size.x * 0.85f, 0f)
   val rectangle =
     RectangleObject(engine.window.size.x * 0.15f, engine.window.size.y * 0.15f, engine)
@@ -26,6 +21,7 @@ class SwitchButton(shop0 : Shop[?], shop1 : Shop[?], var currentShop : Int, engi
   val text = new TextObject("Switch Shop", engine)
   text.fillColor = (Color(236, 191, 42))
   addChildren(text)
+  setOriginToCenter(rectangle.bounds)
   text.position =
     (engine.window.size.x * 0.02f, engine.window.size.y * 0.1f)
   listenToBoundsClicked(Mouse.Button.Left, rectangle, true, switchShop)
