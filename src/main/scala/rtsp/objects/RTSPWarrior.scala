@@ -42,7 +42,8 @@ class RTSPWarrior(
   def stunned = stunTime > 0
 
   /** Stuns the warrior
-    * @param duration The duration of the stun in seconds
+    * @param duration
+    *   The duration of the stun in seconds
     */
   def stun(duration: Float): Unit = stunTime =
     math.max(stunTime / engine.deltaTime, duration.toFloat).ceil.toInt
@@ -64,8 +65,10 @@ class RTSPWarrior(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
       )
     rooted = true
-    if (currentAttackDelay < 0) then { target.health -= attackDamage }
-    else { currentAttackDelay -= engine.deltaTime }
+    if (currentAttackDelay < 0) then {
+      target.takeDamage(attackDamage)
+      currentAttackDelay = attackDelay
+    } else { currentAttackDelay -= engine.deltaTime }
   }
 
   def executeMove(target: engine2D.objects.GameTransform): Unit = {
@@ -204,4 +207,7 @@ object RTSPWarrior {
     val _behavior =
       if behavior == null then Behavior.basicBehavior(battle) else behavior
     warriorTypes(typeId)(engine, battle, team, _behavior, debug, benched)
+
+  implicit def ordering: Ordering[RTSPWarrior] =
+    Ordering.by(e => e.id)
 }

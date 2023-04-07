@@ -18,6 +18,15 @@ object Constants {
     val BASIC_POOL_REPARTITION: Array[Float] =
       Array(1f, 1f)
   }
+  object BattleC {
+    // initial hp of the base
+    val BASE_HP: Int = 10_000
+    val BASE_RANGE: Int = 150
+    val BASE_ATTACK_DAMAGE: Int = 200
+    val BASE_ATTACK_DELAY: Float = 1f
+    val TIMEOUT_DURATION: Float = 10f
+    val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 400f, 400f)
+  }
   val STARTING_MONEY: Int = 6000
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1

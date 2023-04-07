@@ -221,6 +221,10 @@ abstract class GameObject(
       case _             => false
     }
 
+  /** Implements an ordering between GameObjects. */
+  implicit def ordering: Ordering[GameObject] =
+    (x: GameObject, y: GameObject) => x.id - y.id
+
   /** Returns the global transform of this GameObject.
     * @note
     *   The global transform is the transform of this GameObject relative to the
@@ -247,4 +251,6 @@ object GameObject {
     lastId += 1
     lastId - 1
   }
+  implicit def ordering: Ordering[GameObject] =
+    Ordering.by(e => e.id)
 }
