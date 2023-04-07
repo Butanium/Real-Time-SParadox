@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 import sfml.system.Vector2
 import sfml.graphics.RectangleShape
 import sfml.graphics.Color
-class Shop(val player: Player, bench: Bench, engine: GameEngine)
+class Shop(val player: Player, bench: WarriorBench, engine: GameEngine)
     extends GameObject(engine) {
   var height: Float = engine.window.size.y * SHOP_HEIGHT_RATIO
   var width: Float = engine.window.size.x * SHOP_WIDTH_RATIO

@@ -21,7 +21,7 @@ object Constants {
         (ShopWarrior.create_shop_Archer, 1f)
       )
   }
-  val STARTING_MONEY: Int = 6
+  val STARTING_MONEY: Int = 6000
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
   val BENCH_SIZE: Int = 4
