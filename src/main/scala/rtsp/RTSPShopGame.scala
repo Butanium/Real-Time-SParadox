@@ -35,8 +35,13 @@ class RTSPShopGame(window: RenderWindow)
     case 2 => createTankBuff(engine, player, battle, debug)
     case _ => throw new Exception(s"Invalid effect id $id")
   }
-  // val shopWarriors = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, bench, engine)
+ 
+  
+  val shopWarriors = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, warriorBench, engine)
   val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(x=>1), idToEffect, benchEffects, engine)
+  shopEffects.active = false
+  val switchButton = SwitchButton(shopWarriors, shopEffects, 0, engine)
+  engine.spawn(switchButton)
   override def init() = {
 
     val team1 = List(
@@ -89,11 +94,11 @@ class RTSPShopGame(window: RenderWindow)
       window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopEffects.thickness,
       window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopEffects.thickness
     )
-    bench.position = (
+    warriorBench.position = (
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO)
     )
-    engine.spawn(bench)
+    engine.spawn(warriorBench)
     benchEffects.position = (
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO) - 50
