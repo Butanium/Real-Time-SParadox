@@ -20,7 +20,7 @@ class RTSPBase(
       BASE_ATTACK_DELAY,
       0f,
       Behavior.basicBehavior(battle),
-      SpriteObject(TextureManager.getTexture("base.png"), engine)
+      "base.png"
     ) {
 
   override def onDeath(): Unit = {

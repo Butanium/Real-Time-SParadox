@@ -38,8 +38,8 @@ class RTSPShopGame(window: RenderWindow)
   }
  
   
-  val shopWarrior = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, warriorBench, engine)
-  val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(x=>1), idToEffect, benchEffects, engine)
+  val shopWarrior = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_WARRIORS)(_=>1), idToWarrior, warriorBench, engine)
+  val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(_=>1), idToEffect, benchEffects, engine)
   shopEffects.active = false
   val switchButton = SwitchButton(shopWarrior, shopEffects, engine)
   engine.spawn(switchButton)
@@ -93,7 +93,6 @@ class RTSPShopGame(window: RenderWindow)
         ),
       () => {
         battle.active = !battle.active;
-        //shopWarriors.active = !shopWarriors.active;
       }
     )
     shopWarrior.position = (

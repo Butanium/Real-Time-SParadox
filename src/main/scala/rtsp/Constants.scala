@@ -34,4 +34,5 @@ object Constants {
   val BENCH_WIDTH_RATIO: Float = 1f
   val BENCH_HEIGHT_RATIO: Float = 0.2f
   val NUMBER_OF_POTIONS: Int = 3
+  val NUMBER_OF_WARRIORS: Int = 3
 }
