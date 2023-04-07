@@ -27,7 +27,7 @@ object Constants {
     val TIMEOUT_DURATION: Float = 10f
     val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 400f, 400f)
   }
-  val STARTING_MONEY: Int = 6000
+  val STARTING_MONEY: Int = 6
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
   val BENCH_SIZE: Int = 4
