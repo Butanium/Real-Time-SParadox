@@ -18,6 +18,18 @@ class RTSPShopGame(window: RenderWindow)
   val bench = Bench(engine, player, battle)
   val shop = Shop(player, bench, engine)
   override def init() = {
+    val basePlayer = RTSPBase(engine, battle, player)
+    engine.spawn(basePlayer)
+    battle.addBase(
+      basePlayer,
+      player
+    )
+    val baseBot = RTSPBase(engine, battle, bot)
+    engine.spawn(baseBot)
+    battle.addBase(
+      baseBot,
+      bot
+    )
     val team1 = List(
       RTSPWarrior
         .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
@@ -43,18 +55,6 @@ class RTSPShopGame(window: RenderWindow)
     team1(1).position = (200, 100)
     team1(2).position = (100, 200)
     team1(3).position = (200, 200)
-    val basePlayer = RTSPBase(engine, battle, player)
-    engine.spawn(basePlayer)
-    battle.addBase(
-      basePlayer,
-      player
-    )
-    val baseBot = RTSPBase(engine, battle, bot)
-    engine.spawn(baseBot)
-    battle.addBase(
-      baseBot,
-      bot
-    )
 
     battle.addWarriors(team1*)
     engine.spawn(team1*)
@@ -80,12 +80,12 @@ class RTSPShopGame(window: RenderWindow)
     engine.spawn(shop)
   }
   override def step() = {
-    val losers = battle.step()
-    if losers.nonEmpty then {
+    val ended = battle.step()
+    if ended then {
       player.earnMoney(
         2 * battle.enemies(player.id).count(w => !w.active && !w.benched)
-          + 10 * (if ((!losers.contains(player.id))) then 1 else 0)
       )
+
       battle.reset()
 
     }
