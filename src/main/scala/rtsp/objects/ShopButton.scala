@@ -15,64 +15,57 @@ import engine2D.objects.GraphicObject
 import engine2D.objects.RectangleObject
 import sfml.window.Mouse
 
-class ShopWarrior(
-    val warrior_id: Int,
+class ShopButton[T <: Buyable with GameObject](
+    val index: Int,
+    var buyable: T,
     val player: Player,
-    val shop: Shop,
-    val price: Int,
-    val type_string: String,
-    val spriteTexture: String,
+    val shop: Shop[T],
     engine: GameEngine
-) extends GameObject(engine)
-    with Buyable {
-  val sprite = SpriteObject(spriteTexture, engine)
+) extends GameObject(engine) {
+  // prend le sprite et ajuste ses dimensions
+  var sprite = SpriteObject(buyable.spriteTexture, engine)
   addChildren(sprite)
   sprite.boundDimensions(shop.max_width_buyable, shop.max_height_buyable)
-  val text_price = new TextObject(price.toString(), engine, charSize = 48)
+
+  // ajoute le prix pour pouvoir l'afficher
+  val text_price =
+    new TextObject(buyable.price.toString(), engine, charSize = 48)
   text_price.fillColor = (Color(236, 191, 42))
   addChildren(text_price)
   text_price.position =
     (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
-  val textType = new TextObject(type_string, engine, charSize = 16)
+
+  // affiche le nom de l'objet mis en vente
+  val textType = new TextObject(buyable.name, engine, charSize = 16)
   textType.fillColor = (Color(236, 191, 42))
   addChildren(textType)
   textType.position =
     (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
+
+  // définit le rectangle qui encadre l'objet en vente
   private val rectangle =
     RectangleObject(shop.max_width_buyable, shop.max_height_buyable, engine)
   rectangle.outlineColor = Color(236, 151, 22)
   rectangle.outlineThickness = 5
   rectangle.fillColor = Color(165, 245, 73, 20)
   addChildren(rectangle)
-  var shopIndex: Int = (-1)
-  def change_shopIndex_to(i: Int) =
-    shopIndex = i
-    position = shop.positionBuyable(i)
-  def whenClicked() = shop.playerWantsToBuy(this)
-  listenToBoundsClicked(Mouse.Button.Left, rectangle, true, whenClicked)
-  def convertToWarrior(battle: RTSPBattle, behavior: Behavior = null) =
-    RTSPWarrior(warrior_id, engine, battle, shop.player.id, behavior)
-}
 
-object ShopWarrior {
-  def create_shop_Archer(shop: Shop) =
-    new ShopWarrior(
-      ID_ARCHER,
-      shop.player,
-      shop,
-      PRICE_ARCHER,
-      "Archer",
-      "warriors/archer.png",
-      shop.engine
-    )
-  def create_shop_Barbarian(shop: Shop) =
-    new ShopWarrior(
-      ID_BARBARIAN,
-      shop.player,
-      shop,
-      PRICE_BARBARIAN,
-      "Barbarian",
-      "warriors/warrior.png",
-      shop.engine
-    )
+  // définit le comportement du bouton quand il est cliqué
+  def whenClicked() = if shop.active then shop.playerWantsToBuy(this)
+  listenToBoundsClicked(Mouse.Button.Left, rectangle, true, whenClicked)
+
+  // Appelé quand le joueur veut acheter l'objet
+  def changeBuyable(buyable: T) =
+    removeChildren(this.sprite)
+    this.sprite = SpriteObject(buyable.spriteTexture, engine)
+    this.buyable = buyable
+    textType.text.string = buyable.name
+    text_price.text.string = buyable.price.toString()
+    addChildren(sprite)
+    sprite.boundDimensions(shop.max_width_buyable, shop.max_height_buyable)
+    text_price.position =
+      (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
+    textType.position =
+      (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
+
 }

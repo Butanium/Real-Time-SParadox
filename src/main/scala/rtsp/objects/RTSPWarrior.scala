@@ -27,18 +27,24 @@ class RTSPWarrior(
     var attackDelay: Float,
     speed: Float,
     var behavior: Behavior,
-    val sprite: SpriteObject,
+    val spriteTexture: String,
     val debug: Boolean = false,
-    var benched: Boolean = false
+    var benched: Boolean = false,
+    val price: Int = 1,
+    val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
-    with Grabbable(Mouse.Button.Left, engine, debug = debug) {
+    with Grabbable(Mouse.Button.Left, engine, debug = debug)
+    with Buyable {
+
+  var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
 
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0
   def stunned = stunTime > 0
 
   /** Stuns the warrior
-    * @param duration The duration of the stun in seconds
+    * @param duration
+    *   The duration of the stun in seconds
     */
   def stun(duration: Float): Unit = stunTime =
     math.max(stunTime / engine.deltaTime, duration.toFloat).ceil.toInt
@@ -60,8 +66,10 @@ class RTSPWarrior(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
       )
     rooted = true
-    if (currentAttackDelay < 0) then { target.health -= attackDamage }
-    else { currentAttackDelay -= engine.deltaTime }
+    if (currentAttackDelay < 0) then {
+      target.takeDamage(attackDamage)
+      currentAttackDelay = attackDelay
+    } else { currentAttackDelay -= engine.deltaTime }
   }
 
   def executeMove(target: engine2D.objects.GameTransform): Unit = {
@@ -137,10 +145,9 @@ object RTSPWarrior {
       attackDelay = 1f,
       speed = 10f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/archer.png"),
-        engine
-      ),
+      "warriors/archer.png",
+      name = "Archer",
+      price = 4,
       debug = debug
     )
   def createBarbarian(
@@ -161,12 +168,37 @@ object RTSPWarrior {
       attackDelay = 0.5f,
       speed = 20f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/warrior.png"),
-        engine
-      ),
+      "warriors/warrior.png",
+      name = "Barbarian",
+      price = 3,
       debug = debug
     )
+  def createGiant(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    val w = new RTSPWarrior(
+      engine,
+      battle,
+      team,
+      maxHP = 3000,
+      range = 10,
+      attackDamage = 10,
+      attackDelay = 1f,
+      speed = 7f,
+      behavior,
+      "warriors/giant.png",
+      name = "Giant",
+      price = 2,
+      debug = debug
+    )
+    w.scale(1.5f, 1.5f)
+    w
+
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
   ] = new Array(2)
@@ -184,4 +216,7 @@ object RTSPWarrior {
     val _behavior =
       if behavior == null then Behavior.basicBehavior(battle) else behavior
     warriorTypes(typeId)(engine, battle, team, _behavior, debug, benched)
+
+  implicit def ordering: Ordering[RTSPWarrior] =
+    Ordering.by(e => e.id)
 }

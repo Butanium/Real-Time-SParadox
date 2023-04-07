@@ -2,24 +2,60 @@ package rtsp
 import engine2D.Game
 import sfml.graphics.RenderWindow
 import rtsp.battle.RTSPBattle
-import rtsp.objects.RTSPWarrior
 import rtsp.battle.Behavior
-import rtsp.objects.Shop
+import rtsp.objects.*
 import rtsp.Constants.ShopConstants.*
 import rtsp.Constants.*
-import rtsp.objects.Bench
 import sfml.window.Mouse
+import rtsp.objects.WarriorBench
+import rtsp.objects.EffectBench
+import rtsp.objects.Effect.*
+import objects.SwitchButton
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine = new RTSPGameEngine(1f / 60, window, debug = false)
+  val engine = new RTSPGameEngine(3f / 60, window, debug = false)
 
-  val player = Player(0)
+
+  val player = Player(0, "You")
+  val bot = Player(1, "Bot")
   val battle = RTSPBattle(player, debug)
-  val bench = Bench(engine, player, battle)
-  val shop = Shop(player, bench, engine)
-  override def init() = {
+  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE)
+  val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
 
+  def idToWarrior(id : Int) = id match {
+    case 0 => RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case 1 => RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case 2 => RTSPWarrior.createGiant(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+    case _ => throw new Exception(s"Invalid warrior id $id")
+  }
+
+  def idToEffect(id : Int) = id match {
+    case 0 => createAttackBuff(engine, player, battle, debug)
+    case 1 => createSpeedBuff(engine, player, battle, debug)
+    case 2 => createTankBuff(engine, player, battle, debug)
+    case _ => throw new Exception(s"Invalid effect id $id")
+  }
+ 
+  
+  val shopWarrior = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_WARRIORS)(_=>1), idToWarrior, warriorBench, engine)
+  val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(_=>1), idToEffect, benchEffects, engine)
+  shopEffects.active = false
+  val switchButton = SwitchButton(shopWarrior, shopEffects, engine)
+  engine.spawn(switchButton)
+  override def init() = {
+    val basePlayer = RTSPBase(engine, battle, player)
+    engine.spawn(basePlayer)
+    battle.addBase(
+      basePlayer,
+      player
+    )
+    val baseBot = RTSPBase(engine, battle, bot)
+    engine.spawn(baseBot)
+    battle.addBase(
+      baseBot,
+      bot
+    )
     val team1 = List(
       RTSPWarrior
         .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
@@ -47,8 +83,8 @@ class RTSPShopGame(window: RenderWindow)
     team1(3).position = (200, 200)
 
     battle.addWarriors(team1*)
-
-    engine.spawn(team1: _*)
+    val potionTest = createAttackBuff(engine, player, battle, debug)
+    engine.spawn(team1*)
     engine.mouseManager.registerMouseEvent(
       engine2D.eventHandling.MouseEvent
         .ButtonPressed(
@@ -59,42 +95,35 @@ class RTSPShopGame(window: RenderWindow)
         battle.active = !battle.active;
       }
     )
-    shop.position = (
-      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shop.thickness,
-      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shop.thickness
+    shopWarrior.position = (
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarrior.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarrior.thickness
     )
-    bench.position = (
+    shopEffects.position = (
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopEffects.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopEffects.thickness
+    )
+    warriorBench.position = (
       window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO)
     )
-    engine.spawn(bench)
-    engine.spawn(shop)
-    // bench.addBoughtWarrior(
-    //   RTSPWarrior.createBarbarian(
-    //     engine,
-    //     battle,
-    //     0,
-    //     Behavior.basicBehavior(battle),
-    //     debug
-    //   )
-    // )
-    // bench.addBoughtWarrior(
-    //   RTSPWarrior.createArcher(
-    //     engine,
-    //     battle,
-    //     0,
-    //     Behavior.basicBehavior(battle),
-    //     debug
-    //   )
-    // )
+    engine.spawn(warriorBench)
+    benchEffects.position = (
+      window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
+      window.size.y * (0.9f - BENCH_HEIGHT_RATIO) - 50
+    )
+    benchEffects.addBought(potionTest)
+
+    engine.spawn(benchEffects)
+    engine.spawn(shopEffects, shopWarrior)
   }
   override def step() = {
-    val losers = battle.step()
-    if losers.nonEmpty then {
+    val ended = battle.step()
+    if ended then {
       player.earnMoney(
         2 * battle.enemies(player.id).count(w => !w.active && !w.benched)
-          + 10 * (if ((!losers.contains(player.id))) then 1 else 0)
       )
+
       battle.reset()
 
     }
