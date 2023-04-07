@@ -13,7 +13,7 @@ class SwitchButton(shop0 : Shop[?], shop1 : Shop[?], engine : GameEngine) extend
   shop1.active = false
   position = (engine.window.size.x * 0.85f, 0f)
   val rectangle =
-    RectangleObject(engine.window.size.x * 0.15f, engine.window.size.y * 0.15f, engine)
+    RectangleObject(engine.window.size.x * 0.35f, engine.window.size.y * 0.15f, engine)
   rectangle.outlineColor = Color(236, 151, 22)
   rectangle.outlineThickness = 5
   rectangle.fillColor = Color(165, 245, 73, 20)

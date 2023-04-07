@@ -197,6 +197,7 @@ object RTSPWarrior {
       debug = debug
     )
     w.scale(1.5f, 1.5f)
+    w
 
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
