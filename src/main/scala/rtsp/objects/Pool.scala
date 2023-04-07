@@ -2,19 +2,21 @@ package rtsp.objects
 import util.Random
 import rtsp.Player
 import rtsp.battle.RTSPBattle
-class Pool(
-    type_prob_warrior: Array[Tuple2[(Shop) => ShopWarrior, Float]],
-    shop: Shop
+class Pool[T <: Buyable](
+  probObject: Array [Float],
+    shop: Shop[T]
 ) {
-  private def coeff_sum(t: Array[Tuple2[(Shop) => ShopWarrior, Float]]): Float =
+  // calcule la somme flottante des coefficients de l'Array
+  private def coeff_sum(t: Array[Float]): Float =
     var s: Float = 0
-    for i <- 0 to ((t.size) - 1) do s += (t(i))._2
+    for i <- 0 to ((t.size) - 1) do s += t(i)
     s
-  def get_random(): ShopWarrior =
-    var p: Float = Random.between(0f, coeff_sum(type_prob_warrior))
+  // tire aléatoirement un entier du tableau en fonction de la répartition aléatoire
+  def get_random(): Int =
+    var p: Float = Random.between(0f, coeff_sum(probObject))
     var i: Int = 0
-    while (p >= 0f) && (i < type_prob_warrior.size) do
-      p -= type_prob_warrior(i)._2
+    while (p >= 0f) && (i < probObject.size) do
+      p -= probObject(i)
       i += 1
-    type_prob_warrior(i - 1)._1(shop)
+    i - 1
 }

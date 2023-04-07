@@ -27,12 +27,16 @@ class RTSPWarrior(
     var attackDelay: Float,
     speed: Float,
     var behavior: Behavior,
-    val sprite: SpriteObject,
+    val spriteTexture: String,
     val debug: Boolean = false,
     var benched: Boolean = false
 ) extends GameUnit(maxHP, speed, engine)
-    with Grabbable(Mouse.Button.Left, engine, debug = debug) {
-
+    with Grabbable(Mouse.Button.Left, engine, debug = debug) with Buyable {
+  //TODO make param
+  val price = 2
+  val name = "Warrior"
+  
+  var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0
   def stunned = stunTime > 0
@@ -137,10 +141,7 @@ object RTSPWarrior {
       attackDelay = 1f,
       speed = 10f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/archer.png"),
-        engine
-      ),
+      "warriors/archer.png",
       debug = debug
     )
   def createBarbarian(
@@ -161,10 +162,7 @@ object RTSPWarrior {
       attackDelay = 0.5f,
       speed = 20f,
       behavior,
-      engine2D.objects.SpriteObject(
-        TextureManager.getTexture("warriors/warrior.png"),
-        engine
-      ),
+      "warriors/warrior.png",
       debug = debug
     )
   private val warriorTypes: Array[
