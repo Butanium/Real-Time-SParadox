@@ -8,6 +8,7 @@ import scala.collection.mutable.ListBuffer
 import sfml.system.Vector2
 import sfml.graphics.RectangleShape
 import sfml.graphics.Color
+
 import util.Random
 class Shop[T <: Buyable](
     val player: Player,

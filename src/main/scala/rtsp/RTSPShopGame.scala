@@ -9,6 +9,9 @@ import rtsp.Constants.ShopConstants.*
 import rtsp.Constants.*
 import rtsp.objects.Bench
 import sfml.window.Mouse
+import rtsp.objects.WarriorBench
+import rtsp.objects.EffectBench
+import rtsp.objects.Effect.createAttackBuff
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
@@ -16,7 +19,9 @@ class RTSPShopGame(window: RenderWindow)
 
   val player = Player(0)
   val battle = RTSPBattle(player, debug)
-  val bench = Bench(engine, player, battle)
+  val bench = WarriorBench(engine, player, battle, BENCH_SIZE)
+  val benchOld = Bench(engine, player, battle)
+  val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
   val shop = Shop(player, bench, engine)
   override def init() = {
 
@@ -47,6 +52,8 @@ class RTSPShopGame(window: RenderWindow)
     team1(3).position = (200, 200)
 
     battle.addWarriors(team1*)
+    val potionTest = createAttackBuff(engine, player, battle, debug)
+
 
     engine.spawn(team1: _*)
     engine.mouseManager.registerMouseEvent(
@@ -68,6 +75,13 @@ class RTSPShopGame(window: RenderWindow)
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO)
     )
     engine.spawn(bench)
+    benchEffects.position = (
+      window.size.x * (1 - BENCH_WIDTH_RATIO) / 2f,
+      window.size.y * (0.9f - BENCH_HEIGHT_RATIO) - 50
+    )
+    benchEffects.addEffect(potionTest)
+
+    engine.spawn(benchEffects)
     engine.spawn(shop)
     // bench.addBoughtWarrior(
     //   RTSPWarrior.createBarbarian(
