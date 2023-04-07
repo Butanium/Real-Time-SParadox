@@ -25,7 +25,7 @@ class EffectBench(
       else {
         battle
           .teams(player.id)
-          .find(warrior => effect.distanceTo(warrior) <= 5) match {
+          .find(warrior => warrior.contains(effect.position)) match {
           case Some(warrior) => effect.apply(warrior)
           case None => effect.position = effect.grabLocation; addBought(effect)
         }

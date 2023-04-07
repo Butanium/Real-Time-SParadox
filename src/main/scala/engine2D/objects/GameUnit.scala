@@ -23,7 +23,6 @@ class GameUnit(
   protected var health = maxHealth
 
   def takeDamage(damage: Int) =
-    println(s"GameUnit $id took $damage damage. ")
     health -= damage
 
   /** Called when this GameUnit dies (health <= 0). Will be checked only when
