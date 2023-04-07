@@ -37,10 +37,10 @@ class RTSPShopGame(window: RenderWindow)
   }
  
   
-  val shopWarriors = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, warriorBench, engine)
+  val shopWarrior = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, BASIC_POOL_REPARTITION, idToWarrior, warriorBench, engine)
   val shopEffects = Shop(player, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(x=>1), idToEffect, benchEffects, engine)
   shopEffects.active = false
-  val switchButton = SwitchButton(shopWarriors, shopEffects, 0, engine)
+  val switchButton = SwitchButton(shopWarrior, shopEffects, engine)
   engine.spawn(switchButton)
   override def init() = {
 
@@ -86,10 +86,10 @@ class RTSPShopGame(window: RenderWindow)
         //shopWarriors.active = !shopWarriors.active;
       }
     )
-    // shopWarriors.position = (
-    //   window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarriors.thickness,
-    //   window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarriors.thickness
-    // )
+    shopWarrior.position = (
+      window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarrior.thickness,
+      window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarrior.thickness
+    )
     shopEffects.position = (
       window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopEffects.thickness,
       window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopEffects.thickness
@@ -106,7 +106,7 @@ class RTSPShopGame(window: RenderWindow)
     benchEffects.addBought(potionTest)
 
     engine.spawn(benchEffects)
-    engine.spawn(shopEffects)
+    engine.spawn(shopEffects, shopWarrior)
 
     // bench.addBoughtWarrior(
     //   RTSPWarrior.createBarbarian(
