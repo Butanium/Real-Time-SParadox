@@ -22,7 +22,7 @@ class ActualiseButton[T <: Buyable with GameObject](val player: Player, shop: Sh
   text.position =
     (shop.max_width_buyable / 10, shop.max_height_buyable / 2)
   def when_clicked() =
-    if player.buy(price) then
+    if shop.active && player.buy(price) then
       shop.change_shop()
   listenToBoundsClicked(Mouse.Button.Left, rectangle, true, when_clicked)
 }
