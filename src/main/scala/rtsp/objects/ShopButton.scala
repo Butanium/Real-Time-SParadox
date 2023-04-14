@@ -47,7 +47,7 @@ class ShopButton[T <: Buyable with GameObject](
     RectangleObject(shop.max_width_buyable, shop.max_height_buyable, engine)
   rectangle.outlineColor = Color(236, 151, 22)
   rectangle.outlineThickness = 5
-  rectangle.fillColor = Color(165, 245, 73, 20)
+  rectangle.fillColor = Color(165, 245, 73, 80)
   addChildren(rectangle)
 
   // définit le comportement du bouton quand il est cliqué

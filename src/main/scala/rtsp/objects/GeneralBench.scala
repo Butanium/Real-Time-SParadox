@@ -15,12 +15,12 @@ abstract class GeneralBench[T <: GameObject](
     battle: RTSPBattle,
     size: Int,
     array: Array[T],
-    benchType: String
+    benchType: String // todo remove
 ) extends GameObject(engine) {
   var x = 0
   var y = 0
   val benchArray = array
-  if (benchType == "warrior") then
+  if (benchType == "warrior") then // todo remove and do this in the RTSPShopGame code instead
     x = engine.window.size.x
     y = engine.window.size.y / 16
   else if (benchType == "effect") then
@@ -52,7 +52,7 @@ abstract class GeneralBench[T <: GameObject](
   }
   def isNotFull: Boolean = takenSlots < BENCH_SIZE
   val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
-  if (benchType == "warrior") then rectangle.fillColor = Color(165, 245, 73, 50)
+  if (benchType == "warrior") then rectangle.fillColor = Color(165, 245, 73, 80)
   else if (benchType == "effect") then
     rectangle.fillColor = Color(165, 73, 245, 50)
   addChildren(rectangle)

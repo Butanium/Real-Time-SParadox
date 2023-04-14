@@ -25,9 +25,9 @@ object Constants {
     val BASE_ATTACK_DAMAGE: Int = 200
     val BASE_ATTACK_DELAY: Float = 1f
     val TIMEOUT_DURATION: Float = 10f
-    val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 400f, 400f)
+    val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 800f, 550f)
   }
-  val STARTING_MONEY: Int = 6
+  val STARTING_MONEY: Int = 600
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
   val BENCH_SIZE: Int = 4

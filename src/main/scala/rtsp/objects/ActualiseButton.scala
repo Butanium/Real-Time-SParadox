@@ -14,10 +14,10 @@ class ActualiseButton[T <: Buyable with GameObject](val player: Player, shop: Sh
     RectangleObject(shop.max_width_buyable, shop.max_height_buyable,engine)
   rectangle.outlineColor = Color(236, 151, 22)
   rectangle.outlineThickness = 5
-  rectangle.fillColor = Color(165, 245, 73, 20)
+  rectangle.fillColor = Color(165, 245, 73, 80)
   addChildren(rectangle)
   val text = new TextObject("Actualise: " + price.toString(), engine)
-  text.fillColor = (Color(236, 191, 42))
+  text.fillColor = (Color(236, 191, 80))
   addChildren(text)
   text.position =
     (shop.max_width_buyable / 10, shop.max_height_buyable / 2)

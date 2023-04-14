@@ -79,9 +79,9 @@ class Shop[T <: Buyable with GameObject](
 
   // création du rectangle qui sert de sprite au Shop
   val rectangle = RectangleObject(real_width, realHeight, engine)
-  rectangle.outlineColor = Color(107, 76, 30)
+  rectangle.outlineColor = Color(107, 76, 50)
   rectangle.outlineThickness = thickness
-  rectangle.fillColor = Color(93, 247, 150, 50)
+  rectangle.fillColor = Color(93, 247, 150, 80)
   addChildren(rectangle)
   init_shop()
 
@@ -92,7 +92,7 @@ class Shop[T <: Buyable with GameObject](
     RectangleObject(real_width_money, realHeightMoney, engine)
   moneyRectangle.outlineColor = Color(107, 76, 30)
   moneyRectangle.outlineThickness = thickness
-  moneyRectangle.fillColor = Color(93, 247, 150, 50)
+  moneyRectangle.fillColor = Color(93, 247, 150, 80)
   addChildren(moneyRectangle)
   moneyRectangle.position =
     (real_width / 2f - real_width_money / 2f, -(thickness + realHeightMoney))
