@@ -10,7 +10,8 @@ class TextObject(
     engine: GameEngine,
     fontFile: String = "basic.ttf",
     charSize: Int = 24
-) extends GraphicObject(Text(), engine) {
+) extends GraphicObject(Text(), engine)
+    with RectBounds {
   val text = drawable.asInstanceOf[Text]
   text.font = FontManager.getFont(fontFile)
   text.string = textString
@@ -23,5 +24,8 @@ class TextObject(
   def string_=(s: String) = text.string = s
   def characterSize = text.characterSize
   def characterSize_=(s: Int) = text.characterSize = s
+  def localBounds = text.localBounds
+  def globalBounds = globalTransform.transformRect(localBounds)
+  def contains(point: sfml.system.Vector2[Float]) = globalBounds.contains(point)
 
 }
