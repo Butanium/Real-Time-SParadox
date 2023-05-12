@@ -15,7 +15,7 @@ class Shop[T <: Buyable with GameObject](
     initNbBuyable: Int,
     maxNbBuyable: Int,
     poolRepartition: Array [Float],
-    idToBuyable: Int => T,
+    idToBuyable: (Int,Player) => T,
     bench: GeneralBench[T],
     engine: GameEngine
 
@@ -58,13 +58,13 @@ class Shop[T <: Buyable with GameObject](
   // fonction pour remplacer aléatoirement un objet du shop, à définir
   def replace(index :Int) =
     val random_id_object: Int = pool.get_random()
-    buttons(index).changeBuyable(idToBuyable(random_id_object))
+    buttons(index).changeBuyable(idToBuyable(random_id_object,player))
 
   // fonction pour initialiser un objet du shop à un certain index
   def init(index: Int) = 
     val random_id_object: Int = pool.get_random()
     var newButton =
-      ShopButton(index, idToBuyable(random_id_object), player, this, engine)
+      ShopButton(index, idToBuyable(random_id_object,player), player, this, engine)
     buttons(index) = newButton
     addChildren(newButton)
     newButton.position = positionBuyable(index)
