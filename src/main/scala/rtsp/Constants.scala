@@ -27,6 +27,9 @@ object Constants {
     val TIMEOUT_DURATION: Float = 10f
     val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 400f, 400f)
   }
+  val NODE_WIDTH: Float = 40f
+  val NODE_HEIGHT: Float = 25f
+  val NODE_CIRCLE_RADIUS: Float = 4f
   val STARTING_MONEY: Int = 6
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
