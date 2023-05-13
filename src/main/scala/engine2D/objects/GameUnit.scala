@@ -20,22 +20,24 @@ class GameUnit(
 
   /** The current health of this GameUnit.
     */
-  protected var health = maxHealth
+  protected var health_ = maxHealth
+
+  def health = health_
 
   def takeDamage(damage: Int) =
-    health -= damage
+    health_ -= damage
 
   /** Called when this GameUnit dies (health <= 0). Will be checked only when
     * the GameUnit is updated.
     */
   def onDeath() = markForDeletion()
 
-  def isDead = health <= 0
+  def isDead = health_ <= 0
 
-  def isAlive = health > 0
+  def isAlive = health_ > 0
 
   override def onUpdate() = {
-    if (health <= 0) then {
+    if (health_ <= 0) then {
       active = false
       onDeath()
     }
