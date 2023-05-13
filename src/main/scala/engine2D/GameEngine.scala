@@ -21,7 +21,7 @@ type ObjectSet[A] = ListBuffer[A]
 class GameEngine(
     val deltaTime: Float,
     val window: RenderWindow,
-    val gameObjects: ObjectSet[GameObject] = ListBuffer.empty[GameObject],
+    var gameObjects: ObjectSet[GameObject] = ListBuffer.empty[GameObject],
     val debug: Boolean = false
 ) {
 
@@ -53,7 +53,7 @@ class GameEngine(
     EventManager.handleEvents()
     gameObjects ++= newGameObjects
     newGameObjects.clear()
-    gameObjects.sortBy(GameObject.order)
+    gameObjects = gameObjects.sortBy(GameObject.order)
     gameObjects.foreach(_.update())
     gameObjects.filterInPlace(!_.deleteIfNeeded())
     if debug then

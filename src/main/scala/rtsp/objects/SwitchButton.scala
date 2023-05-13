@@ -25,6 +25,7 @@ class SwitchButton(shop0: Shop[?], shop1: Shop[?], engine: GameEngine)
   addChildren(rectangle)
   val text = new TextObject("Switch Shop", engine)
   text.fillColor = (Color(236, 191, 42))
+  text.zIndex = 1
   addChildren(text)
   setOriginToCenter(rectangle.globalBounds)
   text.position = (engine.window.size.x * 0.02f, engine.window.size.y * 0.1f)
