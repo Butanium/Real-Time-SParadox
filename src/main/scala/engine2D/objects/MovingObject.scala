@@ -67,8 +67,8 @@ class MovingObject(
     _baseRotation = newBaseRotation
   }
 
-  def changeDirectionTo(target: GameTransform) = {
-    changeDirection(target.position + (position * -1))
+  def changeDirectionTo(targetPosition: Vector2[Float]) = {
+    changeDirection(targetPosition + (position * -1))
   }
 
   /** Called when this MovingObject is updated. Will move the MovingObject if it
