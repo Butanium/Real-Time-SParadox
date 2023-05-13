@@ -43,8 +43,10 @@ class AttackBuff(
   val name = "AttackBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
-    warrior.attackDamage += amount
-    super.apply(warrior)
+    if (warrior.team == player.id) {
+      warrior.attackDamage += amount
+      super.apply(warrior)
+    }
   }
 }
 
@@ -59,8 +61,10 @@ class SpeedBuff(
   val name = "SpeedBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
-    warrior.speed += amount
-    super.apply(warrior)
+    if (warrior.team == player.id) {
+      warrior.speed += amount
+      super.apply(warrior)
+    }
   }
 }
 
@@ -75,8 +79,10 @@ class TankBuff(
   val name = "TankBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
-    warrior.maxHP += amount
-    super.apply(warrior)
+    if (warrior.team == player.id) {
+      warrior.maxHP += amount
+      super.apply(warrior)
+    }
   }
 }
 
