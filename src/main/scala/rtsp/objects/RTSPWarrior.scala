@@ -11,6 +11,8 @@ import engine2D.objects.Grabbable
 import sfml.window.Mouse
 import sfml.system.Vector2
 import rtsp.Constants
+import engine2D.objects.RectangleObject
+import sfml.graphics.Color
 
 /*
   Utiliser l'arbre de comportement
@@ -35,7 +37,10 @@ class RTSPWarrior(
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
     with Buyable {
-
+  val circle = RectangleObject(Constants.NODE_CIRCLE_RADIUS, Constants.NODE_CIRCLE_RADIUS, engine)
+  circle.zIndex = 10
+  circle.fillColor = Color.Red()
+  addChildren(circle)
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
 
   /** The amount of frames the warrior is stunned */

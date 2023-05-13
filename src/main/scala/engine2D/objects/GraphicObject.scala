@@ -31,5 +31,5 @@ class GraphicObject(
       states: sfml.graphics.RenderStates
   ): Unit =
     target.draw(drawable, GrUtils.newState(states, transform))
-    super.onDraw(target, GrUtils.newState(states, transform))
+    super.onDraw(target, states)
 }

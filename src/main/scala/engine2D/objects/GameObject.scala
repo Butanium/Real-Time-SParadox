@@ -11,6 +11,7 @@ import engine2D.graphics.GrUtils
 import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
 import sfml.window.Mouse.Button
+import sfml.system.Vector2
 import math.Ordered.orderingToOrdered
 
 /** Base class for all game objects. It's transformable, can have children, can
@@ -22,7 +23,7 @@ import math.Ordered.orderingToOrdered
   *   Whether or not this GameObject is active. If it's not active, it won't be
   *   updated or drawn.
   */
-abstract class GameObject(
+class GameObject(
     var engine: GameEngine
 ) extends GameTransform
     with Drawable {
@@ -239,6 +240,9 @@ abstract class GameObject(
     parent match
       case None         => transform
       case Some(parent) => parent.globalTransform * transform
+
+  def globalPosition: Vector2[Float] = 
+    globalTransform.transformPoint(position)
 }
 
 object GameObject {
