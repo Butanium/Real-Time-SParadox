@@ -11,6 +11,7 @@ import engine2D.graphics.GrUtils
 import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
 import sfml.window.Mouse.Button
+import sfml.system.Vector2
 
 /** Base class for all game objects. It's transformable, can have children, can
   * be drawn, and can be updated.
@@ -21,7 +22,7 @@ import sfml.window.Mouse.Button
   *   Whether or not this GameObject is active. If it's not active, it won't be
   *   updated or drawn.
   */
-abstract class GameObject(
+class GameObject(
     var engine: GameEngine
 ) extends GameTransform
     with Drawable {
@@ -36,7 +37,7 @@ abstract class GameObject(
       _active = newValue
       // listeners.foreach(_.active = false)
 
-  def zIndex = 0
+  var zIndex = 0
 
   /** The parent of this GameObject. If it's None, this GameObject has no
     * parent.
@@ -236,6 +237,9 @@ abstract class GameObject(
     parent match
       case None         => transform
       case Some(parent) => parent.globalTransform * transform
+
+  def globalPosition: Vector2[Float] = 
+    globalTransform.transformPoint(position)
 }
 
 object GameObject {

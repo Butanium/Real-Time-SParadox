@@ -16,7 +16,6 @@ class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
   val engine = new RTSPGameEngine(3f / 60, window, debug = false)
 
-
   val player = Player(0, "You")
   val bot = Player(1, "Bot")
   val battle = RTSPBattle(player, debug)

@@ -12,8 +12,9 @@ class CircleObject(
   def contains(point: sfml.system.Vector2[Float]): Boolean =
     if scale.x == scale.y then
       // Use the distance formula to check if the point is within the circle.
-      val dx = point.x - position.x
-      val dy = point.y - position.y
+      val dx = point.x - globalPosition.x
+      val dy = point.y - globalPosition.y
+      print(Math.sqrt(dx * dx + dy * dy).round, radius, scale.x, "\n")
       Math.sqrt(dx * dx + dy * dy) <= radius * scale.x
     else
       // If the circle is scaled differently in the x and y directions, then
