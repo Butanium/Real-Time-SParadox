@@ -25,14 +25,14 @@ class RTSPShopGame(window: RenderWindow)
   val warriorBench1 = WarriorBench(engine, player1, battle, BENCH_SIZE)
   val benchEffects1 = EffectBench(engine, player1, battle, BENCH_SIZE)
 
-  def idToWarrior(id : Int) = id match {
-    case 0 => RTSPWarrior.createBarbarian(engine, battle, 0, Behavior.basicBehavior(battle), debug)
-    case 1 => RTSPWarrior.createArcher(engine, battle, 0, Behavior.basicBehavior(battle), debug)
-    case 2 => RTSPWarrior.createGiant(engine, battle, 0, Behavior.basicBehavior(battle), debug)
+  def idToWarrior(id : Int, player : Player) = id match {
+    case 0 => RTSPWarrior.createBarbarian(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
+    case 1 => RTSPWarrior.createArcher(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
+    case 2 => RTSPWarrior.createGiant(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
     case _ => throw new Exception(s"Invalid warrior id $id")
   }
 
-  def idToEffect(id : Int) = id match {
+  def idToEffect(id : Int, player : Player) = id match {
     case 0 => createAttackBuff(engine, player, battle, debug)
     case 1 => createSpeedBuff(engine, player, battle, debug)
     case 2 => createTankBuff(engine, player, battle, debug)
