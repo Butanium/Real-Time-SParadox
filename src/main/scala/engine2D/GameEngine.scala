@@ -53,7 +53,7 @@ class GameEngine(
     EventManager.handleEvents()
     gameObjects ++= newGameObjects
     newGameObjects.clear()
-    gameObjects.sortBy(_.id)
+    gameObjects.sortBy(GameObject.order)
     gameObjects.foreach(_.update())
     gameObjects.filterInPlace(!_.deleteIfNeeded())
     if debug then

@@ -253,6 +253,9 @@ object GameObject {
     lastId += 1
     lastId - 1
   }
+
+  def order(x: GameObject): (Int, Int) = (x.zIndex, x.id)
+
   implicit def ordering: Ordering[GameObject] =
     Ordering.by(e => (e.zIndex, e.id))
 }
