@@ -28,7 +28,7 @@ abstract class GameObject(
     with Drawable {
   private var _active: Boolean = true
 
-  def active: Boolean = _active
+  def active: Boolean = _active && parent.forall(_.active)
   def active_=(newValue: Boolean) =
     // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
     // states of listener and restore them when active is set to true. We'll handle this
@@ -148,7 +148,7 @@ abstract class GameObject(
     * GameObject is active.
     */
   protected def onUpdate(): Unit =
-    children = children.sortBy(GameObject.order(_))
+    children = children.sortBy(_.order)
     children.foreach(_.update())
 
   /** Updates this GameObject and all its children if it's active.
@@ -227,8 +227,7 @@ abstract class GameObject(
     }
 
   /** Implements an ordering between GameObjects. */
-  implicit def ordering: Ordering[GameObject] =
-    (x: GameObject, y: GameObject) => x.id - y.id
+  // implicit def ordering: Ordering[GameObject] = Ordering.by(_.order)
 
   /** Returns the global transform of this GameObject.
     * @note
@@ -239,6 +238,8 @@ abstract class GameObject(
     parent match
       case None         => transform
       case Some(parent) => parent.globalTransform * transform
+
+  def order: (Int, Int) = ((if active then zIndex else -1), id)
 }
 
 object GameObject {
@@ -257,5 +258,4 @@ object GameObject {
     lastId - 1
   }
 
-  def order(x: GameObject): (Int, Int) = (x.zIndex, x.id)
 }

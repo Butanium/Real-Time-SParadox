@@ -53,7 +53,6 @@ class GameEngine(
     EventManager.handleEvents()
     gameObjects ++= newGameObjects
     newGameObjects.clear()
-    gameObjects = gameObjects.sortBy(GameObject.order)
     gameObjects.foreach(_.update())
     gameObjects.filterInPlace(!_.deleteIfNeeded())
     if debug then
@@ -67,8 +66,7 @@ class GameEngine(
     if debug then
       println(s"Render: ${gameObjects.size} game objects")
       time = System.nanoTime()
-    gameObjects.sortBy(_.zIndex)
-    gameObjects.foreach(window.draw(_))
+    gameObjects.sortBy(_.order).foreach(window.draw(_))
     if debug then
       println(s"Render: performed in ${(System.nanoTime() - time) * 1000} ms")
 

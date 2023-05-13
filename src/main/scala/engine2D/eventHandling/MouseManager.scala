@@ -9,53 +9,6 @@ import engine2D.eventHandling.MouseEvent.*
 import sfml.window.Mouse
 import engine2D.objects.Boundable
 
-/** Enum to indicate the condition to check for an event. This is used to group
-  * events that are checked in the same way.
-  */
-private enum EventCheckCondition {
-
-  /** The mouse position has changed
-    */
-  case CheckNewPosition
-
-  /** A button has been pressed
-    * @param button
-    *   the button that has been pressed
-    */
-  case CheckButtonPressed(button: Button)
-
-  /** A button has been released
-    * @param button
-    *   the button that has been released
-    */
-  case CheckButtonReleased(button: Button)
-}
-
-/** Companion object for EventCheckCondition
-  */
-private object EventCheckCondition {
-
-  /** Returns the condition to check for an event
-    *
-    * @param event
-    * @return
-    *   the condition to check for the event
-    */
-  def from(event: MouseEvent): EventCheckCondition = event match {
-    case MouseMoved(_) => EventCheckCondition.CheckNewPosition
-    case ButtonPressed(button, _) =>
-      EventCheckCondition.CheckButtonPressed(button)
-    case ButtonReleased(button, _) =>
-      EventCheckCondition.CheckButtonReleased(button)
-    case MouseInBounds(_, _)  => EventCheckCondition.CheckNewPosition
-    case MouseOutBounds(_, _) => EventCheckCondition.CheckNewPosition
-    case BoundsPressed(_, button, _) =>
-      EventCheckCondition.CheckButtonPressed(button)
-    case BoundsReleased(_, button, _) =>
-      EventCheckCondition.CheckButtonReleased(button)
-  }
-}
-
 /** Handles mouse events
   *
   * @param window
@@ -71,17 +24,14 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
 
   /** Stores the events that are checked every frame
     */
-  private val mouseEvents: LinkedHashMap[EventCheckCondition, ListBuffer[
+  private val mouseEvents: ListBuffer[
     (MouseEvent, () => Unit)
-  ]] =
-    LinkedHashMap
-      .empty[EventCheckCondition, ListBuffer[(MouseEvent, () => Unit)]]
+  ] =
+    ListBuffer[(MouseEvent, () => Unit)]()
 
   /** Stores the events that are added during the frame
     */
-  private val newMouseEvents =
-    LinkedHashMap
-      .empty[EventCheckCondition, ListBuffer[(MouseEvent, () => Unit)]]
+  private val newMouseEvents = ListBuffer[(MouseEvent, () => Unit)]()
 
   /** Registers a new mouse event. The event will be checked every frame,
     * starting from the next frame
@@ -92,17 +42,12 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     *   the function to call when the event is triggered
     */
   def registerMouseEvent(newEvent: MouseEvent, function: () => Unit): Unit =
-    newMouseEvents.getOrElseUpdate(
-      EventCheckCondition.from(newEvent),
-      ListBuffer.empty
-    ) += ((newEvent, function))
+    newMouseEvents += ((newEvent, function))
 
   /** Adds the new events to the list of events to check
     */
   private def mergeNewEvents(): Unit = {
-    for ((condition, events) <- newMouseEvents) {
-      mouseEvents.getOrElseUpdate(condition, ListBuffer.empty) ++= events
-    }
+    mouseEvents ++= newMouseEvents
     newMouseEvents.clear()
   }
 
@@ -114,29 +59,45 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
     mergeNewEvents()
     event match {
       case Event.MouseMoved(x, y) =>
-        if (debug) println(s"Mouse moved to $x, $y")
         handleMouseMoved(x, y)
       case Event.MouseButtonPressed(button, x, y) =>
-        if (debug) println(s"Button $button pressed")
         handleMousePressed(button, x, y)
       case Event.MouseButtonReleased(button, x, y) =>
-        if (debug) println(s"Button $button released")
         handleMouseReleased(button, x, y)
       case _ => ()
     }
 
   private def filterAndTrigger(
-      condition: EventCheckCondition,
-      predicate: MouseEvent => Boolean
+      isTriggered: MouseEvent => Boolean
   ): Unit =
-    mouseEvents
-      .getOrElse(condition, ListBuffer.empty)
-      .filterInPlace((event, function) =>
-        if (predicate(event) && event.active && !event.toRemove) {
-          function()
-          event.isPermanent
-        } else !event.toRemove
+    var (sensitive, others) =
+      mouseEvents.partition((event, _) => MouseEvent.isZindexSensitive(event))
+    val othersToRemove = others.filter((event, function) =>
+      if (event.active && !event.toRemove && isTriggered(event)) then
+        function()
+        !event.isPermanent
+      else event.toRemove
+    )
+    val triggered = sensitive
+      .filter((event, _) =>
+        event.active && !event.toRemove && isTriggered(event)
       )
+    val sensitiveToRemove =
+      triggered.maxByOption((event, _) => MouseEvent.order(event)) match
+        case None => ListBuffer.empty
+        case Some((event, function)) =>
+          val max = MouseEvent.order(event)
+          triggered
+            .filter((event, function) => {
+              if MouseEvent.order(event) == max then
+                function()
+                !event.isPermanent
+              else false
+            })
+
+    mouseEvents --= othersToRemove
+    mouseEvents --= sensitiveToRemove
+    mouseEvents --= sensitive.filter((event, _) => event.toRemove)
 
   private def isTriggeredByMove(
       event: MouseEvent
@@ -147,56 +108,43 @@ class MouseManager(val window: RenderWindow, val debug: Boolean = false) {
         boundable.contains(mouseState.worldPos)
       case MouseOutBounds(boundable, _) =>
         !boundable.contains(mouseState.worldPos)
-      case _ =>
-        throw new Exception("Impossible mouse event")
+      case _ => false
     }
 
   private def handleMouseMoved(x: Int, y: Int): Unit = {
     mouseState.mousePos = Vector2(x, y)
-    if debug then
-      println(
-        s"${mouseEvents.getOrElse(EventCheckCondition.CheckNewPosition, List.empty).size} mouse moved events to check"
-      )
-    filterAndTrigger(EventCheckCondition.CheckNewPosition, isTriggeredByMove)
+    filterAndTrigger(isTriggeredByMove)
   }
 
   private def isTriggeredByButton(
       event: MouseEvent,
       button: Button,
+      isPressed: Boolean,
       eventPos: Vector2[Float]
   ): Boolean =
     event match {
-      case ButtonPressed(b, _)  => b == button
-      case ButtonReleased(b, _) => b == button
+      case ButtonPressed(b, _)  => b == button && isPressed
+      case ButtonReleased(b, _) => b == button && !isPressed
       case BoundsPressed(boundable, b, _) =>
-        b == button && boundable.contains(eventPos.x, eventPos.y)
-      case _ =>
-        throw new Exception("Impossible button event")
+        b == button && boundable.contains(eventPos.x, eventPos.y) && isPressed
+      case BoundsReleased(boundable, b, _) =>
+        b == button && boundable.contains(eventPos.x, eventPos.y) && !isPressed
+      case _ => false
     }
 
   private def handleMousePressed(button: Button, x: Int, y: Int): Unit = {
     mouseState.pressButton(button)
     val eventPos = window.mapPixelToCoords(Vector2(x, y))
-    if debug then
-      println(
-        s"${mouseEvents.getOrElse(EventCheckCondition.CheckButtonPressed(button), List.empty).size} mouse pressed events to check"
-      )
     filterAndTrigger(
-      EventCheckCondition.CheckButtonPressed(button),
-      isTriggeredByButton(_, button, eventPos)
+      isTriggeredByButton(_, button, true, eventPos)
     )
   }
 
   private def handleMouseReleased(button: Button, x: Int, y: Int): Unit = {
     mouseState.releaseButton(button)
     val eventPos = window.mapPixelToCoords(Vector2(x, y))
-    if debug then
-      println(
-        s"${mouseEvents.getOrElse(EventCheckCondition.CheckButtonReleased(button), List.empty).size} mouse released events to check"
-      )
     filterAndTrigger(
-      EventCheckCondition.CheckButtonReleased(button),
-      isTriggeredByButton(_, button, eventPos)
+      isTriggeredByButton(_, button, false, eventPos)
     )
   }
 
