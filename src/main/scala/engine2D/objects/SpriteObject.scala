@@ -63,6 +63,7 @@ class SpriteObject(
   override def contains(point: Vector2[Float]): Boolean =
     globalBounds.contains(point)
 
+  
 }
 
 object SpriteObject {

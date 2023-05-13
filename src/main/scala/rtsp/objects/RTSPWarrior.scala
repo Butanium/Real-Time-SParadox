@@ -11,6 +11,8 @@ import engine2D.objects.Grabbable
 import sfml.window.Mouse
 import sfml.system.Vector2
 import rtsp.Constants
+import engine2D.objects.RectangleObject
+import sfml.graphics.Color
 
 /*
   Utiliser l'arbre de comportement
@@ -35,7 +37,10 @@ class RTSPWarrior(
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
     with Buyable {
-
+  val circle = RectangleObject(Constants.NODE_CIRCLE_RADIUS, Constants.NODE_CIRCLE_RADIUS, engine)
+  circle.zIndex = 10
+  circle.fillColor = Color.Red()
+  addChildren(circle)
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
 
   /** The amount of frames the warrior is stunned */
@@ -52,7 +57,28 @@ class RTSPWarrior(
   def contains(point: Vector2[Float]) = sprite.globalBounds.contains(point)
   setOriginToCenter(sprite.globalBounds)
   import WarriorAction.*
-  var action = Idle
+  // The action the warrior will execute in the next frame
+  var nextAction = Idle
+  // The action the warrior is currently executing
+  var currentAction = Idle
+
+  def isAttacking(target: RTSPWarrior) =
+    currentAction match
+      case Attack(realTarget) => realTarget == target
+      case _                  => false
+
+  def isMovingTo(target: RTSPWarrior) =
+    currentAction match
+      case Move(realTarget) => realTarget == target
+      case _                => false
+
+  def isIdle = currentAction == Idle
+
+  def isFleeing(target: RTSPWarrior) =
+    currentAction match
+      case Flee(realTarget) => realTarget == target
+      case _                => false
+
   private var grabLocation: Vector2[Float] = Vector2(0, 0)
   setOnGrab(() => { grabLocation = position })
 
@@ -72,9 +98,14 @@ class RTSPWarrior(
     } else { currentAttackDelay -= engine.deltaTime }
   }
 
-  def executeMove(target: engine2D.objects.GameTransform): Unit = {
+  def executeMove(targetPosition: Vector2[Float]): Unit = {
     rooted = false
-    changeDirectionTo(target)
+    changeDirectionTo(targetPosition)
+  }
+
+  def executeFlee(targetPosition: Vector2[Float]): Unit = {
+    rooted = false
+    changeDirection(position - targetPosition)
   }
 
   override def onDeath(): Unit =
@@ -86,8 +117,11 @@ class RTSPWarrior(
     action match
       case Attack(target) =>
         sprite.color = sfml.graphics.Color.Red(); attack(target);
-      case Move(target) => executeMove(target); currentAttackDelay = attackDelay
-      case Idle         => currentAttackDelay = attackDelay; rooted = true
+      case Move(target) =>
+        executeMove(target.position); currentAttackDelay = attackDelay
+      case Flee(target) =>
+        executeFlee(target.position); currentAttackDelay = attackDelay
+      case Idle => currentAttackDelay = attackDelay; rooted = true
   }
   def canAttack(target: RTSPWarrior): Boolean = {
     distanceTo(target) <= range
@@ -97,15 +131,17 @@ class RTSPWarrior(
   override def onUpdate(): Unit = {
     if (stunned) then {
       stunTime -= 1
+      currentAction = Idle
       executeAction(Idle)
     } else {
-      executeAction(action)
+      currentAction = nextAction
       if (debug) then
         println(s"Warrior ${this.id}")
         println(s"  team: $team")
-        println(s"  action: $action")
+        println(s"  action: $currentAction")
         println(s"  behavior: $behavior")
     }
+    executeAction(currentAction)
     super.onUpdate()
   }
 
@@ -116,9 +152,10 @@ class RTSPWarrior(
   def reset(): Unit = {
     resetSprite()
     active = true
-    health = maxHP
+    health_ = maxHP
     position = initialPosition
-    action = Idle
+    nextAction = Idle
+    currentAction = Idle
     currentAttackDelay = attackDelay
     rooted = true
     rotation = baseRotation

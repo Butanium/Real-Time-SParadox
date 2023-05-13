@@ -15,6 +15,12 @@ import objects.SwitchButton
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
   val engine = new RTSPGameEngine(3f / 60, window, debug = false)
+  val background = engine2D.objects.SpriteObject("arena.png", engine)
+  background.fillDimensions(
+    window.size.x.toFloat,
+    window.size.y.toFloat
+  )
+  engine.spawn(background)
 
 
   val player0 = Player(0, "Player 0")
@@ -26,8 +32,8 @@ class RTSPShopGame(window: RenderWindow)
   val benchEffects1 = EffectBench(engine, player1, battle, BENCH_SIZE)
 
   def idToWarrior(id : Int, player : Player) = id match {
-    case 0 => RTSPWarrior.createBarbarian(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
-    case 1 => RTSPWarrior.createArcher(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
+    case 0 => RTSPWarrior.createBarbarian(engine, battle, player.id, Behavior.advancedBehavior(battle), debug)
+    case 1 => RTSPWarrior.createArcher(engine, battle, player.id, Behavior.advancedBehavior(battle), debug)
     case 2 => RTSPWarrior.createGiant(engine, battle, player.id, Behavior.basicBehavior(battle), debug)
     case _ => throw new Exception(s"Invalid warrior id $id")
   }
@@ -38,8 +44,6 @@ class RTSPShopGame(window: RenderWindow)
     case 2 => createTankBuff(engine, player, battle, debug)
     case _ => throw new Exception(s"Invalid effect id $id")
   }
- 
-  
   val shopWarrior0 = Shop(player0, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_WARRIORS)(_=>1), idToWarrior, warriorBench0, engine)
   val shopEffects0 = Shop(player0, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_POTIONS)(_=>1), idToEffect, benchEffects0, engine)
   val shopWarrior1 = Shop(player1, INIT_NB_BUYABLE_SHOP, MAX_NB_BUYABLE_SHOP, Array.tabulate(NUMBER_OF_WARRIORS)(_=>1), idToWarrior, warriorBench1, engine)
