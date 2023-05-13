@@ -11,6 +11,7 @@ import engine2D.graphics.GrUtils
 import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
 import sfml.window.Mouse.Button
+import sfml.system.Vector2
 import math.Ordered.orderingToOrdered
 
 /** Base class for all game objects. It's transformable, can have children, can
@@ -22,7 +23,7 @@ import math.Ordered.orderingToOrdered
   *   Whether or not this GameObject is active. If it's not active, it won't be
   *   updated or drawn.
   */
-abstract class GameObject(
+class GameObject(
     var engine: GameEngine
 ) extends GameTransform
     with Drawable {
@@ -241,6 +242,9 @@ abstract class GameObject(
 
   // Todo: add another ordering that depends on the parent Zindex (useless for draw but useful for events)
   def order: (Int, Int) = ((if active then zIndex else -1), id)
+  
+  def globalPosition: Vector2[Float] = 
+    globalTransform.transformPoint(position)
 }
 
 object GameObject {
