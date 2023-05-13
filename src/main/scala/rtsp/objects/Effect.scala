@@ -20,7 +20,8 @@ abstract class Effect(
     val spriteTexture: String,
     debug: Boolean
 ) extends GameObject(engine)
-    with Grabbable(Mouse.Button.Left, engine, debug = debug) with Buyable {
+    with Grabbable(Mouse.Button.Left, engine, debug = debug)
+    with Buyable {
   val sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   sprite.boundDimensions(16f, 16f)
   setOriginToCenter(sprite.globalBounds)
@@ -87,7 +88,22 @@ class TankBuff(
 }
 
 object Effect {
-    def createAttackBuff(engine: GameEngine, player: Player, battle: RTSPBattle, debug: Boolean) = new AttackBuff(engine, player, battle, "potions/attack.png", 10, debug)
-    def createSpeedBuff(engine: GameEngine, player: Player, battle: RTSPBattle, debug: Boolean) = new SpeedBuff(engine, player, battle, "potions/speed.png", 10, debug)
-    def createTankBuff(engine: GameEngine, player: Player, battle: RTSPBattle, debug: Boolean) = new TankBuff(engine, player, battle, "potions/tank.png", 500, debug)
+  def createAttackBuff(
+      engine: GameEngine,
+      player: Player,
+      battle: RTSPBattle,
+      debug: Boolean
+  ) = new AttackBuff(engine, player, battle, "potions/attack.png", 10, debug)
+  def createSpeedBuff(
+      engine: GameEngine,
+      player: Player,
+      battle: RTSPBattle,
+      debug: Boolean
+  ) = new SpeedBuff(engine, player, battle, "potions/speed.png", 10, debug)
+  def createTankBuff(
+      engine: GameEngine,
+      player: Player,
+      battle: RTSPBattle,
+      debug: Boolean
+  ) = new TankBuff(engine, player, battle, "potions/tank.png", 500, debug)
 }
