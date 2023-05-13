@@ -2,49 +2,114 @@ package rtsp.battle
 import rtsp.objects.RTSPWarrior
 import rtsp.battle.WarriorAction
 import scala.util.control.NonLocalReturns
+import scala.compiletime.ops.boolean
 
-enum Action(val targetType: TargetType) {
-  case Attack(_targetType: TargetType) extends Action(_targetType)
-  case Move(_targetType: TargetType) extends Action(_targetType)
+/* ----- Filter ----- */
+enum Filter {
+  case All
+  case LessThan(value: Float, metric: Metric)
+  case GreaterThan(value: Float, metric: Metric)
+  case Equals(value: Float, metric: Metric)
+  case Not(filter: Filter)
+  case Attacking(val target: Target)
+  case AttackedBy(val target: Target)
+  case MovingTo(val target: Target)
+  case ApproachedBy(val target: Target)
+  case FleeingFrom(val target: Target)
+  case FleedBy(val target: Target)
+  case CanAttack(val target: Target)
+  case CanBeAttackedBy(val target: Target)
+  case Idling
 }
 
-enum TargetType(val targetFilter: TargetFilter) {
-  case Enemy(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
-  case Ally(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
-  case AllyBase(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
-  case EnemyBase(_targetFilter: TargetFilter) extends TargetType(_targetFilter)
+/* ----- Action Node ----- */
+enum Action(
+    val target: Target,
+    val filters: List[Filter],
+    val selector: Selector
+) {
+  case Attack(_target: Target, _filters: List[Filter], _selector: Selector)
+      extends Action(_target, _filters, _selector)
+  case Move(_target: Target, _filters: List[Filter], _selector: Selector)
+      extends Action(_target, _filters, _selector)
+  case Flee(_target: Target, _filters: List[Filter], _selector: Selector)
+      extends Action(_target, _filters, _selector)
 }
 
-enum TargetFilter {
-  case Closest
+enum Target(val team: Team) {
+  case Warrior(_team: Team) extends Target(_team)
+  case Base(_team: Team) extends Target(_team)
+  case Self extends Target(Team.Ally)
 }
-// enum Condition {
-//   case Health()
-// }
+
+enum Team {
+  case Enemy
+  case Ally
+}
+
+enum Selector(val metric: Metric) {
+  case Lowest(_metric: Metric) extends Selector(_metric)
+  case Highest(_metric: Metric) extends Selector(_metric)
+}
+
+enum Metric {
+  case DistanceFromClosest(val target: Target)
+  case Health
+  case HealthPercentage
+}
+
+/* ----- Condition Node ----- */
+enum Condition {
+  case Not(condition: Condition)
+  case Count(
+      target: Target,
+      filter: List[Filter],
+      countCondition: CountCondition
+  )
+}
+
+enum CountCondition {
+  case Equals(value: Int)
+  case LessThan(value: Int)
+  case GreaterThan(value: Int)
+}
 
 enum BehaviorTree {
   case ActionNode(action: Action)
   case Node(children: List[BehaviorTree])
-  // case ConditionNode()
+  case ConditionNode(condition: Condition, children: List[BehaviorTree])
 }
 
 class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
 
+  /** Evaluate the behavior tree and execute the action if it is valid.
+    * @param warrior
+    *   The warrior that will execute the action
+    */
   def evaluate(warrior: RTSPWarrior) = {
-    evaluateNode(warrior, tree)
+    if (!evaluateNode(warrior, tree)) {
+      warrior.nextAction = WarriorAction.Idle
+    }
   }
+
+  /** Evaluate a node of the behavior tree.
+    * @param warrior
+    *   The warrior that will execute the action
+    * @param tree
+    *   The node to evaluate
+    * @return
+    *   true if an action was executed, false otherwise
+    */
   def evaluateNode(warrior: RTSPWarrior, tree: BehaviorTree): Boolean = {
     import BehaviorTree._
-    val actionFound = {
-      tree match
-        case ActionNode(action) => return evaluateAction(warrior, action)
-        case Node(children) =>
-          children.exists(evaluateNode(warrior, _))
-    }
-    if (!actionFound) {
-      warrior.action = WarriorAction.Idle
-    }
-    actionFound
+    tree match
+      case ActionNode(action) => return evaluateAction(warrior, action)
+      case Node(children) =>
+        children.exists(evaluateNode(warrior, _))
+      case ConditionNode(condition, children) =>
+        evaluateCondition(warrior, condition) && children.exists(
+          evaluateNode(warrior, _)
+        )
   }
 
   /** Evaluate if an action is valid. If it is, the action is executed.
@@ -56,34 +121,99 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
     *   true if the action was executed, false otherwise
     */
   def evaluateAction(warrior: RTSPWarrior, action: Action): Boolean = {
+    val targets = evaluateTarget(warrior, action.target)
+    var filteredTargets =
+      targets.filter(applyFilters(warrior, _, action.filters))
     action match
-      case Action.Attack(targetType) => {
-        val potentialTargets =
-          evaluateTargetType(warrior, targetType).filter(warrior.canAttack(_))
-        evaluateTargetFilter(
-          warrior,
-          targetType.targetFilter,
-          potentialTargets
-        ) match {
-          case None => false
-          case Some(target) =>
-            warrior.action = WarriorAction.Attack(target)
-            true
-        }
+      case Action.Attack(_, _, _) => {
+        filteredTargets = filteredTargets.filter(warrior.canAttack(_))
       }
-      case Action.Move(targetType) =>
-        evaluateTargetFilter(
-          warrior,
-          targetType.targetFilter,
-          evaluateTargetType(warrior, targetType)
-        ) match {
-          case None => false
-          case Some(target) =>
-            warrior.rooted = false
-            warrior.action = WarriorAction.Move(target)
-            true
-        }
+      case _ => ()
+    select(warrior, filteredTargets, action.selector) match {
+      case None => false
+      case Some(target) =>
+        action match
+          case Action.Attack(_, _, _) =>
+            warrior.nextAction = WarriorAction.Attack(target)
+          case Action.Move(_, _, _) =>
+            warrior.nextAction = WarriorAction.Move(target)
+          case Action.Flee(_, _, _) =>
+            warrior.nextAction = WarriorAction.Flee(target)
+        true
 
+    }
+  }
+
+  /** Evaluate if a condition is valid.
+    * @param warrior
+    *   The warrior that will execute the action
+    * @param condition
+    *   The condition to evaluate
+    * @return
+    *   true if the condition is valid, false otherwise
+    */
+  def evaluateCondition(
+      warrior: RTSPWarrior,
+      condition: Condition
+  ): Boolean = {
+    condition match
+      case Condition.Not(condition) => !evaluateCondition(warrior, condition)
+      case Condition.Count(target, filters, countCondition) =>
+        val targets = evaluateTarget(warrior, target)
+        val filteredTargets =
+          targets.filter(applyFilters(warrior, _, filters))
+        countCondition match
+          case CountCondition.Equals(value) =>
+            filteredTargets.length == value
+          case CountCondition.LessThan(value) =>
+            filteredTargets.length < value
+          case CountCondition.GreaterThan(value) =>
+            filteredTargets.length > value
+  }
+
+  /** Select a target according to a certain selector
+    * @param warrior
+    *   The warrior that will execute the action
+    * @param targets
+    *   The possible targets
+    * @param selector
+    *   The selector to evaluate
+    */
+  def select(
+      warrior: RTSPWarrior,
+      targets: List[RTSPWarrior],
+      selector: Selector
+  ): Option[RTSPWarrior] = {
+    selector match
+      case Selector.Lowest(metric) =>
+        if (targets.nonEmpty)
+          Some(targets.minBy(evaluateMetric(warrior, _, metric)))
+        else None
+      case Selector.Highest(metric) =>
+        if (targets.nonEmpty)
+          Some(targets.maxBy(evaluateMetric(warrior, _, metric)))
+        else None
+  }
+
+  /** Evaluate a metric
+    * @param warrior
+    *   The warrior that we currently evaluate
+    * @param target
+    *   The target that we evaluate
+    * @param metric
+    *   The metric to evaluate
+    */
+  def evaluateMetric(
+      warrior: RTSPWarrior,
+      target: RTSPWarrior,
+      metric: Metric
+  ): Float = {
+    metric match
+      case Metric.DistanceFromClosest(targetType) =>
+        warrior.distanceTo(target).toFloat
+      case Metric.Health => target.health.toFloat
+      case Metric.HealthPercentage =>
+        target.health.toFloat / target.maxHealth.toFloat
   }
 
   /** Evaluate the target type and returns the possible targets
@@ -92,50 +222,151 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
     * @param targetType
     *   The target type to evaluate
     */
-  def evaluateTargetType(
+  def evaluateTarget(
       warrior: RTSPWarrior,
-      targetType: TargetType
+      target: Target
   ): List[RTSPWarrior] = {
-    targetType match
-      case TargetType.Enemy(filter)     => battle.getEnemies(warrior.team)
-      case TargetType.Ally(filter)      => battle.getAllies(warrior.team)
-      case TargetType.EnemyBase(filter) => List(battle.bases(1 - warrior.team))
-      case TargetType.AllyBase(filter)  => List(battle.bases(warrior.team))
-
+    val team = evaluateTeam(warrior, target.team)
+    target match
+      case Target.Self       => List(warrior)
+      case Target.Base(_)    => List(battle.bases(team))
+      case Target.Warrior(_) => battle.getWarriors(team)
   }
 
-  /** Evaluate the target filter and return the target
+  /** Convert a team to an integer
     * @param warrior
     *   The warrior that will execute the action
-    * @param targetFilter
-    *   The target filter to evaluate
+    * @param team
+    *   The team to convert
     */
-  def evaluateTargetFilter(
-      warrior: RTSPWarrior,
-      targetFilter: TargetFilter,
-      potentialTargets: List[RTSPWarrior]
-  ): Option[RTSPWarrior] = {
-    targetFilter match
-      case TargetFilter.Closest =>
-        if (potentialTargets.nonEmpty)
-          Some(potentialTargets.minBy(warrior.distanceTo(_)))
-        else None
+  def evaluateTeam(warrior: RTSPWarrior, team: Team): Int = {
+    team match
+      case Team.Enemy => 1 - warrior.team
+      case Team.Ally  => warrior.team
   }
+
+  /** Evaluate the target filters and return the target
+    * @param warrior
+    *   The warrior we are evaluating
+    * @param filters
+    *   The filters to evaluate
+    * @return
+    *   true if the target is fulfills all the filters, false otherwise
+    */
+  def applyFilters(
+      warrior: RTSPWarrior,
+      target: RTSPWarrior,
+      filters: List[Filter]
+  ): Boolean = {
+    filters.forall(applyFilter(warrior, target, _))
+  }
+
+  /** Check whether a target fulfills a filter
+    * @param warrior
+    *   The warrior we are evaluating
+    * @param toFilter
+    *   The target we are evaluating
+    * @param filter
+    *   The filter to evaluate
+    * @return
+    *   true if the target fulfills the filter, false otherwise
+    */
+  def applyFilter(
+      warrior: RTSPWarrior,
+      toFilter: RTSPWarrior,
+      filter: Filter
+  ): Boolean = {
+    import Filter._
+    filter match
+      case All         => true
+      case Not(filter) => !applyFilter(warrior, toFilter, filter)
+      case GreaterThan(value, metric) =>
+        evaluateMetric(warrior, toFilter, metric) > value
+      case LessThan(value, metric) =>
+        evaluateMetric(warrior, toFilter, metric) < value
+      case Equals(value, metric) =>
+        evaluateMetric(warrior, toFilter, metric) == value
+      case Attacking(target) =>
+        evaluateTarget(warrior, target).exists(toFilter.isAttacking(_))
+      case AttackedBy(target) =>
+        evaluateTarget(warrior, target).exists(_.isAttacking(toFilter))
+      case MovingTo(target) =>
+        evaluateTarget(warrior, target).exists(toFilter.isMovingTo(_))
+      case ApproachedBy(target) =>
+        evaluateTarget(warrior, target).exists(_.isMovingTo(toFilter))
+      case CanAttack(target) =>
+        evaluateTarget(warrior, target).exists(toFilter.canAttack(_))
+      case CanBeAttackedBy(target) =>
+        evaluateTarget(warrior, target).exists(_.canAttack(toFilter))
+      case FleedBy(target) =>
+        evaluateTarget(warrior, target).exists(toFilter.isFleeing(_))
+      case FleeingFrom(target) =>
+        evaluateTarget(warrior, target).exists(_.isFleeing(toFilter))
+      case Idling => toFilter.isIdle
+  }
+
 }
 
 object Behavior {
   import Action._
-  import TargetFilter._
-  import TargetType._
+  import Filter._
+  import Target._
   import BehaviorTree._
+  import Selector._
+  import Metric._
+  import Team._
+  import Condition._
   def basicBehavior(battle: RTSPBattle) =
     Behavior(
       Node(
         List(
-          ActionNode(Attack(Enemy(Closest))),
-          ActionNode(Move(Enemy(Closest))),
-          ActionNode(Attack(EnemyBase(Closest))),
-          ActionNode(Move(EnemyBase(Closest)))
+          ActionNode(
+            Attack(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+          ),
+          ActionNode(
+            Move(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+          ),
+          ActionNode(
+            Attack(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+          ),
+          ActionNode(
+            Move(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+          )
+        )
+      ),
+      battle
+    )
+
+  def advancedBehavior(battle: RTSPBattle) =
+    Behavior(
+      Node(
+        List(
+          ConditionNode(
+            Count(
+              Warrior(Enemy),
+              List(Attacking(Self), CanAttack(Self)),
+              CountCondition.GreaterThan(0)
+            ),
+            List(
+              ConditionNode(
+                Count(
+                  Self,
+                  List(LessThan(0.5f, HealthPercentage)),
+                  CountCondition.GreaterThan(0)
+                ),
+                List(
+                  ActionNode(
+                    Flee(
+                      Warrior(Enemy),
+                      List(Attacking(Self)),
+                      Lowest(DistanceFromClosest(Self))
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          basicBehavior(battle).tree
         )
       ),
       battle
