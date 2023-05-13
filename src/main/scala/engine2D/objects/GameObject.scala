@@ -239,6 +239,7 @@ abstract class GameObject(
       case None         => transform
       case Some(parent) => parent.globalTransform * transform
 
+  // Todo: add another ordering that depends on the parent Zindex (useless for draw but useful for events)
   def order: (Int, Int) = ((if active then zIndex else -1), id)
 }
 
