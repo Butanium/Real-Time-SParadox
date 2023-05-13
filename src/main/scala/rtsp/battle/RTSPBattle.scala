@@ -44,8 +44,8 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
           w.initialPosition = w.position
         })
       } else {
-        battleWarriors.foreach(w => w.action = WarriorAction.Idle)
-        bases.foreach(b => b.action = WarriorAction.Idle)
+        battleWarriors.foreach(w => w.currentAction = WarriorAction.Idle)
+        bases.foreach(b => b.currentAction = WarriorAction.Idle)
       }
     }
     _active = newActive
@@ -82,12 +82,14 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
     teams.forall(team => team.forall(w => w.isDead || w.benched))
 
   }
-  // fonction alliés / ennemis
-  def getEnemies(idTeam: Int): List[RTSPWarrior] = {
-    teams(1 - idTeam).toList.filter(w => w.active && !w.benched)
-  }
 
-  def getAllies(idTeam: Int): List[RTSPWarrior] = {
+  /** Renvoie la liste des warriors actifs d'une équipe
+    * @param idTeam
+    *   l'id de l'équipe
+    * @return
+    *   la liste des warriors actifs de l'équipe
+    */
+  def getWarriors(idTeam: Int): List[RTSPWarrior] = {
     teams(idTeam).toList.filter(w => w.active && !w.benched)
   }
 

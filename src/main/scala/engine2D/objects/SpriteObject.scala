@@ -19,7 +19,7 @@ class SpriteObject(
     val texture: sfml.graphics.Texture,
     engine: GameEngine
 ) extends GraphicObject(sfml.graphics.Sprite(texture), engine)
-    with Boundable {
+    with RectBounds {
 
   /** The Sprite of this SpriteObject.
     */
@@ -62,6 +62,7 @@ class SpriteObject(
     */
   override def contains(point: Vector2[Float]): Boolean =
     globalBounds.contains(point)
+
 
   def resize(width: Float, height: Float): Unit =
     scale(

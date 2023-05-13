@@ -33,7 +33,7 @@ class RTSPShopGame(window: RenderWindow)
         engine,
         battle,
         0,
-        Behavior.basicBehavior(battle),
+        Behavior.advancedBehavior(battle),
         debug
       )
     case 1 =>
@@ -41,7 +41,7 @@ class RTSPShopGame(window: RenderWindow)
         engine,
         battle,
         0,
-        Behavior.basicBehavior(battle),
+        Behavior.advancedBehavior(battle),
         debug
       )
     case 2 =>

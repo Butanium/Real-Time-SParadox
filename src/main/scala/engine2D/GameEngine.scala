@@ -2,7 +2,9 @@ package engine2D
 
 import engine2D.objects.GameObject
 import sfml.graphics.RenderWindow
-import scala.collection.mutable.SortedSet
+import scala.collection.mutable.ListBuffer
+
+type ObjectSet[A] = ListBuffer[A]
 
 /** The GameEngine is the main class of the game. It contains all game objects
   *
@@ -19,14 +21,14 @@ import scala.collection.mutable.SortedSet
 class GameEngine(
     val deltaTime: Float,
     val window: RenderWindow,
-    val gameObjects: SortedSet[GameObject] = SortedSet.empty[GameObject],
+    val gameObjects: ObjectSet[GameObject] = ListBuffer.empty[GameObject],
     val debug: Boolean = false
 ) {
 
   /** The set of game objects to add at the end of the current step.
     */
-  private var newGameObjects: SortedSet[GameObject] =
-    SortedSet.empty[GameObject]
+  private var newGameObjects: ObjectSet[GameObject] =
+    ListBuffer.empty[GameObject]
   val mouseManager = eventHandling.MouseManager(window)
   private val EventManager = eventHandling.EventManager(window, mouseManager)
 
@@ -51,6 +53,7 @@ class GameEngine(
     EventManager.handleEvents()
     gameObjects ++= newGameObjects
     newGameObjects.clear()
+    gameObjects.sortBy(GameObject.order)
     gameObjects.foreach(_.update())
     gameObjects.filterInPlace(!_.deleteIfNeeded())
     if debug then
@@ -64,6 +67,7 @@ class GameEngine(
     if debug then
       println(s"Render: ${gameObjects.size} game objects")
       time = System.nanoTime()
+    gameObjects.sortBy(_.zIndex)
     gameObjects.foreach(window.draw(_))
     if debug then
       println(s"Render: performed in ${(System.nanoTime() - time) * 1000} ms")

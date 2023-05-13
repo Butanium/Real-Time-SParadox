@@ -36,6 +36,8 @@ abstract class GameObject(
       _active = newValue
       // listeners.foreach(_.active = false)
 
+  def zIndex = 0
+
   /** The parent of this GameObject. If it's None, this GameObject has no
     * parent.
     * @note
@@ -251,6 +253,9 @@ object GameObject {
     lastId += 1
     lastId - 1
   }
+
+  def order(x: GameObject): (Int, Int) = (x.zIndex, x.id)
+
   implicit def ordering: Ordering[GameObject] =
-    Ordering.by(e => e.id)
+    Ordering.by(e => (e.zIndex, e.id))
 }
