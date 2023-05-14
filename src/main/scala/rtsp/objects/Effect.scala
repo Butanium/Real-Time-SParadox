@@ -16,7 +16,6 @@ import sfml.graphics.Color
 abstract class Effect(
     engine: GameEngine,
     player: Player,
-    battle: RTSPBattle,
     val spriteTexture: String,
     debug: Boolean
 ) extends GameObject(engine)
@@ -36,11 +35,10 @@ abstract class Effect(
 class AttackBuff(
     engine: GameEngine,
     player: Player,
-    battle: RTSPBattle,
     spriteTexture: String,
     val amount: Int,
     debug: Boolean
-) extends Effect(engine, player, battle, spriteTexture, debug) {
+) extends Effect(engine, player, spriteTexture, debug) {
   val name = "AttackBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
@@ -54,11 +52,10 @@ class AttackBuff(
 class SpeedBuff(
     engine: GameEngine,
     player: Player,
-    battle: RTSPBattle,
     spriteTexture: String,
     val amount: Float,
     debug: Boolean
-) extends Effect(engine, player, battle, spriteTexture, debug) {
+) extends Effect(engine, player, spriteTexture, debug) {
   val name = "SpeedBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
@@ -72,11 +69,10 @@ class SpeedBuff(
 class TankBuff(
     engine: GameEngine,
     player: Player,
-    battle: RTSPBattle,
     spriteTexture: String,
     val amount: Int,
     debug: Boolean
-) extends Effect(engine, player, battle, spriteTexture, debug) {
+) extends Effect(engine, player, spriteTexture, debug) {
   val name = "TankBuff"
   val price = 5
   override def apply(warrior: RTSPWarrior): Unit = {
@@ -91,19 +87,16 @@ object Effect {
   def createAttackBuff(
       engine: GameEngine,
       player: Player,
-      battle: RTSPBattle,
       debug: Boolean
-  ) = new AttackBuff(engine, player, battle, "potions/attack.png", 10, debug)
+  ) = new AttackBuff(engine, player, "potions/attack.png", 10, debug)
   def createSpeedBuff(
       engine: GameEngine,
       player: Player,
-      battle: RTSPBattle,
       debug: Boolean
-  ) = new SpeedBuff(engine, player, battle, "potions/speed.png", 10, debug)
+  ) = new SpeedBuff(engine, player, "potions/speed.png", 10, debug)
   def createTankBuff(
       engine: GameEngine,
       player: Player,
-      battle: RTSPBattle,
       debug: Boolean
-  ) = new TankBuff(engine, player, battle, "potions/tank.png", 500, debug)
+  ) = new TankBuff(engine, player, "potions/tank.png", 500, debug)
 }

@@ -21,7 +21,7 @@ import sfml.graphics.Color
 
 class RTSPWarrior(
     engine: GameEngine,
-    battle: RTSPBattle,
+    val battle: RTSPBattle,
     val team: Int,
     var maxHP: Int,
     var range: Int,

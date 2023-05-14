@@ -22,7 +22,7 @@ abstract class Game(
 
   /** The game engine
     */
-  val engine: GameEngine
+  var engine: GameEngine
 
   /** Initialize the game, called once before starting the game loop
     */
