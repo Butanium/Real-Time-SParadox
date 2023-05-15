@@ -4,7 +4,6 @@ import engine2D.GameEngine
 import rtsp.battle.Behavior
 import rtsp.battle.Target
 import rtsp.battle.Metric
-import engine2D.objects.LineObject
 import rtsp.Constants.EditorC.NODE_WIDTH
 import rtsp.battle.BehaviorTree
 import rtsp.battle.CountCondition
@@ -54,19 +53,21 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
         )
       case _ => throw new Exception("Unreachable Node Type")
     NodeObject(nodeType, behavior, engine)
-    
 
   def onClose(): Unit =
+    this.active = false
+    children.foreach(_.active = false)
+    doneButton.active = true
     val childNode = computeNode()
     currentNode.childrenNode.addOne(childNode)
-    childNode.parentsNode.addOne(this)
-    childNode.linesLinked += line
-    childNode.position = engine.mouseManager.mouseState.worldPos
+    childNode.parentsNode.addOne(currentNode)
+    childNode.linesLinked += currentLine
+    childNode.position = currentNode.follower.position
     engine.spawn(childNode)
     currentLine.target2 = childNode
     currentLine.addPos2 = (NODE_WIDTH / 2f, 0f)
   val doneButton =
-    ButtonObject("Done", () => { this.active = false; onClose() }, engine)
+    ButtonObject("Done", onClose, engine)
   doneButton.zIndex = 3
   doneButton.position = (engine.window.size.x - doneButton.background.width, 0f)
   addChildren(doneButton)
@@ -94,8 +95,14 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     List(nodeButton, actionButton, conditionButton, filterButton)
   val nodeTypeMenu = MultipleChoiceMenu(typeButtons, None, true, engine)
   nodeTypeMenu.onClose = () => {
-    
+    currentLine.markForDeletion()
+    currentLine.deletionSquare.markForDeletion()
+    active = false
+    // disable submenus
+    children.foreach(_.active = false)
+    doneButton.active = true
   }
+  addChildren(nodeTypeMenu)
 
   /* ------ Action Type Menu ------ */
   def onClickedMove() = {
@@ -120,14 +127,15 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   val actionButtons = List(moveButton, attackButton, fleeButton, idleButton)
   val actionTypeMenu: MultipleChoiceMenu =
     MultipleChoiceMenu(actionButtons, Some(nodeTypeMenu), true, engine)
+  addChildren(actionTypeMenu)
 
   /* ----- Action Menu ----- */
   val actionTargetMenu = makeTargetMenu
   def onClickedTarget(): Unit = {
-    actionTargetMenu.open(Some(actionMenu))
+    actionTargetMenu.open()
   }
   def onClickedSelector(): Unit = {
-    selectorMenu.open(Some(actionMenu))
+    selectorMenu.open()
   }
   val targetButton = ButtonObject("Target", onClickedTarget, engine)
   val selectorButton = ButtonObject("Selector", onClickedSelector, engine)
@@ -137,6 +145,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     false,
     engine
   )
+  addChildren(actionMenu)
   actionTargetMenu.uiParent = Some(actionMenu)
 
   /* ----- Target Menu ----- */
@@ -155,11 +164,12 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     val targetMenu: MultipleChoiceMenu =
       MultipleChoiceMenu(
         List(warriorButton, baseButton),
-        Some(nodeTypeMenu),
+        None, // needs to be set by parent
         true,
         engine
       )
     teamMenu.uiParent = Some(targetMenu)
+    addChildren(targetMenu)
     targetMenu
 
   /* ----- Team Menu ----- */
@@ -179,17 +189,18 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
         true,
         engine
       )
+    addChildren(teamMenu)
     teamMenu
 
   /* ----- Selector Menu ----- */
   val selectorMetricMenu = makeMetricMenu
   def onClickedLowest(): Unit = {
     selector = Selector.Lowest(metric)
-    selectorMetricMenu.open(Some(selectorMenu))
+    selectorMetricMenu.open()
   }
   def onClickedHighest(): Unit = {
     selector = Selector.Highest(metric)
-    selectorMetricMenu.open(Some(selectorMenu))
+    selectorMetricMenu.open()
   }
   val lowestButton = ButtonObject("Lowest", onClickedLowest, engine)
   val highestButton = ButtonObject("Highest", onClickedHighest, engine)
@@ -201,6 +212,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
       engine
     )
   selectorMetricMenu.uiParent = Some(selectorMenu)
+  addChildren(selectorMenu)
 
   /* ----- Metric Menu ----- */
   def makeMetricMenu: MultipleChoiceMenu =
@@ -226,13 +238,6 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
       engine
     )
     targetMenu.uiParent = Some(metricMenu)
+    addChildren(metricMenu)
     metricMenu
-
-  // add children
-  addChildren(
-    nodeTypeMenu,
-    actionTypeMenu,
-    actionMenu,
-    selectorMenu
-  )
 }

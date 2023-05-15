@@ -10,19 +10,25 @@ class MultipleChoiceMenu(
     saveState: Boolean,
     engine: GameEngine
 ) extends Menu(uiParent, engine) {
-  if uiParent.isDefined then active = false
   buttons.foreach({ b =>
     b.makeSquare()
     b.zIndex = 1
     if saveState then
       val onClicked = b.onClicked
       b.onClicked = () => {
+        // println( todo remove
+        //   s"Clicked and saved state. active = ${b.active}, name: ${b.textObject.text.string}, parent: ${b.parent}"
+        // )
+        // println(
+        //   s"menu active: ${active}, uiparent: ${uiParent}, parent ${parent}"
+        // )
         buttons.foreach(_.resetOutline())
         b.background.outlineColor = sfml.graphics.Color.Green()
         onClicked()
       }
   })
   addChildren(buttons: _*)
+  if uiParent.isDefined then active = false
   val buttonWidth =
     (engine.window.size.x.toFloat - Constants.EditorC.MENU_PADDING * buttons.length.toFloat) / buttons.length.toFloat
   buttons.zipWithIndex.foreach { case (button, index) =>

@@ -9,7 +9,7 @@ import engine2D.objects.GameObject
 
 class LineObject(
     var thickness: Float,
-    var target1: Node,
+    var target1: NodeObject,
     var target2: GameObject,
     var addPos1: Vector2[Float],
     var addPos2: Vector2[Float],
@@ -24,19 +24,18 @@ class LineObject(
   deletionSquare.fillColor = Color.Yellow()
   engine.spawn(deletionSquare)
   def delete() =
-    target1.childrenNode -= target2.asInstanceOf[Node]
-    target2.asInstanceOf[Node].parentsNode -= target1
+    target1.childrenNode -= target2.asInstanceOf[NodeObject]
+    target2.asInstanceOf[NodeObject].parentsNode -= target1
     target1.linesLinked -= this
-    target2.asInstanceOf[Node].linesLinked -= this
+    target2.asInstanceOf[NodeObject].linesLinked -= this
     this.markForDeletion()
     deletionSquare.markForDeletion()
-  def deleteWithout(node: Node) =
-    target1.childrenNode -= target2.asInstanceOf[Node]
-    target2.asInstanceOf[Node].parentsNode -= target1
-    if node != target1 then
-      target1.linesLinked -= this
-    if node != target2.asInstanceOf[Node] then
-      target2.asInstanceOf[Node].linesLinked -= this
+  def deleteWithout(node: NodeObject) =
+    target1.childrenNode -= target2.asInstanceOf[NodeObject]
+    target2.asInstanceOf[NodeObject].parentsNode -= target1
+    if node != target1 then target1.linesLinked -= this
+    if node != target2.asInstanceOf[NodeObject] then
+      target2.asInstanceOf[NodeObject].linesLinked -= this
     this.markForDeletion()
     deletionSquare.markForDeletion()
   listenToBoundsClicked(Mouse.Button.Left, deletionSquare, false, delete)

@@ -34,7 +34,7 @@ class GameObject(
     // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
     // states of listener and restore them when active is set to true. We'll handle this
     // in the functions that create the listeners.
-    if newValue != active then
+    if newValue != _active then
       _active = newValue
       // listeners.foreach(_.active = false)
 

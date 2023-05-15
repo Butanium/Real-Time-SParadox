@@ -7,12 +7,12 @@ import sfml.window.Mouse
 import engine2D.objects.RectangleObject
 import rtsp.Constants.EditorC.*
 import engine2D.objects.CircleObject
-import engine2D.objects.LineObject
 import engine2D.eventHandling.MouseEvent
 import sfml.graphics.Color
 import scala.collection.mutable.ListBuffer
 import rtsp.battle.BehaviorTree
 import rtsp.RTSPGameEngine
+import sfml.system.Vector2
 
 enum NodeType:
   case Node
@@ -28,12 +28,12 @@ enum ActionType:
   case Idle
 
 class NodeObject(
-    nodeType: NodeType,
+    var nodeType: NodeType,
     behavior: BehaviorTree,
     engine: RTSPGameEngine
 ) extends RectangleObject(NODE_WIDTH, NODE_HEIGHT, engine)
     with Grabbable(Mouse.Button.Left, engine) {
-  Node.nodeList += this
+  NodeObject.nodeList += this
   val square = RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
   square.zIndex = 10
   square.fillColor = Color.Red()
@@ -41,17 +41,19 @@ class NodeObject(
   square.position = (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, NODE_HEIGHT)
   val follower = new GameObject(engine) // todo remove from here
   val childrenNode: ListBuffer[NodeObject] = ListBuffer.empty
+  val parentsNode: ListBuffer[NodeObject] = ListBuffer.empty
+  val linesLinked: ListBuffer[LineObject] = ListBuffer.empty
   def release(line: LineObject): Unit =
-    Node.searchNode(engine.mouseManager.mouseState.worldPos) match
+    NodeObject.searchNode(engine.mouseManager.mouseState.worldPos) match
       case Some(childNode) =>
         childrenNode.addOne(childNode)
         childNode.parentsNode.addOne(this)
         childNode.linesLinked += line
         line.target2 = childNode
-        line.addPos2 = (Constants.NODE_WIDTH / 2f, 0f)
+        line.addPos2 = (NODE_WIDTH / 2f, 0f)
       case None => engine.nodeCreationMenu.createNode(this, line)
 
-  def whenClickedCircle() =
+  def whenSquareClicked() =
     val line = LineObject(
       LINE_THICKNESS,
       this,
@@ -62,24 +64,29 @@ class NodeObject(
     )
     linesLinked += line
     engine.spawn(line)
+    follower.active = true
     listenToMouseEvent(
       MouseEvent.ButtonReleased(Mouse.Button.Left, false),
-      () => release(line)
+      () => {
+        release(line)
+        follower.active = false
+      }
     )
   listenToMouseEvent(
     MouseEvent.BoundsPressed(square, Mouse.Button.Left, true),
-    whenClickedCircle
+    whenSquareClicked
   )
   def delete() =
-    parentsNode.foreach((node: Node) => node.childrenNode -= this)
-    childrenNode.foreach((node: Node) => node.parentsNode -= this)
+    parentsNode.foreach((node: NodeObject) => node.childrenNode -= this)
+    childrenNode.foreach((node: NodeObject) => node.parentsNode -= this)
     linesLinked.foreach((line: LineObject) => line.deleteWithout(this))
     this.markForDeletion()
 
   listenToBoundsClicked(Mouse.Button.Right, this, false, delete)
 
   override protected def onUpdate(): Unit =
-    follower.position = engine.mouseManager.mouseState.worldPos
+    if follower.active then
+      follower.position = engine.mouseManager.mouseState.worldPos
     super.onUpdate()
 
   override protected def onDeletion(): Unit =
@@ -89,10 +96,10 @@ class NodeObject(
 }
 
 object NodeObject {
-  val nodeList: ListBuffer[Node] = ListBuffer.empty
-  def isInNode(point: Vector2[Float], node: Node) =
-    node.contains(point)
-  def searchNode(point: Vector2[Float]) =
-    nodeList.find((node: Node) => isInNode(point, node))
+  val nodeList: ListBuffer[NodeObject] = ListBuffer.empty
+  def isInNode(point: Vector2[Float], node: NodeObject) =
+    node.nodeType != NodeType.Root && node.contains(point)
+  def searchNode(point: Vector2[Float]): Option[NodeObject] =
+    nodeList.find(node => isInNode(point, node))
 
 }

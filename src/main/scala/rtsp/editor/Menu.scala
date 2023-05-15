@@ -7,8 +7,16 @@ import rtsp.Constants
 import engine2D.Game
 import engine2D.objects.ButtonObject
 
-class Menu(var uiParent: Option[Menu], engine: GameEngine)
+class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
     extends GameObject(engine) {
+  def uiParent = _uiParent
+  def uiParent_=(value: Option[Menu]): Unit = {
+    _uiParent = value
+    if (value.isDefined) active = false
+    goToParentButton.textObject.text.string =
+      if (value.isDefined) "Back" else "Close"
+
+  }
   val background = RectangleObject(
     engine.window.size.x.toFloat,
     engine.window.size.y.toFloat,
@@ -28,11 +36,9 @@ class Menu(var uiParent: Option[Menu], engine: GameEngine)
   goToParentButton.zIndex = 1
   addChildren(goToParentButton)
   var onClose: () => Unit = () => ()
-  
 
-  def open(from: Option[Menu] = None): Unit = {
+  def open(): Unit = {
     active = true
-    uiParent = from.orElse(uiParent)
     uiParent.foreach(_.active = false)
   }
 
