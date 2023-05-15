@@ -171,12 +171,18 @@ class GameObject(
   def add(newChildren: GameObject*): Unit = addChildren(newChildren: _*)
 
   /** Removes children from this GameObject.
-    * @param to_remove
+    * @param childrenToRemove
+    * @note
+    *   This method doesn't delete the children. It only removes them from the
+    *   children list.
     */
-  def removeChildren(to_remove: GameObject*): Unit = {
-    children --= to_remove
-    to_remove.foreach(_.parent = None)
+  def removeChildren(childrenToRemove: GameObject*): Unit = {
+    children --= childrenToRemove
+    childrenToRemove.foreach(_.parent = None)
   }
+
+  def destroyChildren(childrenToRemove: GameObject*): Unit =
+    childrenToRemove.foreach(_.markForDeletion())
 
   /** Called when this GameObject is deleted.
     */
@@ -199,6 +205,10 @@ class GameObject(
     */
   def markForDeletion() =
     deleteState = ToDelete
+
+  /** Alias for markForDeletion
+    */
+  def destroy() = markForDeletion()
 
   /** Deletes this GameObject if it's marked for deletion. Also deletes all
     * children that are marked for deletion.
@@ -242,8 +252,8 @@ class GameObject(
 
   // Todo: add another ordering that depends on the parent Zindex (useless for draw but useful for events)
   def order: (Int, Int) = ((if active then zIndex else -1), id)
-  
-  def globalPosition: Vector2[Float] = 
+
+  def globalPosition: Vector2[Float] =
     globalTransform.transformPoint(position)
 }
 
