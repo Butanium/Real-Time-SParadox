@@ -1,7 +1,5 @@
 import sfml.graphics.*
 import sfml.window.*
-import engine2D.graphics.Group
-import sfml.system.Vector2
 import rtsp.RTSPShopGame
 import rtsp.NodeGame
 

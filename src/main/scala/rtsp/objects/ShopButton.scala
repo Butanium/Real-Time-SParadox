@@ -25,19 +25,22 @@ class ShopButton[T <: Buyable with GameObject](
   // prend le sprite et ajuste ses dimensions
   var sprite = SpriteObject(buyable.spriteTexture, engine)
   addChildren(sprite)
+  sprite.zIndex = 1
   sprite.boundDimensions(shop.max_width_buyable, shop.max_height_buyable)
 
   // ajoute le prix pour pouvoir l'afficher
-  val text_price =
+  val textPrice =
     new TextObject(buyable.price.toString(), engine, charSize = 48)
-  text_price.fillColor = (Color(236, 191, 42))
-  addChildren(text_price)
-  text_price.position =
+  textPrice.fillColor = (Color(236, 191, 42))
+  textPrice.zIndex = 2
+  addChildren(textPrice)
+  textPrice.position =
     (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
 
   // affiche le nom de l'objet mis en vente
   val textType = new TextObject(buyable.name, engine, charSize = 16)
   textType.fillColor = (Color(236, 191, 42))
+  textType.zIndex = 2
   addChildren(textType)
   textType.position =
     (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))
@@ -47,7 +50,7 @@ class ShopButton[T <: Buyable with GameObject](
     RectangleObject(shop.max_width_buyable, shop.max_height_buyable, engine)
   rectangle.outlineColor = Color(236, 151, 22)
   rectangle.outlineThickness = 5
-  rectangle.fillColor = Color(165, 245, 73, 20)
+  rectangle.fillColor = Color(165, 245, 73, 80)
   addChildren(rectangle)
 
   // définit le comportement du bouton quand il est cliqué
@@ -60,10 +63,10 @@ class ShopButton[T <: Buyable with GameObject](
     this.sprite = SpriteObject(buyable.spriteTexture, engine)
     this.buyable = buyable
     textType.text.string = buyable.name
-    text_price.text.string = buyable.price.toString()
+    textPrice.text.string = buyable.price.toString()
     addChildren(sprite)
     sprite.boundDimensions(shop.max_width_buyable, shop.max_height_buyable)
-    text_price.position =
+    textPrice.position =
       (sprite.globalBounds.width + 40, sprite.globalBounds.height / 6)
     textType.position =
       (sprite.globalBounds.width + 5, sprite.globalBounds.height * (3f / 4f))

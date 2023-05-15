@@ -12,6 +12,7 @@ import sfml.graphics.Transform
 import engine2D.eventHandling.MouseEvent
 import sfml.window.Mouse.Button
 import sfml.system.Vector2
+import math.Ordered.orderingToOrdered
 
 /** Base class for all game objects. It's transformable, can have children, can
   * be drawn, and can be updated.
@@ -130,7 +131,7 @@ class GameObject(
     *   GameObject. i.e. if this GameObject is translated by (10, 10), the
     *   children will be translated by (10, 10) as well.
     */
-  val children: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
+  var children: ListBuffer[GameObject] = ListBuffer.empty[GameObject]
 
   /** Is called when this GameObject is drawn. This method is called only if
     * this GameObject is active.
@@ -147,7 +148,9 @@ class GameObject(
   /** Called when this GameObject is updated. This method is called only if this
     * GameObject is active.
     */
-  protected def onUpdate(): Unit = children.foreach(_.update())
+  protected def onUpdate(): Unit =
+    children = children.sortBy(GameObject.order(_))
+    children.foreach(_.update())
 
   /** Updates this GameObject and all its children if it's active.
     */
@@ -257,6 +260,6 @@ object GameObject {
     lastId += 1
     lastId - 1
   }
-  implicit def ordering: Ordering[GameObject] =
-    Ordering.by(e => (e.zIndex, e.id))
+
+  def order(x: GameObject): (Int, Int) = (x.zIndex, x.id)
 }

@@ -94,4 +94,21 @@ trait RectBounds extends Boundable {
       rect.top + (rect.height - globalBounds.height) / 2f
     )
 
+    /** Set the size of the sprite. It will use the largest scale ratio to
+      * ensure that the sprite fills the given rectangle.
+      * @param height
+      *   The new minimal height of the sprite.
+      * @param width
+      *   The new minimal width of the sprite.
+      * @note
+      *   This method will not change the position of the sprite. Neither the
+      *   aspect ratio.
+      */
+  def fillDimensions(width: Float, height: Float): Unit =
+    val scaleRatio = math.max(
+      width / globalBounds.width,
+      height / globalBounds.height
+    )
+    scale(scaleRatio, scaleRatio)
+
 }
