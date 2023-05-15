@@ -34,9 +34,11 @@ enum Action(
       extends Action(_target, _filters, _selector)
   case Flee(_target: Target, _filters: List[Filter], _selector: Selector)
       extends Action(_target, _filters, _selector)
+  case Idle(_filters: List[Filter])
+      extends Action(Target.Self, _filters, Selector.Highest(Metric.Health))
 }
 
-enum Target(val team: Team) {
+enum Target(var team: Team) {
   case Warrior(_team: Team) extends Target(_team)
   case Base(_team: Team) extends Target(_team)
   case Self extends Target(Team.Ally)
@@ -139,8 +141,8 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
             warrior.nextAction = WarriorAction.Move(target)
           case Action.Flee(_, _, _) =>
             warrior.nextAction = WarriorAction.Flee(target)
+          case Action.Idle(_) => warrior.nextAction = WarriorAction.Idle
         true
-
     }
   }
 
