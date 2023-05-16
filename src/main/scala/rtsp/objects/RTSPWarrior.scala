@@ -281,7 +281,7 @@ object RTSPWarrior {
       range = 70,
       attackDamage = 25,
       attackDelay = 1f,
-      speed = 10f,
+      speed = 15f,
       behavior,
       "warriors/mage.png",
       Arrow.factory,

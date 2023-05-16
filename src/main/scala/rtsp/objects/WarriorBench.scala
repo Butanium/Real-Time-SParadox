@@ -14,7 +14,8 @@ class WarriorBench(
     player: Player,
     battle: RTSPBattle,
     size: Int,
-    sellingBin: SellingBin
+    sellingBin: SellingBin,
+    base : RTSPBase
 ) extends GeneralBench(
       engine,
       player,
@@ -23,6 +24,11 @@ class WarriorBench(
       new Array[RTSPWarrior](size),
       "warrior"
     ) {
+  var x = engine.window.size.x
+  var y = engine.window.size.y * 0.16f
+  val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
+  rectangle.fillColor = Color(165, 245, 73, 80)
+  addChildren(rectangle)
   override def addBought(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
     if !super.addBought(warrior) then return false
     warrior.benched = true
@@ -36,7 +42,7 @@ class WarriorBench(
       else if (
         rectangle.contains(warrior.position) || battle.warriorsInBattle(
           warrior.team
-        ) > MAX_WARRIORS_IN_BATTLE
+        ) > MAX_WARRIORS_IN_BATTLE || warrior.distanceTo(base) > WARRIOR_DROP_RADIUS
       )
       then addDropped(warrior)
     })

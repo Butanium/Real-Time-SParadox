@@ -25,7 +25,17 @@ class RTSPShopGame(window: RenderWindow)
   val bot = Player(1, "Bot")
   val battle = RTSPBattle(player, debug)
   val sellingBin = SellingBin(engine, player, battle)
-  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
+  val basePlayer = RTSPBase(engine, battle, player)
+  battle.addBase(
+    basePlayer,
+    player
+  )
+  val baseBot = RTSPBase(engine, battle, bot)
+  battle.addBase(
+    baseBot,
+    bot
+  )
+  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin, basePlayer)
   val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE, sellingBin)
 
   def idToWarrior(id: Int) = id match {
@@ -102,21 +112,17 @@ class RTSPShopGame(window: RenderWindow)
   engine.spawn(switchButton)
   engine.spawn(sellingBin)
   override def init() = {
-    val basePlayer = RTSPBase(engine, battle, player)
     engine.spawn(basePlayer)
-    battle.addBase(
-      basePlayer,
-      player
-    )
-    val baseBot = RTSPBase(engine, battle, bot)
     engine.spawn(baseBot)
-    battle.addBase(
-      baseBot,
-      bot
-    )
     val team1 = List(
       RTSPWarrior
-        .createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+        .createBarbarian(
+          engine,
+          battle,
+          1,
+          Behavior.basicBehavior(battle),
+          debug
+        ),
       RTSPWarrior
         .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
       RTSPWarrior.createBarbarian(

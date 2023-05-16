@@ -3,6 +3,8 @@ package rtsp.objects
 import engine2D.GameEngine
 import rtsp.Player
 import rtsp.battle.RTSPBattle
+import engine2D.objects.RectangleObject
+import sfml.graphics.Color
 
 class EffectBench(
     engine: GameEngine,
@@ -18,6 +20,11 @@ class EffectBench(
       new Array[Effect](size),
       "effect"
     ) {
+  var x = engine.window.size.x
+  var y = engine.window.size.y * 0.19f
+  val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
+  rectangle.fillColor = Color(165, 73, 245, 50)
+  addChildren(rectangle)
   override def addBought(effect: Effect): Boolean = {
     if !super.addBought(effect) then return false
     effect.setOnRelease(() => {
