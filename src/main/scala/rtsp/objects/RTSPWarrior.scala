@@ -99,6 +99,9 @@ class RTSPWarrior(
       )
     rooted = true
     if (currentAttackDelay < 0) then {
+      if this.name == "Archer" then {
+        val arrow = new Arrow(engine, this, target)
+        engine.spawn(arrow)}
       target.takeDamage(attackDamage)
       currentAttackDelay = attackDelay
     } else { currentAttackDelay -= engine.deltaTime }
@@ -123,7 +126,8 @@ class RTSPWarrior(
     sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Red(); attack(target);
+        sprite.color = sfml.graphics.Color.Red();
+        attack(target);
       case Move(target) =>
         executeMove(target.position); currentAttackDelay = attackDelay
       case Flee(target) =>
@@ -149,6 +153,20 @@ class RTSPWarrior(
         println(s"  behavior: $behavior")
     }
     executeAction(currentAction)
+
+    if (position.x < 0) {
+        position = (0f, position.y)
+    }
+    if (position.x > engine.window.size.x) {
+        position = ((engine.window.size.x).toFloat, position.y)
+    }
+    if (position.y < 0) {
+        position = (position.x, 0f)
+    }
+    if (position.y > engine.window.size.y) {
+        position = (position.x, (engine.window.size.y).toFloat)
+    }
+
     super.onUpdate()
   }
 
