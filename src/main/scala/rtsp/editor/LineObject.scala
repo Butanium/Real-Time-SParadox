@@ -19,6 +19,7 @@ class LineObject(
       engine
     ) {
   val line = drawable.asInstanceOf[sfml.graphics.RectangleShape]
+  line.fillColor = Color(128,128,128)
   val deletionSquare: RectangleObject =
     RectangleObject(4f * thickness, 4f * thickness, engine)
   deletionSquare.fillColor = Color.Yellow()
