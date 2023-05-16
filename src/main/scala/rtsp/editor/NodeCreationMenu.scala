@@ -35,11 +35,11 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   def computeNode(): NodeObject =
     import BehaviorTree.*
     val behavior: BehaviorTree = nodeType match
-      case NodeType.Node => Node(List.empty)
+      case NodeType.Node => Node(List.empty, currentNode.follower.position)
       case NodeType.Condition => {
         var condition = Condition.Count(target, List.empty, countCondition)
         if (notCondition) condition = Condition.Not(condition)
-        ConditionNode(condition, List.empty)
+        ConditionNode(condition, List.empty, currentNode.follower.position)
       }
       case NodeType.Filter => throw new Exception("Not implemented")
       case NodeType.Action =>
@@ -49,7 +49,9 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
             case ActionType.Attack =>
               Action.Attack(target, List.empty, selector)
             case ActionType.Flee => Action.Flee(target, List.empty, selector)
-            case ActionType.Idle => Action.Idle(List.empty),
+            case ActionType.Idle => Action.Idle(List.empty)
+          ,
+          currentNode.follower.position
         )
       case _ => throw new Exception("Unreachable Node Type")
     NodeObject(nodeType, behavior, engine)
