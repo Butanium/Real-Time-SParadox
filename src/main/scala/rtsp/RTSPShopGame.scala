@@ -14,7 +14,7 @@ import objects.SwitchButton
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine = new RTSPGameEngine(3f / 60, window, debug = false)
+  val engine = new RTSPGameEngine(1f / 60, window, debug = false)
   val background = engine2D.objects.SpriteObject("arena.png", engine)
   background.fillDimensions(
     window.size.x.toFloat,

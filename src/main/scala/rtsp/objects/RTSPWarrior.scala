@@ -38,15 +38,16 @@ class RTSPWarrior(
     val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
-    with Buyable 
-    with OnHover
-    {
-  
+    with Buyable
+    with OnHover {
+
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   val healthBar = new HealthBar(this, engine)
   healthBar.zIndex = 3
   // Compense le fait que l'origine du sprite du warrior est au centre
-  healthBar.addOffset((-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)) 
+  healthBar.addOffset(
+    (-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)
+  )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
 
@@ -93,6 +94,9 @@ class RTSPWarrior(
   var initialPosition: Vector2[Float] = Vector2(0, 0)
   private var currentAttackDelay = attackDelay
   add(sprite)
+  def performAttack(target: RTSPWarrior): Unit = {
+    target.takeDamage(attackDamage)
+  }
   def attack(target: RTSPWarrior): Unit = {
     if debug then
       println(
@@ -100,10 +104,7 @@ class RTSPWarrior(
       )
     rooted = true
     if (currentAttackDelay < 0) then {
-      if this.name == "Archer" then {
-        val arrow = new Arrow(engine, this, target)
-        engine.spawn(arrow)}
-      target.takeDamage(attackDamage)
+      performAttack(target)
       currentAttackDelay = attackDelay
     } else { currentAttackDelay -= engine.deltaTime }
   }
@@ -154,18 +155,19 @@ class RTSPWarrior(
         println(s"  behavior: $behavior")
     }
     executeAction(currentAction)
-
-    if (position.x < ARENA_BOUNDS.left) {
+    if (!benched && !grabbed) then {
+      if (position.x < ARENA_BOUNDS.left) {
         position = (ARENA_BOUNDS.left, position.y)
-    }
-    if (position.x > ARENA_BOUNDS.width) {
+      }
+      if (position.x > ARENA_BOUNDS.width) {
         position = (ARENA_BOUNDS.width, position.y)
-    }
-    if (position.y < ARENA_BOUNDS.top) {
+      }
+      if (position.y < ARENA_BOUNDS.top) {
         position = (position.x, ARENA_BOUNDS.top)
-    }
-    if (position.y > ARENA_BOUNDS.height) {
+      }
+      if (position.y > ARENA_BOUNDS.height) {
         position = (position.x, ARENA_BOUNDS.height)
+      }
     }
 
     super.onUpdate()
@@ -198,20 +200,22 @@ object RTSPWarrior {
       debug: Boolean = false,
       benched: Boolean = false
   ) =
-    new RTSPWarrior(
+    new RangeWarrior[Arrow](
       engine,
       battle,
       team,
       maxHP = 1000,
       range = 100,
-      attackDamage = 10,
+      attackDamage = 15,
       attackDelay = 1f,
       speed = 10f,
       behavior,
       "warriors/archer.png",
-      name = "Archer",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
       price = 4,
-      debug = debug
+      name = "Archer"
     )
   def createBarbarian(
       engine: GameEngine,
