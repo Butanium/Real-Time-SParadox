@@ -19,5 +19,4 @@ object GrUtils {
     */
   def newState(states: RenderStates, transform: Transform): RenderStates =
     RenderStates(states.blendMode, states.transform * transform)
-
 }

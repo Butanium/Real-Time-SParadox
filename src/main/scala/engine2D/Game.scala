@@ -71,6 +71,5 @@ abstract class Game(
         val fps: Int = (1.0 / (currentTime - lastTime) * 1000000000).toInt
         println(s"Frame per seconds: $fps")
         lastTime = currentTime
-
   }
 }

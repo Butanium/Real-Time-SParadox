@@ -14,8 +14,6 @@ import sfml.window.Mouse.Button
   *   triggered even if the conditions are met
   * @param toRemove
   *   whether the event has to be removed from the event queue
-  * @note
-  *   I'm not sure if we'll really need eventId and active
   */
 enum MouseEvent(
     val isPermanent: Boolean,
@@ -122,7 +120,19 @@ enum MouseEvent(
 
 object MouseEvent:
   private var lastId = 0
+  def isZindexSensitive(event: MouseEvent): Boolean =
+    event match
+      case MouseEvent.BoundsPressed(_, _, _)  => true
+      case MouseEvent.BoundsReleased(_, _, _) => false
+      case MouseEvent.MouseInBounds(_, _)     => true
+      case MouseEvent.MouseOutBounds(_, _)    => false
+      case _                                  => false
 
+  def order(event : MouseEvent): (Int, Int) =
+    event match
+      case MouseEvent.BoundsPressed(bound, _, _)  => bound.order
+      case MouseEvent.MouseInBounds(bound, _)     => bound.order
+      case _                                  => (0, 0)
   /** Returns a new unique id for a mouse event
     */
   private def getNewEventId(): Int =

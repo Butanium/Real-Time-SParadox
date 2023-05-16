@@ -8,8 +8,8 @@ object Constants {
     val SHOP_THICKNESS_RATIO: Float =
       Math.min(SHOP_HEIGHT_RATIO, SHOP_WIDTH_RATIO) * 0.05f
     val SPACE_FOR_BUYABLE: Float = 0.8f
-    val RATIO_WIDTH_MONEY: Float = 0.2f
-    val RATIO_HEIGHT_MONEY: Float = 0.3f
+    val RATIO_WIDTH_MONEY: Float = 0.5f
+    val RATIO_HEIGHT_MONEY: Float = 0.25f
     val INIT_NB_BUYABLE_SHOP: Int = 3
     val MAX_NB_BUYABLE_SHOP: Int = 3
     val PRICE_ARCHER: Int = 4
@@ -27,10 +27,13 @@ object Constants {
     val TIMEOUT_DURATION: Float = 10f
     val ARENA_BOUNDS = sfml.graphics.Rect[Float](0f, 0f, 800f, 550f)
   }
-  val NODE_WIDTH: Float = 80f
-  val NODE_HEIGHT: Float = 50f
-  val NODE_CIRCLE_RADIUS: Float = 12f
-  val LINE_THICKNESS: Float = 3f
+  object EditorC {
+    val NODE_WIDTH: Float = 80f
+    val NODE_HEIGHT: Float = 50f
+    val NODE_CIRCLE_RADIUS: Float = 12f
+    val LINE_THICKNESS: Float = 3f
+    val MENU_PADDING: Float = 10f
+  }
   val STARTING_MONEY: Int = 600
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
@@ -39,4 +42,7 @@ object Constants {
   val BENCH_HEIGHT_RATIO: Float = 0.2f
   val NUMBER_OF_POTIONS: Int = 3
   val NUMBER_OF_WARRIORS: Int = 3
+  val HEALT_BAR_WIDTH: Float = 30f
+  val HEALT_BAR_HEIGHT: Float = 5f
+  val INIT_LIMIT_OF_WARRIORS: Int = 3
 }

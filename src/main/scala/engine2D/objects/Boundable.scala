@@ -24,4 +24,6 @@ trait Boundable {
     *   True if the object contains the point, false otherwise.
     */
   def contains(x: Float, y: Float): Boolean = contains(Vector2(x, y))
+
+  def order: (Int, Int)
 }

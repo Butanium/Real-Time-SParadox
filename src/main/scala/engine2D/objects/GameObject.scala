@@ -29,12 +29,12 @@ class GameObject(
     with Drawable {
   private var _active: Boolean = true
 
-  def active: Boolean = _active
+  def active: Boolean = _active && parent.forall(_.active)
   def active_=(newValue: Boolean) =
     // TODO: Make sure it doesn't cause bug because of listeners. Maybe save the last
     // states of listener and restore them when active is set to true. We'll handle this
     // in the functions that create the listeners.
-    if newValue != active then
+    if newValue != _active then
       _active = newValue
       // listeners.foreach(_.active = false)
 
@@ -149,7 +149,7 @@ class GameObject(
     * GameObject is active.
     */
   protected def onUpdate(): Unit =
-    children = children.sortBy(GameObject.order(_))
+    children = children.sortBy(_.order)
     children.foreach(_.update())
 
   /** Updates this GameObject and all its children if it's active.
@@ -171,12 +171,18 @@ class GameObject(
   def add(newChildren: GameObject*): Unit = addChildren(newChildren: _*)
 
   /** Removes children from this GameObject.
-    * @param to_remove
+    * @param childrenToRemove
+    * @note
+    *   This method doesn't delete the children. It only removes them from the
+    *   children list.
     */
-  def removeChildren(to_remove: GameObject*): Unit = {
-    children --= to_remove
-    to_remove.foreach(_.parent = None)
+  def removeChildren(childrenToRemove: GameObject*): Unit = {
+    children --= childrenToRemove
+    childrenToRemove.foreach(_.parent = None)
   }
+
+  def destroyChildren(childrenToRemove: GameObject*): Unit =
+    childrenToRemove.foreach(_.markForDeletion())
 
   /** Called when this GameObject is deleted.
     */
@@ -199,6 +205,10 @@ class GameObject(
     */
   def markForDeletion() =
     deleteState = ToDelete
+
+  /** Alias for markForDeletion
+    */
+  def destroy() = markForDeletion()
 
   /** Deletes this GameObject if it's marked for deletion. Also deletes all
     * children that are marked for deletion.
@@ -228,8 +238,7 @@ class GameObject(
     }
 
   /** Implements an ordering between GameObjects. */
-  implicit def ordering: Ordering[GameObject] =
-    (x: GameObject, y: GameObject) => x.id - y.id
+  // implicit def ordering: Ordering[GameObject] = Ordering.by(_.order)
 
   /** Returns the global transform of this GameObject.
     * @note
@@ -241,7 +250,10 @@ class GameObject(
       case None         => transform
       case Some(parent) => parent.globalTransform * transform
 
-  def globalPosition: Vector2[Float] = 
+  // Todo: add another ordering that depends on the parent Zindex (useless for draw but useful for events)
+  def order: (Int, Int) = ((if active then zIndex else -1), id)
+
+  def globalPosition: Vector2[Float] =
     globalTransform.transformPoint(position)
 }
 
@@ -261,5 +273,4 @@ object GameObject {
     lastId - 1
   }
 
-  def order(x: GameObject): (Int, Int) = (x.zIndex, x.id)
 }

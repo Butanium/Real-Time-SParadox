@@ -13,6 +13,7 @@ import sfml.system.Vector2
 import rtsp.Constants
 import engine2D.objects.RectangleObject
 import sfml.graphics.Color
+import engine2D.objects.OnHover
 
 /*
   Utiliser l'arbre de comportement
@@ -36,12 +37,17 @@ class RTSPWarrior(
     val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
-    with Buyable {
-  val circle = RectangleObject(Constants.NODE_CIRCLE_RADIUS, Constants.NODE_CIRCLE_RADIUS, engine)
-  circle.zIndex = 10
-  circle.fillColor = Color.Red()
-  addChildren(circle)
+    with Buyable 
+    with OnHover
+    {
+  
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
+  val healthBar = new HealthBar(this, engine)
+  healthBar.zIndex = 3
+  // Compense le fait que l'origine du sprite du warrior est au centre
+  healthBar.addOffset((-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)) 
+  engine.spawn(healthBar)
+  initShowOnHover(healthBar, this)
 
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0
@@ -110,6 +116,7 @@ class RTSPWarrior(
 
   override def onDeath(): Unit =
     active = false
+    healthBar.active = false
 
   def executeAction(action: WarriorAction): Unit = {
     assert(active)
