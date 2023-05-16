@@ -8,7 +8,8 @@ class EffectBench(
     engine: GameEngine,
     player: Player,
     battle: RTSPBattle,
-    size: Int
+    size: Int,
+    sellingBin: SellingBin
 ) extends GeneralBench[Effect](
       engine,
       player,
@@ -21,7 +22,9 @@ class EffectBench(
     if !super.addBought(effect) then return false
     effect.setOnRelease(() => {
       removeEntity(effect)
-      if (rectangle.contains(effect.position)) then addDropped(effect)
+      if (sellingBin.rectangle.contains(effect.position)) then
+        sellingBin.sell(effect)
+      else if (rectangle.contains(effect.position)) then addDropped(effect)
       else {
         battle
           .teams(player.id)

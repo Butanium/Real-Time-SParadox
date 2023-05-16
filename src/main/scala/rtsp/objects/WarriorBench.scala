@@ -13,7 +13,8 @@ class WarriorBench(
     engine: GameEngine,
     player: Player,
     battle: RTSPBattle,
-    size: Int
+    size: Int,
+    sellingBin: SellingBin
 ) extends GeneralBench(
       engine,
       player,
@@ -28,9 +29,15 @@ class WarriorBench(
     battle.addWarriors(warrior)
     warrior.setOnRelease(() => {
       removeEntity(warrior); warrior.benched = false;
-      if (rectangle.contains(warrior.position) || battle.warriorsInBattle(
+      if (sellingBin.rectangle.contains(warrior.position)) then
+        sellingBin.sell(
+          warrior
+        )
+      else if (
+        rectangle.contains(warrior.position) || battle.warriorsInBattle(
           warrior.team
-        ) > MAX_WARRIORS_IN_BATTLE)
+        ) > MAX_WARRIORS_IN_BATTLE
+      )
       then addDropped(warrior)
     })
     return true

@@ -24,8 +24,9 @@ class RTSPShopGame(window: RenderWindow)
   val player = Player(0, "You")
   val bot = Player(1, "Bot")
   val battle = RTSPBattle(player, debug)
-  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE)
-  val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
+  val sellingBin = SellingBin(engine, player, battle)
+  val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
+  val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE, sellingBin)
 
   def idToWarrior(id: Int) = id match {
     case 0 =>
@@ -99,6 +100,7 @@ class RTSPShopGame(window: RenderWindow)
   shopEffects.active = false
   val switchButton = SwitchButton(shopWarrior, shopEffects, engine)
   engine.spawn(switchButton)
+  engine.spawn(sellingBin)
   override def init() = {
     val basePlayer = RTSPBase(engine, battle, player)
     engine.spawn(basePlayer)
