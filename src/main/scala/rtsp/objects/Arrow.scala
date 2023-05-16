@@ -31,15 +31,15 @@ class Arrow(
 }
 
 object Arrow {
+  // We reuse arrows that are not used anymore instead of creating new ones when possible (saves memory)
+  // They are stored in a hashmap of lists, each list corresponding to a type of warrior
   var hashmapLists = Map[String, ListBuffer[Arrow]]()
-  // add listArrows to hashmapLists
   hashmapLists += ("Archer" -> ListBuffer[Arrow]())
   hashmapLists += ("Mage" -> ListBuffer[Arrow]())
   hashmapLists += ("Base" -> ListBuffer[Arrow]())
   hashmapLists += ("Healer" -> ListBuffer[Arrow]())
 
   def factory(shooter: RTSPWarrior, target: RTSPWarrior) : Arrow =
-    // We reuse arrows that are not used anymore instead of creating new ones (saves memory)
       if hashmapLists(shooter.name).isEmpty then {
         shooter.name match {
           case "Archer" =>

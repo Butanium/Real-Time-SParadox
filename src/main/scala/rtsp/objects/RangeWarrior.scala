@@ -4,6 +4,9 @@ import rtsp.battle.Behavior
 import rtsp.battle.RTSPBattle
 import rtsp.objects.Projectile
 
+// A special type of warrior that can shoot projectiles
+// The right projectile is created by a factory function
+
 class RangeWarrior[P <: Projectile](
     engine: engine2D.GameEngine,
     battle: RTSPBattle,

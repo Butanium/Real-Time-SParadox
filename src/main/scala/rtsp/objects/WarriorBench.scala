@@ -34,8 +34,8 @@ class WarriorBench(
     warrior.benched = true
     battle.addWarriors(warrior)
     warrior.setOnRelease(() => {
-      removeEntity(warrior); warrior.benched = false;
-      if (sellingBin.rectangle.contains(warrior.position)) then
+      removeEntity(warrior); warrior.benched = false; // first, assume that the warrior is dropped on the battlefield
+      if (sellingBin.rectangle.contains(warrior.position)) then // sell case
         sellingBin.sell(
           warrior
         )
@@ -43,7 +43,7 @@ class WarriorBench(
         rectangle.contains(warrior.position) || battle.warriorsInBattle(
           warrior.team
         ) > MAX_WARRIORS_IN_BATTLE || warrior.distanceTo(base) > WARRIOR_DROP_RADIUS
-      )
+      ) // drop on bench / too many warriors in battle / too far from base cases
       then addDropped(warrior)
     })
     return true

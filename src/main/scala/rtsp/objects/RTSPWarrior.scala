@@ -155,7 +155,7 @@ class RTSPWarrior(
         println(s"  behavior: $behavior")
     }
     executeAction(currentAction)
-    if (!benched && !grabbed) then {
+    if (!benched && !grabbed) then { // warriors in battle don't cross the arena bounds
       if (position.x < ARENA_BOUNDS.left) {
         position = (ARENA_BOUNDS.left, position.y)
       }
@@ -321,6 +321,9 @@ object RTSPWarrior {
   ] = new Array(2)
   warriorTypes(Constants.ID_ARCHER) = createArcher
   warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
+  warriorTypes(Constants.ID_GIANT) = createGiant
+  warriorTypes(Constants.ID_MAGE) = createMage
+  warriorTypes(Constants.ID_HEALER) = createHealer
   def apply(
       typeId: Int,
       engine: GameEngine,

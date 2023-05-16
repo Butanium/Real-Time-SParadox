@@ -9,6 +9,8 @@ import rtsp.battle.*
 import engine2D.objects.CircleObject
 import sfml.system.Vector2
 
+// A base is a special case of warrior, and when it dies, the player loses
+
 class RTSPBase(
     engine: engine2D.GameEngine,
     battle: RTSPBattle,
