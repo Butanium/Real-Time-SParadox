@@ -20,6 +20,7 @@ abstract class GeneralBench[T <: GameObject](
   var x = 0
   var y = 0
   val benchArray = array
+  /*
   if (benchType == "warrior") then // todo remove and do this in the RTSPShopGame code instead
     x = engine.window.size.x
     y = engine.window.size.y / 16
@@ -28,6 +29,7 @@ abstract class GeneralBench[T <: GameObject](
     x = engine.window.size.x
     y = engine.window.size.y / 19
   else throw new Exception("Invalid bench type, must be warrior or effect")
+  */
   var takenSlots = 0
 
   def addBought(entity: T): Boolean =

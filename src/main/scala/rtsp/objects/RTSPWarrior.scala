@@ -22,7 +22,7 @@ import engine2D.objects.OnHover
 
 class RTSPWarrior(
     engine: GameEngine,
-    battle: RTSPBattle,
+    val battle: RTSPBattle,
     val team: Int,
     var maxHP: Int,
     var range: Int,

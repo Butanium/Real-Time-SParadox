@@ -1,5 +1,4 @@
 package rtsp.objects
-
 import engine2D.*
 import engine2D.objects.*
 import sfml.graphics.Color
