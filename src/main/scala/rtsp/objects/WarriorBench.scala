@@ -28,7 +28,10 @@ class WarriorBench(
     battle.addWarriors(warrior)
     warrior.setOnRelease(() => {
       removeEntity(warrior); warrior.benched = false;
-      if (rectangle.contains(warrior.position)) then addDropped(warrior)
+      if (rectangle.contains(warrior.position) || battle.warriorsInBattle(
+          warrior.team
+        ) > MAX_WARRIORS_IN_BATTLE)
+      then addDropped(warrior)
     })
     return true
   }
