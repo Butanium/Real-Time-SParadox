@@ -98,7 +98,7 @@ class RTSPShopGame(window: RenderWindow)
     )
     val team1 = List(
       RTSPWarrior
-        .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
+        .createBarbarian(engine, battle, 1, Behavior.basicBehavior(battle), debug),
       RTSPWarrior
         .createArcher(engine, battle, 1, Behavior.basicBehavior(battle), debug),
       RTSPWarrior.createBarbarian(
