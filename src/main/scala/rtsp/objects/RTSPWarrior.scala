@@ -11,6 +11,7 @@ import engine2D.objects.Grabbable
 import sfml.window.Mouse
 import sfml.system.Vector2
 import rtsp.Constants
+import rtsp.Constants.BattleC.*
 import engine2D.objects.RectangleObject
 import sfml.graphics.Color
 import engine2D.objects.OnHover
@@ -154,17 +155,17 @@ class RTSPWarrior(
     }
     executeAction(currentAction)
 
-    if (position.x < 0) {
-        position = (0f, position.y)
+    if (position.x < ARENA_BOUNDS.left) {
+        position = (ARENA_BOUNDS.left, position.y)
     }
-    if (position.x > engine.window.size.x) {
-        position = ((engine.window.size.x).toFloat, position.y)
+    if (position.x > ARENA_BOUNDS.width) {
+        position = (ARENA_BOUNDS.width, position.y)
     }
-    if (position.y < 0) {
-        position = (position.x, 0f)
+    if (position.y < ARENA_BOUNDS.top) {
+        position = (position.x, ARENA_BOUNDS.top)
     }
-    if (position.y > engine.window.size.y) {
-        position = (position.x, (engine.window.size.y).toFloat)
+    if (position.y > ARENA_BOUNDS.height) {
+        position = (position.x, ARENA_BOUNDS.height)
     }
 
     super.onUpdate()
