@@ -14,6 +14,10 @@ import rtsp.battle.BehaviorTree
 import rtsp.RTSPGameEngine
 import sfml.system.Vector2
 import engine2D.objects.TextObject
+import rtsp.battle.Behavior
+
+
+class CyclicDependencyException extends Exception("Cyclic dependency detected")
 
 enum NodeType:
   case Node
@@ -28,6 +32,11 @@ enum ActionType:
   case Flee
   case Idle
 
+enum ConversionState:
+  case Done
+  case Doing
+  case New
+
 class NodeObject(
     var nodeType: NodeType,
     behavior: BehaviorTree,
@@ -36,6 +45,7 @@ class NodeObject(
     with Grabbable(Mouse.Button.Left, engine) {
   import NodeType.*
   // ajout du NodeObject à la liste des NodeObjects
+  var conversionState = ConversionState.New // Is used to avoid cyclic behavior tree
   NodeObject.nodeList += this
 
   // Création d'un GameObject qui suit la souris
@@ -94,6 +104,27 @@ class NodeObject(
           follower.active = false
         }
       )
+  def release(line: LineObject): Unit =
+    NodeObject.searchNode(engine.mouseManager.mouseState.worldPos, this) match
+      case Some(childNode) =>
+        childrenNode.addOne(childNode)
+        childNode.parentsNode.addOne(this)
+        childNode.linesLinked += line
+        line.target2 = childNode
+        line.addPos2 = (NODE_WIDTH / 2f, 0f)
+      case None => engine.nodeCreationMenu.createNode(this, line)
+  def whenSquareClicked() =
+    val line = LineObject(
+      LINE_THICKNESS,
+      this,
+      follower,
+      (NODE_WIDTH / 2f, NODE_HEIGHT + NODE_CIRCLE_RADIUS / 2f),
+      (0f, 0f),
+      engine
+    )
+    linesLinked += line
+    engine.spawn(line)
+    follower.active = true
     listenToMouseEvent(
       MouseEvent.BoundsPressed(square, Mouse.Button.Left, true),
       whenSquareClicked
@@ -136,13 +167,73 @@ class NodeObject(
     NodeObject.nodeList -= this
     super.onDeletion()
 
+  def toBehaviorTree : BehaviorTree = 
+    if this.conversionState == ConversionState.Done then
+      this.behavior
+    else if this.conversionState == ConversionState.Doing then
+      throw CyclicDependencyException()
+    else
+      this.conversionState = ConversionState.Doing
+      val behavior = this.nodeType match
+        case NodeType.Action =>
+          val action = this.behavior match
+            case BehaviorTree.ActionNode(action, _) => action
+            case _ => throw new Exception("Wrong behavior type")
+          BehaviorTree.ActionNode(action, this.parentsNode.map(_.toBehaviorTree).toList)
+        case NodeType.Condition =>
+          val condition = this.behavior match
+            case BehaviorTree.ConditionNode(condition, _, _) => condition
+            case _ => throw new Exception("Wrong behavior type")
+          BehaviorTree.ConditionNode(condition, this.parentsNode.map(_.toBehaviorTree).toList, this.childrenNode.map(_.toBehaviorTree).toList)
+        case NodeType.Filter =>
+          val filter = this.behavior match
+            case BehaviorTree.Node(children, _) => children
+            case _ => throw new Exception("Wrong behavior type")
+          BehaviorTree.Node(filter, this.parentsNode.map(_.toBehaviorTree).toList)
+        case NodeType.Node =>
+          val children = this.behavior match
+            case BehaviorTree.Node(children, _) => children
+            case _ => throw new Exception("Wrong behavior type")
+          BehaviorTree.Node(children, this.parentsNode.map(_.toBehaviorTree).toList)
+        case NodeType.Root =>
+          val children = this.behavior match
+            case BehaviorTree.Node(children, _) => children
+            case _ => throw new Exception("Wrong behavior type")
+          BehaviorTree.Node(children, this.parentsNode.map(_.toBehaviorTree).toList)
+    
+    
+
+
 }
 
 object NodeObject {
   val nodeList: ListBuffer[NodeObject] = ListBuffer.empty
   def isInNode(point: Vector2[Float], node: NodeObject) =
     node.nodeType != NodeType.Root && node.contains(point)
-  def searchNode(point: Vector2[Float], from : NodeObject): Option[NodeObject] =
-    nodeList.sortBy(-_.zIndex).find(node => node != from && isInNode(point, node))
+  def searchNode(point: Vector2[Float], from: NodeObject): Option[NodeObject] =
+    nodeList
+      .sortBy(-_.zIndex)
+      .find(node => node != from && isInNode(point, node))
 
+  def fromBehavior(
+      behavior: BehaviorTree,
+      parent: GameObject,
+      engine: RTSPGameEngine
+  ): NodeObject =
+    val n = behavior match
+      case BehaviorTree.ActionNode(action, _) =>
+        NodeObject(NodeType.Action, behavior, engine)
+      case BehaviorTree.Node(children, _) =>
+        val childrenNodes = children.map(fromBehavior(_, parent, engine))
+        val n = NodeObject(NodeType.Node, behavior, engine)
+        n.childrenNode.addAll(childrenNodes)
+        n
+      case BehaviorTree.ConditionNode(condition, children, _) =>
+        val childrenNodes = children.map(fromBehavior(_, parent, engine))
+        val n = NodeObject(NodeType.Condition, behavior, engine)
+        n.childrenNode.addAll(childrenNodes)
+        n
+    n.position = behavior.position
+    parent.addChildren(n)
+    n
 }
