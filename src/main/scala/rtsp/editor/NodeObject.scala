@@ -58,23 +58,19 @@ class NodeObject(
 
   // définition des booléens associés au NodeObject
   def canHaveChild: Boolean = nodeType match
-    case Node      => true
-    case Condition => true
     case Filter    => false
-    case Action    => true
-    case Root      => true
+    case _      => true
+   
   def canHaveParent: Boolean = nodeType match
-    case Node      => true
-    case Condition => true
-    case Filter    => true
-    case Action    => true
-    case Root      => false
+    case Root => false
+    case _    => true
 
   if canHaveChild then
     val square = RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
     square.fillColor = Color.Red()
     addChildren(square)
     square.position = (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, NODE_HEIGHT)
+
     def release(line: LineObject): Unit =
       NodeObject.searchNode(engine.mouseManager.mouseState.worldPos, this) match
         case Some(childNode) =>
@@ -84,6 +80,7 @@ class NodeObject(
           line.target2 = childNode
           line.addPos2 = (NODE_WIDTH / 2f, 0f)
         case None => engine.nodeCreationMenu.createNode(this, line)
+
     def whenSquareClicked() =
       val line = LineObject(
         LINE_THICKNESS,
@@ -120,7 +117,7 @@ class NodeObject(
   if canHaveParent then
     val squareAbove =
       RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
-    squareAbove.fillColor = Color.Red()
+    squareAbove.fillColor = Color(255, 150, 0, 255)
     addChildren(squareAbove)
     squareAbove.position =
       (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, -(NODE_CIRCLE_RADIUS / 2f))
@@ -154,7 +151,7 @@ class NodeObject(
     NodeObject.nodeList -= this
     super.onDeletion()
 
-  override def markForDeletion(): Unit = 
+  override def markForDeletion(): Unit =
     linesLinked.foreach(_.markForDeletion())
     super.markForDeletion()
 
@@ -177,7 +174,7 @@ class NodeObject(
           )
       conversionState = ConversionState.Done
       behavior
-  
+
   def linkTo(node: NodeObject): Unit =
     val line = LineObject(
       LINE_THICKNESS,
@@ -207,19 +204,29 @@ object NodeObject {
   def fromBehavior(
       behavior: BehaviorTree,
       parent: GameObject,
-      engine: RTSPGameEngine
+      engine: RTSPGameEngine,
+      isRoot: Boolean = false
   ): NodeObject =
     val n = behavior match
       case BehaviorTree.ActionNode(action, _) =>
+        if isRoot then throw Exception("Root node cannot be an action node")
         NodeObject(NodeType.Action, behavior, engine)
       case BehaviorTree.Node(children, _) =>
         val childrenNodes = children.map(fromBehavior(_, parent, engine))
-        val n = NodeObject(NodeType.Node, behavior, engine)
+        val n = NodeObject(
+          if isRoot then NodeType.Root else NodeType.Node,
+          behavior,
+          engine
+        )
         childrenNodes.foreach(n.linkTo(_))
         n
       case BehaviorTree.ConditionNode(condition, children, _) =>
         val childrenNodes = children.map(fromBehavior(_, parent, engine))
-        val n = NodeObject(NodeType.Condition, behavior, engine)
+        val n = NodeObject(
+          if isRoot then NodeType.Root else NodeType.Condition,
+          behavior,
+          engine
+        )
         childrenNodes.foreach(n.linkTo(_))
         n
     n.position = behavior.position

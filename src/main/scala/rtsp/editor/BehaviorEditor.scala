@@ -20,7 +20,7 @@ class BehaviorEditor(engine: rtsp.RTSPGameEngine) extends GameObject(engine) {
     currentWarrior = warrior
     active = true
     menu.open()
-    root = NodeObject.fromBehavior(currentWarrior.behavior.tree, this, engine)
+    root = NodeObject.fromBehavior(currentWarrior.behavior.tree, this, engine, isRoot = true)
     root.nodeType = NodeType.Root
   }
   def saveBehavior() = {
