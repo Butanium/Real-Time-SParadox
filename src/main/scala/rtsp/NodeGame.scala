@@ -11,15 +11,18 @@ import rtsp.objects.WarriorBench
 import rtsp.objects.EffectBench
 import rtsp.objects.Effect.*
 import objects.SwitchButton
-import rtsp.editor.Node
+import rtsp.editor.NodeObject
 import engine2D.GameEngine
+import rtsp.editor.NodeType
+import rtsp.battle.BehaviorTree
+import engine2D.objects.ButtonObject
 
 class NodeGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine = GameEngine(3f / 60, window, debug = false) 
-  override def init(): Unit = 
-    val firstNode = Node(engine)
+  val engine: RTSPGameEngine = RTSPGameEngine(3f / 60, window, debug = false)
+  override def init(): Unit =
+    val firstNode =
+      NodeObject(NodeType.Root, BehaviorTree.Node(List.empty), engine)
     firstNode.position = (window.size.x / 2f, window.size.y / 2f)
     engine.spawn(firstNode)
-
 }

@@ -33,6 +33,10 @@ trait RectBounds extends Boundable {
       width / globalBounds.width,
       height / globalBounds.height
     )
+  
+  
+  def resize(size: Vector2[Float]): Unit =
+    resize(size.x, size.y)
 
   def width: Float = globalBounds.width
   def height: Float = globalBounds.height
