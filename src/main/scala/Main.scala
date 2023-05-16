@@ -5,6 +5,6 @@ import rtsp.NodeGame
 
 @main def main =
   val window = RenderWindow(VideoMode(800, 800), "RTSP")
-  val demo = NodeGame(window)
+  val demo = RTSPShopGame(window)
   // val demo = RTSPShopGame(window)
   demo.gameLoop()
