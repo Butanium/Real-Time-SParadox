@@ -12,11 +12,11 @@ import scala.collection.mutable.ListBuffer
 
 class Arrow(
     engine: GameEngine,
-    shooter: RTSPWarrior,
-    target: RTSPWarrior
+    _shooter: RTSPWarrior,
+    _target: RTSPWarrior
 ) extends Projectile(
-      shooter,
-      target,
+      _shooter,
+      _target,
       50f,
       "arrow.png",
       engine
@@ -26,13 +26,16 @@ class Arrow(
     active = false
     target.takeDamage(shooter.attackDamage)
   }
+  engine.spawn(this)
 }
 
 object Arrow {
   var listArrows = ListBuffer[Arrow]()
   def factory(archer: RTSPWarrior, target: RTSPWarrior) =
     // We use listArrows to reuse arrows that are not used anymore instead of creating new ones (saves memory)
-    if listArrows.isEmpty then Arrow(archer.engine, archer, target)
+    if listArrows.isEmpty then {
+      Arrow(archer.engine, archer, target)
+    }
     else {
       val arrow = listArrows.head
       listArrows -= arrow

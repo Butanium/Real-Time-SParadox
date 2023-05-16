@@ -39,6 +39,5 @@ class RangeWarrior[P <: Projectile](
   override def performAttack(target: RTSPWarrior) = {
     val projectile = factory(this, target)
     projectile.position = position
-    engine.spawn(projectile)
   }
 }
