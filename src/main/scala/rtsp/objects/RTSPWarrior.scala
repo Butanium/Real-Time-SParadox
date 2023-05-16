@@ -15,6 +15,7 @@ import rtsp.Constants.BattleC.*
 import engine2D.objects.RectangleObject
 import sfml.graphics.Color
 import engine2D.objects.OnHover
+import rtsp.Constants.NUMBER_OF_WARRIORS
 
 /*
   Utiliser l'arbre de comportement
@@ -318,7 +319,7 @@ object RTSPWarrior {
 
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
-  ] = new Array(2)
+  ] = new Array(NUMBER_OF_WARRIORS)
   warriorTypes(Constants.ID_ARCHER) = createArcher
   warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
   warriorTypes(Constants.ID_GIANT) = createGiant
