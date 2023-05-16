@@ -7,8 +7,8 @@ import engine2D.objects.SpriteObject
 import engine2D.graphics.TextureManager
 import scala.collection.mutable.ListBuffer
 
-// A general class of projectiles that goes from a shooter to a target
-
+/** A general class of projectiles that goes from a shooter to a target
+  */
 abstract class Projectile(
     var shooter: RTSPWarrior,
     var target: RTSPWarrior,
