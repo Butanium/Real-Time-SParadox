@@ -11,6 +11,8 @@ import rtsp.objects.WarriorBench
 import rtsp.objects.EffectBench
 import rtsp.objects.Effect.*
 import objects.SwitchButton
+import engine2D.objects.ButtonObject
+import sfml.graphics.Color
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
@@ -125,16 +127,41 @@ class RTSPShopGame(window: RenderWindow)
     battle.addWarriors(team1*)
     val potionTest = createAttackBuff(engine, player, battle, debug)
     engine.spawn(team1*)
-    engine.mouseManager.registerMouseEvent(
-      engine2D.eventHandling.MouseEvent
-        .ButtonPressed(
-          Mouse.Button.Right,
-          true
-        ),
+
+    // Création d'un bouton Start
+    val startButton = ButtonObject(
+      "Start !",
       () => {
         battle.active = !battle.active;
-      }
+      },
+      engine
     )
+    startButton.position =
+      (engine.window.size.x * 0.75f, engine.window.size.y * 0.08f)
+    startButton.changeBackground(
+      engine.window.size.x * 0.25f,
+      engine.window.size.y * 0.08f
+    )
+    startButton.background.fillColor = Color(165, 245, 73, 80)
+    startButton.background.outlineColor = Color(236, 151, 22)
+    engine.spawn(startButton)
+
+    // Création d'un bouton Switch Player
+    val switchPlayerButton = ButtonObject(
+      "Switch Player",
+      () => (),
+      engine
+    )
+    switchPlayerButton.position =
+      (engine.window.size.x * 0.75f, engine.window.size.y * 0.16f)
+    switchPlayerButton.changeBackground(
+      engine.window.size.x * 0.25f,
+      engine.window.size.y * 0.08f
+    )
+    switchPlayerButton.background.fillColor = Color(165, 245, 73, 80)
+    switchPlayerButton.background.outlineColor = Color(236, 151, 22)
+    engine.spawn(switchPlayerButton)
+
     shopWarrior.position = (
       window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarrior.thickness,
       window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarrior.thickness

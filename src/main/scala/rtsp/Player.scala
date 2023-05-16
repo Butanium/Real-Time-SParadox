@@ -10,6 +10,7 @@ class Player(val id: Int, val name: String) {
     else false
   def buy(buyable: Buyable): Boolean = buy(buyable.price)
   def earnMoney(amount: Int): Unit = money += amount
+  var limitOfWarriors: Int = Constants.INIT_LIMIT_OF_WARRIORS
 }
 
 // add implicit conversion from Player to Int
