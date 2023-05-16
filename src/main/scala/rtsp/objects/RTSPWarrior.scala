@@ -233,7 +233,7 @@ object RTSPWarrior {
       range = 10,
       attackDamage = 20,
       attackDelay = 0.5f,
-      speed = 20f,
+      speed = 15f,
       behavior,
       "warriors/warrior.png",
       name = "Barbarian",
@@ -260,11 +260,61 @@ object RTSPWarrior {
       behavior,
       "warriors/giant.png",
       name = "Giant",
-      price = 2,
+      price = 3,
       debug = debug
     )
     w.scale(1.5f, 1.5f)
     w
+  def createMage(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    new RangeWarrior[Arrow](
+      engine,
+      battle,
+      team,
+      maxHP = 1800,
+      range = 70,
+      attackDamage = 25,
+      attackDelay = 1f,
+      speed = 10f,
+      behavior,
+      "warriors/mage.png",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
+      price = 5,
+      name = "Mage"
+    )
+  def createHealer(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    new RangeWarrior[Arrow](
+      engine,
+      battle,
+      team,
+      maxHP = 1900,
+      range = 80,
+      attackDamage = -30,
+      attackDelay = 1.5f,
+      speed = 10f,
+      behavior,
+      "warriors/healer.png",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
+      price = 5,
+      name = "Healer"
+    )
 
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior

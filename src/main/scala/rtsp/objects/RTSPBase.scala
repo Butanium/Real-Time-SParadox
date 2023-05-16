@@ -10,7 +10,7 @@ class RTSPBase(
     engine: engine2D.GameEngine,
     battle: RTSPBattle,
     player: rtsp.Player
-) extends RTSPWarrior(
+) extends RangeWarrior[Arrow](
       engine,
       battle,
       player.id,
@@ -20,7 +20,12 @@ class RTSPBase(
       BASE_ATTACK_DELAY,
       0f,
       Behavior.basicBehavior(battle),
-      "base.png"
+      "base.png",
+      Arrow.factory,
+      debug = false,
+      benched = false,
+      price = 0,
+      name = "Base"
     ) {
 
   override def onDeath(): Unit = {

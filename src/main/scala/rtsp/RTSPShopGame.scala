@@ -52,6 +52,22 @@ class RTSPShopGame(window: RenderWindow)
         Behavior.basicBehavior(battle),
         debug
       )
+    case 3 =>
+      RTSPWarrior.createMage(
+        engine,
+        battle,
+        0,
+        Behavior.basicBehavior(battle),
+        debug
+      )
+    case 4 =>
+      RTSPWarrior.createHealer(
+        engine,
+        battle,
+        0,
+        Behavior.basicBehavior(battle),
+        debug
+      )
     case _ => throw new Exception(s"Invalid warrior id $id")
   }
 

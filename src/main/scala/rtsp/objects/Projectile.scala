@@ -29,6 +29,10 @@ abstract class Projectile(
       onImpact()
     } else {
       changeDirectionTo(target.position)
+      val angle = math
+      .atan2(target.position.y - position.y, target.position.x - position.x)
+      .toFloat
+      rotation = angle * 180f / math.Pi.toFloat
       super.onUpdate()
     }
   }
