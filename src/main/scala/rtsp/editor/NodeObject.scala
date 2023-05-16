@@ -44,7 +44,7 @@ class NodeObject(
   val parentsNode: ListBuffer[NodeObject] = ListBuffer.empty
   val linesLinked: ListBuffer[LineObject] = ListBuffer.empty
   def release(line: LineObject): Unit =
-    NodeObject.searchNode(engine.mouseManager.mouseState.worldPos) match
+    NodeObject.searchNode(engine.mouseManager.mouseState.worldPos, this) match
       case Some(childNode) =>
         childrenNode.addOne(childNode)
         childNode.parentsNode.addOne(this)
@@ -99,7 +99,7 @@ object NodeObject {
   val nodeList: ListBuffer[NodeObject] = ListBuffer.empty
   def isInNode(point: Vector2[Float], node: NodeObject) =
     node.nodeType != NodeType.Root && node.contains(point)
-  def searchNode(point: Vector2[Float]): Option[NodeObject] =
-    nodeList.find(node => isInNode(point, node))
+  def searchNode(point: Vector2[Float], from : NodeObject): Option[NodeObject] =
+    nodeList.sortBy(-_.zIndex).find(node => node != from && isInNode(point, node))
 
 }
