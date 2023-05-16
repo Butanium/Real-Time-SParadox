@@ -59,13 +59,14 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   def onClose(): Unit =
     this.active = false
     children.foreach(_.active = false)
+    engine.behaviorEditor.menu.active = true
     doneButton.active = true
     val childNode = computeNode()
     currentNode.childrenNode.addOne(childNode)
     childNode.parentsNode.addOne(currentNode)
     childNode.linesLinked += currentLine
     childNode.position = currentNode.follower.position
-    engine.spawn(childNode)
+    engine.behaviorEditor.add(childNode)
     currentLine.target2 = childNode
     currentLine.addPos2 = (NODE_WIDTH / 2f, 0f)
   val doneButton =
@@ -209,7 +210,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   val selectorMenu =
     MultipleChoiceMenu(
       List(lowestButton, highestButton),
-      Some(actionTypeMenu),
+      Some(actionMenu),
       true,
       engine
     )

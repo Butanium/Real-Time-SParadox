@@ -7,7 +7,7 @@ import engine2D.objects.SpriteObject
 import rtsp.battle.*
 
 class RTSPBase(
-    engine: engine2D.GameEngine,
+    engine: rtsp.RTSPGameEngine,
     battle: RTSPBattle,
     player: rtsp.Player
 ) extends RTSPWarrior(

@@ -21,7 +21,7 @@ import engine2D.objects.OnHover
  */
 
 class RTSPWarrior(
-    engine: GameEngine,
+    engine: RTSPGameEngine,
     battle: RTSPBattle,
     val team: Int,
     var maxHP: Int,
@@ -37,15 +37,25 @@ class RTSPWarrior(
     val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
-    with Buyable 
-    with OnHover
-    {
-  
+    with Buyable
+    with OnHover {
+  // Ouvre l'éditeur de comportement
+  listenToBoundsClicked(
+    Mouse.Button.Right,
+    this,
+    true,
+    () => {
+      engine.behaviorEditor.open(this)
+    }
+  )
+
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   val healthBar = new HealthBar(this, engine)
   healthBar.zIndex = 3
   // Compense le fait que l'origine du sprite du warrior est au centre
-  healthBar.addOffset((-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)) 
+  healthBar.addOffset(
+    (-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)
+  )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
 
@@ -172,7 +182,7 @@ class RTSPWarrior(
 
 object RTSPWarrior {
   def createArcher(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -195,7 +205,7 @@ object RTSPWarrior {
       debug = debug
     )
   def createBarbarian(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -218,7 +228,7 @@ object RTSPWarrior {
       debug = debug
     )
   def createGiant(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -244,13 +254,13 @@ object RTSPWarrior {
     w
 
   private val warriorTypes: Array[
-    (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
+    (RTSPGameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
   ] = new Array(2)
   warriorTypes(Constants.ID_ARCHER) = createArcher
   warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
   def apply(
       typeId: Int,
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior = null,

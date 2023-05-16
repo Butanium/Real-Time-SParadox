@@ -89,7 +89,7 @@ enum BehaviorTree(var position: Vector2[Float]) {
   ) extends BehaviorTree(_position)
 }
 
-class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
+class Behavior(var tree: BehaviorTree, val battle: RTSPBattle) {
 
   /** Evaluate the behavior tree and execute the action if it is valid.
     * @param warrior

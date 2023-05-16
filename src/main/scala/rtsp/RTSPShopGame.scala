@@ -14,7 +14,8 @@ import objects.SwitchButton
 
 class RTSPShopGame(window: RenderWindow)
     extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine = new RTSPGameEngine(3f / 60, window, debug = false)
+  val engine: RTSPGameEngine =
+    new RTSPGameEngine(3f / 60, window, debug = false)
   val background = engine2D.objects.SpriteObject("arena.png", engine)
   background.fillDimensions(
     window.size.x.toFloat,
@@ -125,16 +126,16 @@ class RTSPShopGame(window: RenderWindow)
     battle.addWarriors(team1*)
     val potionTest = createAttackBuff(engine, player, battle, debug)
     engine.spawn(team1*)
-    engine.mouseManager.registerMouseEvent(
-      engine2D.eventHandling.MouseEvent
-        .ButtonPressed(
-          Mouse.Button.Right,
-          true
-        ),
-      () => {
-        battle.active = !battle.active;
-      }
-    )
+    // engine.mouseManager.registerMouseEvent(
+    //   engine2D.eventHandling.MouseEvent
+    //     .ButtonPressed(
+    //       Mouse.Button.Right,
+    //       true
+    //     ),
+    //   () => {
+    //     battle.active = !battle.active;
+    //   }
+    // )
     shopWarrior.position = (
       window.size.x * (1 - SHOP_WIDTH_RATIO) / 2f + shopWarrior.thickness,
       window.size.y * (1 - SHOP_HEIGHT_RATIO) + shopWarrior.thickness
@@ -163,11 +164,8 @@ class RTSPShopGame(window: RenderWindow)
       player.earnMoney(
         2 * battle.enemies(player.id).count(w => !w.active && !w.benched)
       )
-
       battle.reset()
-
     }
     super.step()
   }
-
 }

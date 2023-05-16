@@ -13,17 +13,19 @@ class LineObject(
     var target2: GameObject,
     var addPos1: Vector2[Float],
     var addPos2: Vector2[Float],
-    engine: engine2D.GameEngine
+    engine: rtsp.RTSPGameEngine
 ) extends ShapeObject(
       sfml.graphics.RectangleShape(1f, 1f),
       engine
     ) {
+  zIndex = 2
   val line = drawable.asInstanceOf[sfml.graphics.RectangleShape]
-  line.fillColor = Color(128,128,128)
+  line.fillColor = Color(128, 128, 128)
   val deletionSquare: RectangleObject =
     RectangleObject(4f * thickness, 4f * thickness, engine)
   deletionSquare.fillColor = Color.Yellow()
-  engine.spawn(deletionSquare)
+  deletionSquare.zIndex = 3
+  engine.behaviorEditor.add(deletionSquare)
   def delete() =
     target1.childrenNode -= target2.asInstanceOf[NodeObject]
     target2.asInstanceOf[NodeObject].parentsNode -= target1
@@ -45,16 +47,21 @@ class LineObject(
       -(target1.position.x + addPos1.x) + (target2.position.x + addPos1.x)
     var dy =
       -(target1.position.y + addPos1.y) + (target2.position.y + addPos2.y)
-    deletionSquare.position = Vector2[Float](
-      target1.position.x + addPos1.x + dx / 2f - 2f * thickness,
-      target1.position.y + addPos1.y + dy / 2f - 2f * thickness
-    )
+
     var dist = Math.sqrt(dx * dx + dy * dy).toFloat
     val angle = Math.atan2(-dy, -dx)
     rotation = (angle * 180f / Math.PI + 180f).toFloat
     position = target1.position + addPos1
     scale = (dist, thickness)
+    deletionSquare.position = position + Vector2[Float](
+      dx / 2f - 2f * thickness,
+      dy / 2f - 2f * thickness
+    )
     super.onUpdate()
   }
+  
+  override def markForDeletion() =
+    deletionSquare.markForDeletion()
+    super.markForDeletion()
 
 }

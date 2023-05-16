@@ -16,7 +16,6 @@ import sfml.system.Vector2
 import engine2D.objects.TextObject
 import rtsp.battle.Behavior
 
-
 class CyclicDependencyException extends Exception("Cyclic dependency detected")
 
 enum NodeType:
@@ -45,7 +44,8 @@ class NodeObject(
     with Grabbable(Mouse.Button.Left, engine) {
   import NodeType.*
   // ajout du NodeObject à la liste des NodeObjects
-  var conversionState = ConversionState.New // Is used to avoid cyclic behavior tree
+  var conversionState =
+    ConversionState.New // Is used to avoid cyclic behavior tree
   NodeObject.nodeList += this
 
   // Création d'un GameObject qui suit la souris
@@ -58,21 +58,20 @@ class NodeObject(
 
   // définition des booléens associés au NodeObject
   def canHaveChild: Boolean = nodeType match
-    case Node => true
+    case Node      => true
     case Condition => true
-    case Filter => false
-    case Action => true
-    case Root => true
+    case Filter    => false
+    case Action    => true
+    case Root      => true
   def canHaveParent: Boolean = nodeType match
-    case Node => true
+    case Node      => true
     case Condition => true
-    case Filter => true
-    case Action => true
-    case Root => false
+    case Filter    => true
+    case Action    => true
+    case Root      => false
 
   if canHaveChild then
     val square = RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
-    square.zIndex = 10
     square.fillColor = Color.Red()
     addChildren(square)
     square.position = (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, NODE_HEIGHT)
@@ -95,7 +94,7 @@ class NodeObject(
         engine
       )
       linesLinked += line
-      engine.spawn(line)
+      engine.behaviorEditor.add(line)
       follower.active = true
       listenToMouseEvent(
         MouseEvent.ButtonReleased(Mouse.Button.Left, false),
@@ -104,6 +103,10 @@ class NodeObject(
           follower.active = false
         }
       )
+    listenToMouseEvent(
+      MouseEvent.BoundsPressed(square, Mouse.Button.Left, true),
+      whenSquareClicked
+    )
   def release(line: LineObject): Unit =
     NodeObject.searchNode(engine.mouseManager.mouseState.worldPos, this) match
       case Some(childNode) =>
@@ -113,43 +116,27 @@ class NodeObject(
         line.target2 = childNode
         line.addPos2 = (NODE_WIDTH / 2f, 0f)
       case None => engine.nodeCreationMenu.createNode(this, line)
-  def whenSquareClicked() =
-    val line = LineObject(
-      LINE_THICKNESS,
-      this,
-      follower,
-      (NODE_WIDTH / 2f, NODE_HEIGHT + NODE_CIRCLE_RADIUS / 2f),
-      (0f, 0f),
-      engine
-    )
-    linesLinked += line
-    engine.spawn(line)
-    follower.active = true
-    listenToMouseEvent(
-      MouseEvent.BoundsPressed(square, Mouse.Button.Left, true),
-      whenSquareClicked
-    )
   // Définition du carré au-dessus du NodeObject quand nécessaire
   if canHaveParent then
-    val squareAbove = RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
-    squareAbove.zIndex = 10
+    val squareAbove =
+      RectangleObject(NODE_CIRCLE_RADIUS, NODE_CIRCLE_RADIUS, engine)
     squareAbove.fillColor = Color.Red()
     addChildren(squareAbove)
-    squareAbove.position = (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, -(NODE_CIRCLE_RADIUS / 2f))
+    squareAbove.position =
+      (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, -(NODE_CIRCLE_RADIUS / 2f))
 
-  //Définition du texte écrit sur le NodeObject en fonction de son type
+  // Définition du texte écrit sur le NodeObject en fonction de son type
   val textNodeType: String = nodeType match
-    case Node => "Node"
+    case Node      => "Node"
     case Condition => "Condition"
-    case Filter => "Filter"
-    case Action => "Action"
-    case Root => "Root"
+    case Filter    => "Filter"
+    case Action    => "Action"
+    case Root      => "Root"
   val textType = new TextObject(textNodeType, engine, charSize = 16)
   textType.fillColor = Color.Red()
   addChildren(textType)
-  textType.position =
-    (NODE_WIDTH / 10f, NODE_HEIGHT / 3f)
-  
+  textType.position = (NODE_WIDTH / 10f, NODE_HEIGHT / 3f)
+
   // Supression du NodeObject quand on fait click droit dessus
   def delete() =
     parentsNode.foreach((node: NodeObject) => node.childrenNode -= this)
@@ -167,42 +154,44 @@ class NodeObject(
     NodeObject.nodeList -= this
     super.onDeletion()
 
-  def toBehaviorTree : BehaviorTree = 
-    if this.conversionState == ConversionState.Done then
-      this.behavior
+  override def markForDeletion(): Unit = 
+    linesLinked.foreach(_.markForDeletion())
+    super.markForDeletion()
+
+  def toBehaviorTree: BehaviorTree =
+    if this.conversionState == ConversionState.Done then this.behavior
     else if this.conversionState == ConversionState.Doing then
       throw CyclicDependencyException()
     else
       this.conversionState = ConversionState.Doing
-      val behavior = this.nodeType match
-        case NodeType.Action =>
-          val action = this.behavior match
-            case BehaviorTree.ActionNode(action, _) => action
-            case _ => throw new Exception("Wrong behavior type")
-          BehaviorTree.ActionNode(action, this.parentsNode.map(_.toBehaviorTree).toList)
-        case NodeType.Condition =>
-          val condition = this.behavior match
-            case BehaviorTree.ConditionNode(condition, _, _) => condition
-            case _ => throw new Exception("Wrong behavior type")
-          BehaviorTree.ConditionNode(condition, this.parentsNode.map(_.toBehaviorTree).toList, this.childrenNode.map(_.toBehaviorTree).toList)
-        case NodeType.Filter =>
-          val filter = this.behavior match
-            case BehaviorTree.Node(children, _) => children
-            case _ => throw new Exception("Wrong behavior type")
-          BehaviorTree.Node(filter, this.parentsNode.map(_.toBehaviorTree).toList)
-        case NodeType.Node =>
-          val children = this.behavior match
-            case BehaviorTree.Node(children, _) => children
-            case _ => throw new Exception("Wrong behavior type")
-          BehaviorTree.Node(children, this.parentsNode.map(_.toBehaviorTree).toList)
-        case NodeType.Root =>
-          val children = this.behavior match
-            case BehaviorTree.Node(children, _) => children
-            case _ => throw new Exception("Wrong behavior type")
-          BehaviorTree.Node(children, this.parentsNode.map(_.toBehaviorTree).toList)
-    
-    
-
+      val behavior = this.behavior match
+        case BehaviorTree.ActionNode(action, _) =>
+          BehaviorTree.ActionNode(action, position)
+        case rtsp.battle.BehaviorTree.Node(_, _) =>
+          BehaviorTree.Node(childrenNode.map(_.toBehaviorTree).toList, position)
+        case BehaviorTree.ConditionNode(condition, _, _) =>
+          BehaviorTree.ConditionNode(
+            condition,
+            childrenNode.map(_.toBehaviorTree).toList,
+            position
+          )
+      conversionState = ConversionState.Done
+      behavior
+  
+  def linkTo(node: NodeObject): Unit =
+    val line = LineObject(
+      LINE_THICKNESS,
+      this,
+      node,
+      (NODE_WIDTH / 2f, NODE_HEIGHT + NODE_CIRCLE_RADIUS / 2f),
+      (NODE_WIDTH / 2f, 0f),
+      engine
+    )
+    linesLinked += line
+    node.linesLinked += line
+    engine.behaviorEditor.add(line)
+    childrenNode.addOne(node)
+    node.parentsNode.addOne(this)
 
 }
 
@@ -212,7 +201,7 @@ object NodeObject {
     node.nodeType != NodeType.Root && node.contains(point)
   def searchNode(point: Vector2[Float], from: NodeObject): Option[NodeObject] =
     nodeList
-      .sortBy(-_.zIndex)
+      .sortBy(_.inverseOrder)
       .find(node => node != from && isInNode(point, node))
 
   def fromBehavior(
@@ -226,12 +215,12 @@ object NodeObject {
       case BehaviorTree.Node(children, _) =>
         val childrenNodes = children.map(fromBehavior(_, parent, engine))
         val n = NodeObject(NodeType.Node, behavior, engine)
-        n.childrenNode.addAll(childrenNodes)
+        childrenNodes.foreach(n.linkTo(_))
         n
       case BehaviorTree.ConditionNode(condition, children, _) =>
         val childrenNodes = children.map(fromBehavior(_, parent, engine))
         val n = NodeObject(NodeType.Condition, behavior, engine)
-        n.childrenNode.addAll(childrenNodes)
+        childrenNodes.foreach(n.linkTo(_))
         n
     n.position = behavior.position
     parent.addChildren(n)
