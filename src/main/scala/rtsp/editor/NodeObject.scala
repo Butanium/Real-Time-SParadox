@@ -47,13 +47,13 @@ class NodeObject(
   val linesLinked: ListBuffer[LineObject] = ListBuffer.empty
 
   // définition des booléens associés au NodeObject
-  val canHaveChild: Boolean = nodeType match
+  def canHaveChild: Boolean = nodeType match
     case Node => true
     case Condition => true
     case Filter => false
     case Action => true
     case Root => true
-  val canHaveParent: Boolean = nodeType match
+  def canHaveParent: Boolean = nodeType match
     case Node => true
     case Condition => true
     case Filter => true
