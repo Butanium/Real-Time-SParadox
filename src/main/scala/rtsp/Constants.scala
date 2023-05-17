@@ -34,7 +34,7 @@ object Constants {
     val LINE_THICKNESS: Float = 3f
     val MENU_PADDING: Float = 10f
   }
-  val STARTING_MONEY: Int = 600
+  val STARTING_MONEY: Int = 10
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
   val ID_GIANT: Int = 2
@@ -50,5 +50,5 @@ object Constants {
   val HEALT_BAR_WIDTH: Float = 30f
   val HEALT_BAR_HEIGHT: Float = 5f
   val INIT_LIMIT_OF_WARRIORS: Int = 3
-  val BATTLE_DURATION: Int = 30
+  val BATTLE_DURATION: Int = 80
 }
