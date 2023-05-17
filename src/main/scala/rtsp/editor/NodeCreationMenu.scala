@@ -279,7 +279,6 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
         engine
       )
     ),
-    // None,
     Some(countConditionMenu),
     true,
     engine

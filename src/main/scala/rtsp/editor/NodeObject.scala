@@ -24,26 +24,23 @@ class CyclicDependencyException extends Exception("Cyclic dependency detected")
 enum NodeType:
   case Node
   case Condition
-  case Filter // rien en dessous
-  case Action // modification du truc en dessous
-  case Root // rien au dessus
-
-enum ActionType:
-  case Move
-  case Attack
-  case Flee
-  case Idle
+  case Filter
+  case Action
+  case Root
 
 enum ConversionState:
   case Done
   case Doing
   case New
 
-/** A NodeObject is a graphical representation of a node in a behavior tree.
-  * It is used in the behavior editor.
-  * @param nodeType The type of the node
-  * @param behavior The behavior tree associated to the node
-  * @param engine The game engine
+/** A NodeObject is a graphical representation of a node in a behavior tree. It
+  * is used in the behavior editor.
+  * @param nodeType
+  *   The type of the node
+  * @param behavior
+  *   The behavior tree associated to the node
+  * @param engine
+  *   The game engine
   */
 class NodeObject(
     var nodeType: NodeType,
