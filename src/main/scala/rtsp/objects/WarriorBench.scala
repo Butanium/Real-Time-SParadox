@@ -21,12 +21,11 @@ class WarriorBench(
       player,
       battle,
       size,
-      new Array[RTSPWarrior](size),
-      "warrior"
+      new Array[RTSPWarrior](size)
     ) {
-  var x = engine.window.size.x
-  var y = engine.window.size.y * 0.16f
-  val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
+  var width = engine.window.size.x
+  var height = engine.window.size.y * 0.16f
+  val rectangle = RectangleObject(width.toFloat, height.toFloat, engine)
   rectangle.fillColor = Color(165, 245, 73, 80)
   addChildren(rectangle)
   override def addBought(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)

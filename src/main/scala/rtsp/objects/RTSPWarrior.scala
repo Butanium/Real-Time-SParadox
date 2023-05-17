@@ -24,7 +24,7 @@ import rtsp.Constants.NUMBER_OF_WARRIORS
 
 class RTSPWarrior(
     engine: GameEngine,
-    battle: RTSPBattle,
+    val battle: RTSPBattle,
     val team: Int,
     var maxHP: Int,
     var range: Int,
@@ -51,6 +51,12 @@ class RTSPWarrior(
   )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
+  battle.engine.spawn(healthBar)
+  private val currentEngine = engine
+  engine = battle.engine
+  initShowOnHover(healthBar, this) // Va instancier les évenements sur l'engine battle
+  engine = currentEngine
+
 
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0

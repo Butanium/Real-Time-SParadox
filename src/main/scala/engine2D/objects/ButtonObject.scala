@@ -8,13 +8,13 @@ class ButtonObject(
     val text: String,
     var onClicked: () => Unit,
     engine: engine2D.GameEngine,
-    var legend: String = "",
+    var legend: String = ""
 ) extends GameObject(engine)
     with RectBounds
     with Boundable {
   val padding = 0
   val textObject = new TextObject(text, engine)
-  textObject.text.position = (padding / 2f, padding / 2f)
+  textObject.position = (padding / 2f, padding / 2f)
   textObject.zIndex = 1
   textObject.fillColor = sfml.graphics.Color(255, 255, 255)
   var background: RectangleObject = RectangleObject(0, 0, engine) // dummy
@@ -29,12 +29,13 @@ class ButtonObject(
     background.outlineColor = sfml.graphics.Color(150, 150, 150, 200)
     background.outlineThickness = 3f
     addChildren(background)
-    textObject.text.position = (
+    textObject.position = (
       (width - textObject.text.localBounds.width) / 2f,
       (height - textObject.text.localBounds.height) / 2f
     )
-  def resetOutline() = background.outlineColor = sfml.graphics.Color(150, 150, 150, 200)
-  private def activated() = 
+  def resetOutline() = background.outlineColor =
+    sfml.graphics.Color(150, 150, 150, 200)
+  private def activated() =
     onClicked()
   listenToBoundsClicked(Button.Left, this, true, this.activated)
   changeBackground(
@@ -43,7 +44,7 @@ class ButtonObject(
   )
   // legend is put below the background
   val legendObject = new TextObject(legend, engine)
-  legendObject.text.position = (
+  legendObject.position = (
     background.width / 2f - legendObject.text.localBounds.width / 2f,
     background.height + 5
   )
@@ -56,28 +57,37 @@ class ButtonObject(
       textObject.text.localBounds.height
     ) + padding
     changeBackground(size, size)
-    legendObject.text.position = (
+    legendObject.position = (
       background.width / 2f - legendObject.text.localBounds.width / 2f,
       background.height + 5
     )
   }
-  def changeText(newText: String, adaptBackground: Boolean = false) = {
+  def changeText(
+      newText: String,
+      adaptBackground: Boolean = false,
+      adaptText: Boolean = false
+  ) = {
     textObject.text.string = newText
     if (adaptBackground)
       changeBackground(
         textObject.text.localBounds.width + padding,
         textObject.text.localBounds.height + padding
       )
+      legendObject.position = (
+        background.width / 2f - legendObject.text.localBounds.width / 2f,
+        background.height + 5
+      )
+    if (adaptText)
+      textObject.boundDimensions(
+        background.globalBounds.width + 10,
+        background.globalBounds.height + 10
+      )
 
-    legendObject.text.position = (
-      background.width / 2f - legendObject.text.localBounds.width / 2f,
-      background.height + 5
-    )
   }
 
   def changeLegend(newLegend: String) = {
     legendObject.text.string = newLegend
-    legendObject.text.position = (
+    legendObject.position = (
       background.width / 2f - legendObject.text.localBounds.width / 2f,
       background.height + 5
     )

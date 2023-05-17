@@ -15,10 +15,11 @@ class LineObject(
     var addPos2: Vector2[Float],
     engine: engine2D.GameEngine
 ) extends ShapeObject(
-      sfml.graphics.RectangleShape(1f, 1f),
+      sfml.graphics.RectangleShape((1f, 1f)),
       engine
     ) {
   val line = drawable.asInstanceOf[sfml.graphics.RectangleShape]
+  line.fillColor = Color(128,128,128)
   val deletionSquare: RectangleObject =
     RectangleObject(4f * thickness, 4f * thickness, engine)
   deletionSquare.fillColor = Color.Yellow()

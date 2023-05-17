@@ -14,10 +14,8 @@ abstract class GeneralBench[T <: GameObject](
     player: Player,
     battle: RTSPBattle,
     size: Int,
-    array: Array[T],
-    benchType: String // todo remove
+    val benchArray: Array[T],
 ) extends GameObject(engine) {
-  val benchArray = array
   var takenSlots = 0
 
   def addBought(entity: T): Boolean =
@@ -26,7 +24,9 @@ abstract class GeneralBench[T <: GameObject](
     benchArray(i) = entity
     takenSlots += 1
     entity.position = positionOfIndex(i)
+    println(s"pbj : ${positionOfIndex(i)}, entity : ${entity.position}")
     engine.spawn(entity)
+    println(s"entity after spawn : ${entity.position}\n")
     return true
 
   def removeEntity(entity: T): Unit = {

@@ -13,7 +13,7 @@ import sfml.graphics.RenderWindow
   * @param debug
   *   if true, print debug information
   */
-abstract class Game(
+abstract class Game[E <: GameEngine](
     val window: RenderWindow,
     val targetFps: Int = 60,
     val backgroundColor: sfml.graphics.Color = sfml.graphics.Color.Black(),
@@ -22,7 +22,7 @@ abstract class Game(
 
   /** The game engine
     */
-  val engine: GameEngine
+  var engine: E
 
   /** Initialize the game, called once before starting the game loop
     */

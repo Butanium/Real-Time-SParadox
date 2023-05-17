@@ -18,11 +18,11 @@ import rtsp.battle.BehaviorTree
 import engine2D.objects.ButtonObject
 
 class NodeGame(window: RenderWindow)
-    extends Game(window, 60, sfml.graphics.Color.Black(), debug = false) {
-  val engine: RTSPGameEngine = RTSPGameEngine(3f / 60, window, debug = false)
+    extends Game[RTSPGameEngine](window, 60, sfml.graphics.Color.Black(), debug = false) {
+  var engine: RTSPGameEngine = RTSPGameEngine(3f / 60, window, debug = false)
   override def init(): Unit =
     val firstNode =
-      NodeObject(NodeType.Root, BehaviorTree.Node(List.empty), engine)
+      NodeObject(NodeType.Root, BehaviorTree.Node(List.empty, (window.size.x / 2f, window.size.y / 2f) ), engine)
     firstNode.position = (window.size.x / 2f, window.size.y / 2f)
     engine.spawn(firstNode)
 }

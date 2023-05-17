@@ -10,14 +10,17 @@ import sfml.graphics.RectangleShape
 import sfml.graphics.Color
 
 import util.Random
+import rtsp.Constants
+import rtsp.RTSPGameEngine
 class Shop[T <: Buyable with GameObject](
     val player: Player,
     initNbBuyable: Int,
     maxNbBuyable: Int,
     poolRepartition: Array[Float],
-    idToBuyable: Int => T,
+    battle: RTSPBattle,
+    idToBuyable: (Int, Player, RTSPBattle, RTSPGameEngine) => T,
     bench: GeneralBench[T],
-    engine: GameEngine
+    engine: RTSPGameEngine
 ) extends GameObject(engine) {
   // définit la taille du shop
   var height: Float = engine.window.size.y * SHOP_HEIGHT_RATIO
@@ -46,24 +49,45 @@ class Shop[T <: Buyable with GameObject](
     realHeight * ((1f - SPACE_FOR_BUYABLE) / 4f)
   )
 
-  // définition d'un niveau de shop (inutile pour le moment)
-  var level: Int = 1
-  def upgrade =
-    level += 1
-
-  // Création de l'Array contanant les boutons
+  // définition d'une limite de warriors que l'on peut placer sur le terrain et des fonctions associées
+  def priceUpgrade(limit: Int): Int =
+    (limit * limit * (limit + 1)) / 12
+  def upgrade(limit: Int): Unit =
+    if this.active && player.buy(priceUpgrade(limit)) then
+      player.limitOfWarriors += 1
+  
+  // Création du bouton pour augmenter la limite
+  val buttonUpgrade = ButtonObject(
+    "Upgrade limit: " + priceUpgrade(player.limitOfWarriors).toString(),
+    () => upgrade(player.limitOfWarriors),
+    engine
+  )
+  buttonUpgrade.changeBackground(max_width_buyable, max_height_buyable / 2.1f)
+  buttonUpgrade.position =
+    positionBuyable(nbBuyable) + (0f, max_height_buyable / 1.9f)
+  buttonUpgrade.background.fillColor = Color(165, 245, 73, 80)
+  buttonUpgrade.background.outlineColor = Color(236, 151, 22)
+  addChildren(buttonUpgrade)
+  
+  // Création de l'Array contenant les boutons
   val buttons = new Array[ShopButton[T]](maxNbBuyable)
 
   // fonction pour remplacer aléatoirement un objet du shop, à définir
   def replace(index: Int) =
     val random_id_object: Int = pool.get_random()
-    buttons(index).changeBuyable(idToBuyable(random_id_object))
+    buttons(index).changeBuyable(idToBuyable(random_id_object, player, battle, engine))
 
   // fonction pour initialiser un objet du shop à un certain index
   def init(index: Int) =
     val random_id_object: Int = pool.get_random()
     var newButton =
-      ShopButton(index, idToBuyable(random_id_object), player, this, engine)
+      ShopButton(
+        index,
+        idToBuyable(random_id_object, player, battle, engine),
+        player,
+        this,
+        engine
+      )
     buttons(index) = newButton
     newButton.zIndex = 1
     addChildren(newButton)
@@ -96,7 +120,11 @@ class Shop[T <: Buyable with GameObject](
   addChildren(moneyRectangle)
   moneyRectangle.position =
     (realWidth / 2f - realWidthMoney / 2f, -(thickness + realHeightMoney))
-  var moneyText = TextObject("Money:" + player.money.toString(), engine)
+  var moneyText = TextObject(
+    "Money:" + player.money
+      .toString() + "  -  Warrior Limit" + player.limitOfWarriors.toString(),
+    engine
+  )
   moneyText.fillColor = (Color(236, 191, 42))
   addChildren(moneyText)
   moneyText.zIndex = 1
@@ -117,7 +145,13 @@ class Shop[T <: Buyable with GameObject](
 
   // On modifie onUpdate pour que le montant de money soit actualisé
   override def onUpdate() = {
-    moneyText.string = "Money:" + player.money.toString
+    moneyText.string =
+      "   Money: " + player.money.toString + "  -  Warrior Limit: " + player.limitOfWarriors
+        .toString()
+    buttonUpgrade.changeText(
+        "Upgrade limit: " + priceUpgrade(player.limitOfWarriors).toString(),
+        adaptText = true
+      )
     super.onUpdate()
   }
 }

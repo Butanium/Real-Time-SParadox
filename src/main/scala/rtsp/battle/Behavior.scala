@@ -3,6 +3,7 @@ import rtsp.objects.RTSPWarrior
 import rtsp.battle.WarriorAction
 import scala.util.control.NonLocalReturns
 import scala.compiletime.ops.boolean
+import sfml.system.Vector2
 
 /* ----- Filter ----- */
 enum Filter {
@@ -76,10 +77,16 @@ enum CountCondition {
   case GreaterThan(value: Int)
 }
 
-enum BehaviorTree {
-  case ActionNode(action: Action)
-  case Node(children: List[BehaviorTree])
-  case ConditionNode(condition: Condition, children: List[BehaviorTree])
+enum BehaviorTree(var position: Vector2[Float]) {
+  case ActionNode(action: Action, _position: Vector2[Float])
+      extends BehaviorTree(_position)
+  case Node(children: List[BehaviorTree], _position: Vector2[Float])
+      extends BehaviorTree(_position)
+  case ConditionNode(
+      condition: Condition,
+      children: List[BehaviorTree],
+      _position: Vector2[Float]
+  ) extends BehaviorTree(_position)
 }
 
 class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
@@ -105,10 +112,10 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
   def evaluateNode(warrior: RTSPWarrior, tree: BehaviorTree): Boolean = {
     import BehaviorTree._
     tree match
-      case ActionNode(action) => return evaluateAction(warrior, action)
-      case Node(children) =>
+      case ActionNode(action, _) => return evaluateAction(warrior, action)
+      case Node(children, _) =>
         children.exists(evaluateNode(warrior, _))
-      case ConditionNode(condition, children) =>
+      case ConditionNode(condition, children, _) =>
         evaluateCondition(warrior, condition) && children.exists(
           evaluateNode(warrior, _)
         )
@@ -323,18 +330,27 @@ object Behavior {
       Node(
         List(
           ActionNode(
-            Attack(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+            Attack(
+              Warrior(Enemy),
+              List(All),
+              Lowest(DistanceFromClosest(Self))
+            ),
+            (10, 300)
           ),
           ActionNode(
-            Move(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+            Move(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            (100, 300)
           ),
           ActionNode(
-            Attack(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+            Attack(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            (200, 300)
           ),
           ActionNode(
-            Move(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self)))
+            Move(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            (300, 300)
           )
-        )
+        ),
+        (150, 50)
       ),
       battle
     )
@@ -362,14 +378,18 @@ object Behavior {
                       Warrior(Enemy),
                       List(Attacking(Self)),
                       Lowest(DistanceFromClosest(Self))
-                    )
+                    ),
+                    (300, 500)
                   )
-                )
+                ),
+                (300, 400)
               )
-            )
+            ),
+            (300, 20)
           ),
           basicBehavior(battle).tree
-        )
+        ),
+        (150, 0)
       ),
       battle
     )
