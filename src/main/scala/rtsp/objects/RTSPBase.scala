@@ -51,14 +51,4 @@ class RTSPBase(
     ARENA_BOUNDS.width,
     ARENA_BOUNDS.height
   ) * (1 - player).toFloat + padding
-  // Circle that represents the warrior drop radius around the base using SFML
-  val circle = CircleObject(WARRIOR_DROP_RADIUS, engine)
-  circle.position = player.id match {
-    case 0 => position - Vector2(WARRIOR_DROP_RADIUS, WARRIOR_DROP_RADIUS)
-    case 1 => Vector2(-WARRIOR_DROP_RADIUS + 50, -WARRIOR_DROP_RADIUS + 50)
-  }
-  circle.fillColor = sfml.graphics.Color.Transparent()
-  circle.outlineColor = sfml.graphics.Color.White()
-  circle.outlineThickness = 2
-  engine.spawn(circle)
 }

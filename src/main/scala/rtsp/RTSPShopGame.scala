@@ -16,6 +16,11 @@ import sfml.graphics.Color
 import engine2D.GameEngine
 import sfml.system.Clock
 import sfml.system.Time
+import scala.collection.mutable.SortedSet
+import engine2D.objects.TextObject
+import engine2D.objects.CircleObject
+import sfml.system.Vector2
+import Constants.BattleC.*
 
 class RTSPShopGame(window: RenderWindow)
     extends Game[RTSPGameEngine](
@@ -27,6 +32,7 @@ class RTSPShopGame(window: RenderWindow)
   val engineP0 = new RTSPGameEngine(3f / 60, window, debug = false)
   val engineP1 = new RTSPGameEngine(3f / 60, window, debug = false)
   val engineBattle = new RTSPGameEngine(3f / 60, window, debug = false)
+  val engineEnd = new RTSPGameEngine(3f / 60, window, debug = false)
   var engine: RTSPGameEngine = engineP0
   val player0 = Player(0, "Player 0")
   val player1 = Player(1, "Player 1")
@@ -103,13 +109,15 @@ class RTSPShopGame(window: RenderWindow)
     background.zIndex = -1
     engine.spawn(background)
     val sellingBin = SellingBin(engine, player)
-    val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
-    val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE, sellingBin)
+    val warriorBench =
+      WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
+    val benchEffects =
+      EffectBench(engine, player, battle, BENCH_SIZE, sellingBin)
     val shopWarrior = Shop(
       player,
       INIT_NB_BUYABLE_SHOP,
       MAX_NB_BUYABLE_SHOP,
-      Array.tabulate(NUMBER_OF_WARRIORS)(_ => 1),
+      BASIC_POOL_REPARTITION,
       battle,
       idToWarrior,
       warriorBench,
@@ -147,7 +155,8 @@ class RTSPShopGame(window: RenderWindow)
       benchEffects,
       shopWarrior,
       shopEffects,
-      switchButton
+      switchButton,
+      sellingBin
     )
 
   def switchPlayer() =
@@ -213,6 +222,26 @@ class RTSPShopGame(window: RenderWindow)
       basePlayer1,
       player1
     )
+
+    // Circles that represents the warrior drop radius around the bases using SFML
+    val circle0 = CircleObject(WARRIOR_DROP_RADIUS, engineP0)
+    circle0.position =
+      basePlayer0.position - Vector2(WARRIOR_DROP_RADIUS, WARRIOR_DROP_RADIUS)
+    circle0.fillColor = sfml.graphics.Color.Transparent()
+    circle0.outlineColor = sfml.graphics.Color.White()
+    circle0.outlineThickness = 2
+    engineP0.spawn(circle0)
+    engineP1.spawn(circle0)
+
+    val circle1 = CircleObject(WARRIOR_DROP_RADIUS, engineP1)
+    circle1.position =
+      Vector2(-WARRIOR_DROP_RADIUS + 50, -WARRIOR_DROP_RADIUS + 50)
+    circle1.fillColor = sfml.graphics.Color.Transparent()
+    circle1.outlineColor = sfml.graphics.Color.White()
+    circle1.outlineThickness = 2
+    engineP0.spawn(circle1)
+    engineP1.spawn(circle1)
+
     val background = engine2D.objects.SpriteObject("arena.png", engineBattle)
     background.fillDimensions(
       window.size.x.toFloat,
@@ -231,8 +260,7 @@ class RTSPShopGame(window: RenderWindow)
     () => (),
     engineBattle
   )
-  timeLeft.position =
-    (engine.window.size.x * 0.85f, engine.window.size.y * 0f)
+  timeLeft.position = (engine.window.size.x * 0.85f, engine.window.size.y * 0f)
   timeLeft.changeBackground(
     engineBattle.window.size.x * 0.15f,
     engineBattle.window.size.y * 0.1f
@@ -241,11 +269,29 @@ class RTSPShopGame(window: RenderWindow)
   timeLeft.background.outlineColor = Color(236, 151, 22)
   engineBattle.spawn(timeLeft)
 
+  var endMessage: String = ""
+
   override def step() = {
-    timeLeft.changeText(((Time.seconds(Constants.BATTLE_DURATION.toFloat) - battleClock.elapsedTime).asSeconds).round.toString())
+    timeLeft.changeText(
+      ((Time.seconds(
+        Constants.BATTLE_DURATION.toFloat
+      ) - battleClock.elapsedTime).asSeconds).round.toString()
+    )
     if engine == engineBattle then
       val ended = battle.step()
-      if ended || battleClock.elapsedTime > Time.seconds(Constants.BATTLE_DURATION.toFloat) then {
+      if ended || battleClock.elapsedTime > Time.seconds(
+          Constants.BATTLE_DURATION.toFloat
+        )
+      then {
+        if !(battle.losers.isEmpty) then
+          if battle.losers(0) then
+            if battle.losers(1) then endMessage = "It's a draw!"
+            else endMessage = "Player 1 wins!"
+          else endMessage = "Player 2 wins!"
+          engine = engineEnd
+          val endText = TextObject(endMessage, engineEnd)
+          endText.characterSize = 50
+          engineEnd.spawn(endText)
         player0.earnMoney(
           2 * battle.enemies(player0.id).count(w => !w.active && !w.benched)
         )
@@ -265,7 +311,7 @@ class RTSPShopGame(window: RenderWindow)
             warrior.engine = engineP1
             engineBattle.removeGameObjects(warrior)
           })
-        engine = engineP0
+        if engine == engineBattle then engine = engineP0
       }
     super.step()
   }

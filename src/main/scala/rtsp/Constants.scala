@@ -16,7 +16,7 @@ object Constants {
     val PRICE_BARBARIAN: Int = 2
     val ACTUALISE_PRICE: Int = 1
     val BASIC_POOL_REPARTITION: Array[Float] =
-      Array(1f, 1f)
+      Array(1f, 1f, 1f, 0.3f, 0.3f)
   }
   object BattleC {
     // initial hp of the base

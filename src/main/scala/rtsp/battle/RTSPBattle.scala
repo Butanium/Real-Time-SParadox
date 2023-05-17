@@ -46,7 +46,7 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
     }
     _active = newActive
 
-  private val losers = SortedSet[Int]()
+  val losers = SortedSet[Int]()
 
   /** Ajoute un perdant à la liste des perdants
     * @param id
