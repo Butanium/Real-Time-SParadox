@@ -15,6 +15,17 @@ import rtsp.RTSPGameEngine
 import engine2D.objects.ButtonObject
 import engine2D.objects.GameObject
 
+enum ActionType:
+  case Move
+  case Attack
+  case Flee
+  case Idle
+
+enum CountType:
+  case Equals
+  case GreaterThan
+  case LessThan
+
 class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   zIndex = 10
   var currentNode: NodeObject = null
@@ -26,7 +37,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   var selector: Selector = Selector.Lowest(metric)
   var notCondition = false
   var conditionValue = 0
-  var countCondition: CountCondition = CountCondition.Equals(conditionValue)
+  var countCondition: CountType = CountType.Equals
   def createNode(parentNode: NodeObject, line: LineObject) =
     active = true
     currentNode = parentNode
@@ -38,8 +49,13 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     val behavior: BehaviorTree = nodeType match
       case NodeType.Node => Node(List.empty, currentNode.follower.position)
       case NodeType.Condition => {
-        countCondition.value = conditionValue
-        var condition = Condition.Count(target, List.empty, countCondition)
+        val count = countCondition match {
+          case CountType.Equals => CountCondition.Equals(conditionValue)
+          case CountType.GreaterThan =>
+            CountCondition.GreaterThan(conditionValue)
+          case CountType.LessThan => CountCondition.LessThan(conditionValue)
+        }
+        var condition = Condition.Count(target, List.empty, count)
         if (notCondition) condition = Condition.Not(condition)
         ConditionNode(condition, List.empty, currentNode.follower.position)
       }
@@ -244,25 +260,26 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
       ButtonObject(
         "==",
         () => {
-          countCondition = CountCondition.Equals(conditionValue)
+          countCondition = CountType.Equals
         },
         engine
       ),
       ButtonObject(
         "<",
         () => {
-          countCondition = CountCondition.LessThan(conditionValue)
+          countCondition = CountType.LessThan
         },
         engine
       ),
       ButtonObject(
         ">",
         () => {
-          countCondition = CountCondition.GreaterThan(conditionValue)
+          countCondition = CountType.GreaterThan
         },
         engine
       )
     ),
+    // None,
     Some(countConditionMenu),
     true,
     engine
