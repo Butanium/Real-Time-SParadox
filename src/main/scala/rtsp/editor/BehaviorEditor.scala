@@ -5,6 +5,7 @@ import rtsp.objects.RTSPWarrior
 import engine2D.objects.ButtonObject
 import engine2D.objects.GameObject
 
+/** Contains the NodeObject and the menus to create new nodes */
 class BehaviorEditor(engine: rtsp.RTSPGameEngine) extends GameObject(engine) {
   val menu = Menu(None, engine)
   engine.nodeCreationMenu.nodeTypeMenu.uiParent = Some(menu)

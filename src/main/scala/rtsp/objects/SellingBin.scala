@@ -8,7 +8,6 @@ import engine2D.objects.TextObject
 
 // When a warrior or an effect is dropped on a SellingBin, it is sold for half its price
 // It is a rectangle with the text "Drop here to sell" in it
-
 class SellingBin(engine: GameEngine, player: Player)
     extends GameObject(engine) {
   position = (engine.window.size.x * 0.17f, engine.window.size.y * 0.60f)

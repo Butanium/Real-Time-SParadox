@@ -9,6 +9,9 @@ import engine2D.objects.ButtonObject
 import sfml.window.Mouse.Button
 import engine2D.eventHandling.MouseEvent
 
+/** A menu is a rectangle with a button to go back to the parent menu or close
+  * the menu if there is no parent menu
+  */
 class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
     extends GameObject(engine) {
   def uiParent = _uiParent
