@@ -396,10 +396,10 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   )
   val filterMenu: MultipleChoiceMenu = MultipleChoiceMenu(
     List(
+      makeNegButton(filterMetricFactory),
       passiveActionFilterButton,
       activeActionFilterButton,
-      metricFilterButton,
-      makeNegButton(filterMetricFactory)
+      metricFilterButton
     ),
     Some(nodeTypeMenu),
     true,
