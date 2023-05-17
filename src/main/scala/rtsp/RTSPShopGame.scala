@@ -287,8 +287,8 @@ class RTSPShopGame(window: RenderWindow)
         if !(battle.losers.isEmpty) then
           if battle.losers(0) then
             if battle.losers(1) then endMessage = "It's a draw!"
-            else endMessage = "Player 1 wins!"
-          else endMessage = "Player 2 wins!"
+            else endMessage = player1.name + " wins!"
+          else endMessage = player0.name +" wins!"
           engine = engineEnd
           val endText = TextObject(endMessage, engineEnd)
           endText.characterSize = 50
