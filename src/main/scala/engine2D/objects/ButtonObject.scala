@@ -14,7 +14,7 @@ class ButtonObject(
     with Boundable {
   val padding = 0
   val textObject = new TextObject(text, engine)
-  textObject.text.position = (padding / 2f, padding / 2f)
+  textObject.position = (padding / 2f, padding / 2f)
   textObject.zIndex = 1
   textObject.fillColor = sfml.graphics.Color(255, 255, 255)
   var background: RectangleObject = RectangleObject(0, 0, engine) // dummy
@@ -50,7 +50,7 @@ class ButtonObject(
   )
   // legend is put below the background
   val legendObject = new TextObject(legend, engine)
-  legendObject.text.position = (
+  legendObject.position = (
     background.width / 2f - legendObject.text.localBounds.width / 2f,
     background.height + 5
   )
@@ -63,28 +63,37 @@ class ButtonObject(
       textObject.text.localBounds.height
     ) + padding
     changeBackground(size, size)
-    legendObject.text.position = (
+    legendObject.position = (
       background.width / 2f - legendObject.text.localBounds.width / 2f,
       background.height + 5
     )
   }
-  def changeText(newText: String, adaptBackground: Boolean = false) = {
+  def changeText(
+      newText: String,
+      adaptBackground: Boolean = false,
+      adaptText: Boolean = false
+  ) = {
     textObject.text.string = newText
     if (adaptBackground)
       changeBackground(
         textObject.text.localBounds.width + padding,
         textObject.text.localBounds.height + padding
       )
+      legendObject.position = (
+        background.width / 2f - legendObject.text.localBounds.width / 2f,
+        background.height + 5
+      )
+    if (adaptText)
+      textObject.boundDimensions(
+        background.globalBounds.width + 10,
+        background.globalBounds.height + 10
+      )
 
-    legendObject.text.position = (
-      background.width / 2f - legendObject.text.localBounds.width / 2f,
-      background.height + 5
-    )
   }
 
   def changeLegend(newLegend: String) = {
     legendObject.text.string = newLegend
-    legendObject.text.position = (
+    legendObject.position = (
       background.width / 2f - legendObject.text.localBounds.width / 2f,
       background.height + 5
     )

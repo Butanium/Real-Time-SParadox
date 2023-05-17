@@ -17,8 +17,7 @@ class EffectBench(
       player,
       battle,
       size,
-      new Array[Effect](size),
-      "effect"
+      new Array[Effect](size)
     ) {
   var x = engine.window.size.x
   var y = engine.window.size.y * 0.19f

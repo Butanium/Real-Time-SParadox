@@ -24,9 +24,9 @@ class CyclicDependencyException extends Exception("Cyclic dependency detected")
 enum NodeType:
   case Node
   case Condition
-  case Filter
-  case Action
-  case Root
+  case Filter // rien en dessous
+  case Action // modification du truc en dessous
+  case Root // rien au dessus
 
 enum ConversionState:
   case Done
@@ -63,6 +63,7 @@ class NodeObject(
   // ajout du NodeObject à la liste des NodeObjects
   var conversionState =
     ConversionState.New // Is used to avoid cyclic behavior tree
+
   NodeObject.nodeList += this
 
   // Création d'un GameObject qui suit la souris
@@ -150,7 +151,6 @@ class NodeObject(
   textType.fillColor = Color.Red()
   addChildren(textType)
   textType.position = (NODE_WIDTH / 10f, NODE_HEIGHT / 3f)
-
   // Supression du NodeObject quand on fait click droit dessus
   def delete() =
     parentsNode.foreach((node: NodeObject) => node.childrenNode -= this)
