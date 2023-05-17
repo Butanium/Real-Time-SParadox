@@ -185,11 +185,11 @@ class NodeObject(
         case BehaviorTree.ActionNode(action, _) =>
           BehaviorTree.ActionNode(action, position)
         case rtsp.battle.BehaviorTree.Node(_, _) =>
-          BehaviorTree.Node(childrenNode.map(_.toBehaviorTree).toList, position)
+          BehaviorTree.Node(childrenNode.sortBy(_.position.x).map(_.toBehaviorTree).toList, position)
         case BehaviorTree.ConditionNode(condition, _, _) =>
           BehaviorTree.ConditionNode(
             condition,
-            childrenNode.map(_.toBehaviorTree).toList,
+            childrenNode.sortBy(_.position.x).map(_.toBehaviorTree).toList,
             position
           )
       conversionState = ConversionState.Done
