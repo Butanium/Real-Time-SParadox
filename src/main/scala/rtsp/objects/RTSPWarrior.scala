@@ -56,7 +56,7 @@ class RTSPWarrior(
   healthBar.zIndex = 3
   // Compense le fait que l'origine du sprite du warrior est au centre
   healthBar.addOffset(
-    (-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)
+    (sprite.globalBounds.width / 2f, sprite.globalBounds.height / 2f)
   )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
