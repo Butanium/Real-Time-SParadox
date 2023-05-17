@@ -44,6 +44,7 @@ enum CompType:
 enum TargetType:
   case Warrior
   case Base
+  case Self
 
 enum MetricType:
   case DistanceFromClosest
@@ -69,6 +70,7 @@ class TargetFactory {
   def toTarget = targetType match
     case TargetType.Warrior => Target.Warrior(team)
     case TargetType.Base    => Target.Base(team)
+    case TargetType.Self    => Target.Self
 }
 
 /** Allows to edit the different components of a Metric independently */
@@ -115,6 +117,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   def makeTarget(targetType: TargetType, team: Team) = targetType match
     case TargetType.Warrior => Target.Warrior(team)
     case TargetType.Base    => Target.Base(team)
+    case TargetType.Self    => Target.Self
 
   def makeSelector = selectorType match
     case SelectorType.Highest =>
@@ -371,14 +374,14 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
 
   /* ----- Filter Menu ----- */
   val passiveActionFilterButton = ButtonObject(
-    "Passive action Filter",
+    "Passive\naction Filter",
     () => {
       passiveActionFilterMenu.open()
     },
     engine
   )
   val activeActionFilterButton = ButtonObject(
-    "Passive action Filter",
+    "Active\naction Filter",
     () => {
       activeActionFilterMenu.open()
     },
@@ -588,11 +591,15 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
       factory.targetType = TargetType.Base
       teamMenu.open()
     }
+    def onClickedSelf = () => {
+      factory.targetType = TargetType.Self
+    }
     val warriorButton = ButtonObject("Warrior", onClickedWarrior, engine)
     val baseButton = ButtonObject("Base", onClickedBase, engine)
+    val selfButton = ButtonObject("Self", onClickedSelf, engine)
     val targetMenu: MultipleChoiceMenu =
       MultipleChoiceMenu(
-        List(warriorButton, baseButton),
+        List(warriorButton, baseButton, selfButton),
         None, // needs to be set by parent
         true,
         engine
