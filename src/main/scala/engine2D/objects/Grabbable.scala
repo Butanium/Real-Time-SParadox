@@ -26,6 +26,7 @@ trait Grabbable(
   private var grabbable: Boolean = true
   val listeners: ListBuffer[MouseEvent]
   var position: Vector2[Float]
+  var grabbed = false
   def contains(point: Vector2[Float]): Boolean
   private var onRelease: () => Unit = () =>
     if debug then println("game object released")
@@ -36,6 +37,7 @@ trait Grabbable(
     */
   def setOnRelease(action: () => Unit): Unit =
     onRelease = () => {
+      grabbed = false
       if debug then println("game object released")
       action()
     }
@@ -48,6 +50,7 @@ trait Grabbable(
     */
   def setOnGrab(action: () => Unit): Unit =
     onGrab = () => {
+      grabbed = true
       if debug then println("game object grabbed")
       action()
     }
