@@ -108,6 +108,7 @@ class RTSPWarrior(
     target.takeDamage(attackDamage)
   }
   def attack(target: RTSPWarrior): Unit = {
+    sprite.color = sfml.graphics.Color(255, 0, 0, 50);
     if debug then
       println(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
@@ -138,7 +139,6 @@ class RTSPWarrior(
     sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Red();
         attack(target);
       case Move(target) =>
         executeMove(target.position); currentAttackDelay = attackDelay
@@ -181,6 +181,11 @@ class RTSPWarrior(
     }
 
     super.onUpdate()
+  }
+
+  override def markForDeletion(): Unit = {
+    super.markForDeletion()
+    healthBar.markForDeletion()
   }
 
   private def resetSprite() = {
@@ -276,7 +281,7 @@ object RTSPWarrior {
     w.scale(1.5f, 1.5f)
     w
   def createMage(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -301,7 +306,7 @@ object RTSPWarrior {
       name = "Mage"
     )
   def createHealer(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
