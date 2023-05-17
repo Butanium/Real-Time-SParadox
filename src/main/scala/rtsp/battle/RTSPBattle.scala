@@ -46,16 +46,7 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
     }
     _active = newActive
 
-  private val losers = SortedSet[Int]()
 
-  /** Ajoute un perdant à la liste des perdants
-    * @param id
-    *   l'id du joueur qui a perdu
-    * @note
-    *   Cette liste sera prise en compte par la fonction step. Cette fonction
-    *   est appelée par les bases des équipes si elles sont détruites.
-    */
-  def addLoser(id: Int): Unit = losers += id
   private var timeOut = -1
   def reset(): Unit = {
     if debug then println("reset battle")
@@ -63,7 +54,6 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
       w.reset(); w.isGrabbable = true
     })
     active = false
-    losers.clear()
     timeOut = -1
   }
 
@@ -75,8 +65,7 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
         .foreach(w => w.behavior.evaluate(w))
     }
     // On vérifie si plus personne n'a de warriors actifs
-    teams.forall(team => team.forall(w => w.isDead || w.benched))
-
+    teams.forall(team => team.forall(w => w.isDead || w.benched)) || bases.exists(b => b.isDead) 
   }
 
   /** Renvoie la liste des warriors actifs d'une équipe
