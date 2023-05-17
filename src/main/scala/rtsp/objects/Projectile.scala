@@ -20,6 +20,9 @@ abstract class Projectile(
   sprite.boundDimensions(16f, 16f)
   setOriginToCenter(sprite.globalBounds)
   addChildren(sprite)
+
+  /** Called when the projectile hits the target
+    */
   def onImpact() = {
     markForDeletion()
   }
@@ -29,8 +32,8 @@ abstract class Projectile(
     } else {
       changeDirectionTo(target.position)
       val angle = math
-      .atan2(target.position.y - position.y, target.position.x - position.x)
-      .toFloat
+        .atan2(target.position.y - position.y, target.position.x - position.x)
+        .toFloat
       rotation = angle * 180f / math.Pi.toFloat
       super.onUpdate()
     }
