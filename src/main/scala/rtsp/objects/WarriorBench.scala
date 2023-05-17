@@ -14,8 +14,7 @@ class WarriorBench(
     player: Player,
     battle: RTSPBattle,
     size: Int,
-    sellingBin: SellingBin,
-    base : RTSPBase
+    sellingBin: SellingBin
 ) extends GeneralBench(
       engine,
       player,
@@ -33,16 +32,20 @@ class WarriorBench(
     warrior.benched = true
     battle.addWarriors(warrior)
     warrior.setOnRelease(() => {
-      removeEntity(warrior); warrior.benched = false; // first, assume that the warrior is dropped on the battlefield
+      removeEntity(warrior);
+      warrior.benched =
+        false; // first, assume that the warrior is dropped on the battlefield
       if (sellingBin.rectangle.contains(warrior.position)) then // sell case
         sellingBin.sell(
           warrior
         )
+        battle._teams(warrior.team) -= warrior
+      // drop on bench / too many warriors in battle / too far from base cases
       else if (
-        rectangle.contains(warrior.position) || battle.warriorsInBattle(
-          warrior.team
-        ) > MAX_WARRIORS_IN_BATTLE || warrior.distanceTo(base) > WARRIOR_DROP_RADIUS
-      ) // drop on bench / too many warriors in battle / too far from base cases
+        rectangle.contains(warrior.position) ||
+        battle.warriorsInBattle(warrior.team) > player.limitOfWarriors ||
+        warrior.distanceTo(battle.bases(player)) > WARRIOR_DROP_RADIUS
+      )
       then addDropped(warrior)
     })
     return true

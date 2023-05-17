@@ -6,28 +6,18 @@ import rtsp.Constants
 import sfml.system.Vector2
 import scala.collection.mutable.ListBuffer
 import rtsp.RTSPGameEngine
+import rtsp.objects.Arrow
 
-class RTSPBattle(val engine : RTSPGameEngine, val debug: Boolean = false) {
+class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
   private var _active = false
   // Lancer la bataille: faire bouger les warriors non morts
   private val team0 = SortedSet.empty[RTSPWarrior]
   private val team1 = SortedSet.empty[RTSPWarrior]
-  private val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
+  val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
   private def warriorsAndBases = team0 ++ team1 ++ bases
-  def warriors = team0 ++ team1
   val bases = Array[RTSPBase](null, null)
   def addBase(base: RTSPBase, player: Int): Unit = {
     bases(player) = base
-    val bounds = Constants.BattleC.ARENA_BOUNDS
-    val spriteScale = Vector2[Float](
-      base.sprite.globalBounds.width,
-      base.sprite.globalBounds.height
-    )
-    base.position = Vector2(
-      bounds.width,
-      bounds.height
-    ) * (1 - player).toFloat + spriteScale * (1 / 2f) * (if player == 0 then -1f
-                                                         else 1f)
   }
   def teams = _teams
   def enemies(team: Int) = _teams(1 - team)
@@ -47,13 +37,16 @@ class RTSPBattle(val engine : RTSPGameEngine, val debug: Boolean = false) {
           w.initialPosition = w.position
         })
       } else {
-        battleWarriors.foreach(w => w.currentAction = WarriorAction.Idle)
-        bases.foreach(b => b.currentAction = WarriorAction.Idle)
+        warriorsAndBases.foreach(w => {
+          w.currentAction = WarriorAction.Idle
+          w.nextAction = WarriorAction.Idle
+        })
+        Arrow.disableAll()
       }
     }
     _active = newActive
 
-  private val losers = SortedSet[Int]()
+  val losers = SortedSet[Int]()
 
   /** Ajoute un perdant à la liste des perdants
     * @param id
@@ -82,8 +75,7 @@ class RTSPBattle(val engine : RTSPGameEngine, val debug: Boolean = false) {
         .foreach(w => w.behavior.evaluate(w))
     }
     // On vérifie si plus personne n'a de warriors actifs
-    teams.forall(team => team.forall(w => w.isDead || w.benched))
-
+    teams.forall(team => team.forall(w => w.isDead || w.benched)) || losers.nonEmpty
   }
 
   /** Renvoie la liste des warriors actifs d'une équipe

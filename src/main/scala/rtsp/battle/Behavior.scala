@@ -6,27 +6,64 @@ import scala.compiletime.ops.boolean
 import sfml.system.Vector2
 
 /* ----- Filter ----- */
-enum Filter {
-  case All
-  case LessThan(value: Float, metric: Metric)
-  case GreaterThan(value: Float, metric: Metric)
-  case Equals(value: Float, metric: Metric)
-  case Not(filter: Filter)
-  case Attacking(val target: Target)
-  case AttackedBy(val target: Target)
-  case MovingTo(val target: Target)
-  case ApproachedBy(val target: Target)
-  case FleeingFrom(val target: Target)
-  case FleedBy(val target: Target)
-  case CanAttack(val target: Target)
-  case CanBeAttackedBy(val target: Target)
-  case Idling
+enum Filter(var position: Vector2[Float]) {
+  case LessThan(value: Float, metric: Metric, _position: Vector2[Float])
+      extends Filter(_position)
+  case GreaterThan(value: Float, metric: Metric, _position: Vector2[Float])
+      extends Filter(_position)
+  case Equals(value: Float, metric: Metric, _position: Vector2[Float])
+      extends Filter(_position)
+  case Not(filter: Filter, _position: Vector2[Float]) extends Filter(_position)
+  case Attacking(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case AttackedBy(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case MovingTo(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case ApproachedBy(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case FleeingFrom(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case FledBy(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case CanAttack(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case CanBeAttackedBy(val target: Target, _position: Vector2[Float])
+      extends Filter(_position)
+  case Idling(_position: Vector2[Float]) extends Filter(_position)
+  override def toString: String =
+    this match
+      case LessThan(value, metric, _) =>
+        s"${metric} < $value"
+      case GreaterThan(value, metric, _) =>
+        s"${metric} > $value"
+      case Equals(value, metric, _) =>
+        s"${metric} = $value"
+      case Not(filter, _) =>
+        s"Not [${filter}]"
+      case Attacking(target, _) =>
+        s"Attacking ${target}"
+      case AttackedBy(target, _) =>
+        s"Attacked by ${target}"
+      case MovingTo(target, _) =>
+        s"Moving to ${target}"
+      case ApproachedBy(target, _) =>
+        s"Approached by ${target}"
+      case FleeingFrom(target, _) =>
+        s"Fleeing from ${target}"
+      case FledBy(target, _) =>
+        s"Fleed by ${target}"
+      case CanAttack(target, _) =>
+        s"Can attack ${target}"
+      case CanBeAttackedBy(target, _) =>
+        s"Can be attacked by ${target}"
+      case Idling(_) => "Idling"
 }
 
 /* ----- Action Node ----- */
 enum Action(
     val target: Target,
-    val filters: List[Filter],
+    var filters: List[Filter],
     val selector: Selector
 ) {
   case Attack(_target: Target, _filters: List[Filter], _selector: Selector)
@@ -37,12 +74,28 @@ enum Action(
       extends Action(_target, _filters, _selector)
   case Idle(_filters: List[Filter])
       extends Action(Target.Self, _filters, Selector.Highest(Metric.Health))
+
+  override def toString: String =
+    this match
+      case Attack(target, _, selector) =>
+        s"Attack [${selector}]\n${target}"
+      case Move(target, _, selector) =>
+        s"Move to [${selector}]\n${target}"
+      case Flee(target, _, selector) =>
+        s"Flee from [${selector}]\n${target}"
+      case Idle(_) => "Idle"
 }
 
-enum Target(var team: Team) {
-  case Warrior(_team: Team) extends Target(_team)
-  case Base(_team: Team) extends Target(_team)
-  case Self extends Target(Team.Ally)
+enum Target {
+  case Warrior(team: Team)
+  case Base(team: Team)
+  case Self
+
+  override def toString: String =
+    this match
+      case Target.Warrior(team) => s"Warrior (${team})"
+      case Target.Base(team)    => s"Base (${team})"
+      case Target.Self          => "Self"
 }
 
 enum Team {
@@ -53,28 +106,48 @@ enum Team {
 enum Selector(val metric: Metric) {
   case Lowest(_metric: Metric) extends Selector(_metric)
   case Highest(_metric: Metric) extends Selector(_metric)
+  override def toString: String = this match
+    case Selector.Lowest(metric)  => s"Lowest ${metric}"
+    case Selector.Highest(metric) => s"Highest ${metric}"
 }
 
 enum Metric {
   case DistanceFromClosest(val target: Target)
   case Health
   case HealthPercentage
+  override def toString: String =
+    this match
+      case Metric.DistanceFromClosest(target) =>
+        s"Distance from ${target}"
+      case Metric.Health           => "Health"
+      case Metric.HealthPercentage => "Health percentage"
+
 }
 
 /* ----- Condition Node ----- */
-enum Condition {
-  case Not(condition: Condition)
+enum Condition(var filters: List[Filter]) {
+  case Not(condition: Condition) extends Condition(condition.filters)
   case Count(
       target: Target,
-      filter: List[Filter],
+      _filters: List[Filter],
       countCondition: CountCondition
-  )
+  ) extends Condition(_filters)
+  override def toString: String = this match
+    case Condition.Not(condition) => s"Not [${condition}]"
+    case Condition.Count(target, _, countCondition) =>
+      countCondition match
+        case CountCondition.Equals(value) =>
+          s"[${target}] = $value"
+        case CountCondition.LessThan(value) =>
+          s"[${target}] < $value"
+        case CountCondition.GreaterThan(value) =>
+          s"[${target}] > $value"
 }
 
-enum CountCondition {
-  case Equals(value: Int)
-  case LessThan(value: Int)
-  case GreaterThan(value: Int)
+enum CountCondition(val value: Int) {
+  case Equals(_value: Int) extends CountCondition(_value)
+  case LessThan(_value: Int) extends CountCondition(_value)
+  case GreaterThan(_value: Int) extends CountCondition(_value)
 }
 
 enum BehaviorTree(var position: Vector2[Float]) {
@@ -87,9 +160,14 @@ enum BehaviorTree(var position: Vector2[Float]) {
       children: List[BehaviorTree],
       _position: Vector2[Float]
   ) extends BehaviorTree(_position)
+  override def toString: String =
+    this match
+      case ActionNode(action, _)          => action.toString
+      case Node(_, _)                     => "Node"
+      case ConditionNode(condition, _, _) => condition.toString
 }
 
-class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
+class Behavior(var tree: BehaviorTree, val battle: RTSPBattle) {
 
   /** Evaluate the behavior tree and execute the action if it is valid.
     * @param warrior
@@ -222,7 +300,7 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
         warrior.distanceTo(target).toFloat
       case Metric.Health => target.health.toFloat
       case Metric.HealthPercentage =>
-        target.health.toFloat / target.maxHealth.toFloat
+        target.health.toFloat / target.maxHealth.toFloat * 100
   }
 
   /** Evaluate the target type and returns the possible targets
@@ -235,11 +313,11 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
       warrior: RTSPWarrior,
       target: Target
   ): List[RTSPWarrior] = {
-    val team = evaluateTeam(warrior, target.team)
     target match
       case Target.Self       => List(warrior)
-      case Target.Base(_)    => List(battle.bases(team))
-      case Target.Warrior(_) => battle.getWarriors(team)
+      case Target.Base(team) => List(battle.bases(evaluateTeam(warrior, team)))
+      case Target.Warrior(team) =>
+        battle.getWarriors(evaluateTeam(warrior, team))
   }
 
   /** Convert a team to an integer
@@ -287,31 +365,30 @@ class Behavior(val tree: BehaviorTree, val battle: RTSPBattle) {
   ): Boolean = {
     import Filter._
     filter match
-      case All         => true
-      case Not(filter) => !applyFilter(warrior, toFilter, filter)
-      case GreaterThan(value, metric) =>
+      case Not(filter, _) => !applyFilter(warrior, toFilter, filter)
+      case GreaterThan(value, metric, _) =>
         evaluateMetric(warrior, toFilter, metric) > value
-      case LessThan(value, metric) =>
+      case LessThan(value, metric, _) =>
         evaluateMetric(warrior, toFilter, metric) < value
-      case Equals(value, metric) =>
+      case Equals(value, metric, _) =>
         evaluateMetric(warrior, toFilter, metric) == value
-      case Attacking(target) =>
+      case Attacking(target, _) =>
         evaluateTarget(warrior, target).exists(toFilter.isAttacking(_))
-      case AttackedBy(target) =>
+      case AttackedBy(target, _) =>
         evaluateTarget(warrior, target).exists(_.isAttacking(toFilter))
-      case MovingTo(target) =>
+      case MovingTo(target, _) =>
         evaluateTarget(warrior, target).exists(toFilter.isMovingTo(_))
-      case ApproachedBy(target) =>
+      case ApproachedBy(target, _) =>
         evaluateTarget(warrior, target).exists(_.isMovingTo(toFilter))
-      case CanAttack(target) =>
+      case CanAttack(target, _) =>
         evaluateTarget(warrior, target).exists(toFilter.canAttack(_))
-      case CanBeAttackedBy(target) =>
+      case CanBeAttackedBy(target, _) =>
         evaluateTarget(warrior, target).exists(_.canAttack(toFilter))
-      case FleedBy(target) =>
+      case FledBy(target, _) =>
         evaluateTarget(warrior, target).exists(toFilter.isFleeing(_))
-      case FleeingFrom(target) =>
+      case FleeingFrom(target, _) =>
         evaluateTarget(warrior, target).exists(_.isFleeing(toFilter))
-      case Idling => toFilter.isIdle
+      case Idling(_) => toFilter.isIdle
   }
 
 }
@@ -332,21 +409,21 @@ object Behavior {
           ActionNode(
             Attack(
               Warrior(Enemy),
-              List(All),
+              List(),
               Lowest(DistanceFromClosest(Self))
             ),
             (10, 300)
           ),
           ActionNode(
-            Move(Warrior(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            Move(Warrior(Enemy), List(), Lowest(DistanceFromClosest(Self))),
             (100, 300)
           ),
           ActionNode(
-            Attack(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            Attack(Base(Enemy), List(), Lowest(DistanceFromClosest(Self))),
             (200, 300)
           ),
           ActionNode(
-            Move(Base(Enemy), List(All), Lowest(DistanceFromClosest(Self))),
+            Move(Base(Enemy), List(), Lowest(DistanceFromClosest(Self))),
             (300, 300)
           )
         ),
@@ -355,37 +432,37 @@ object Behavior {
       battle
     )
 
-  def advancedBehavior(battle: RTSPBattle) =
+  def advancedBehavior(battle: RTSPBattle) : Behavior =
     Behavior(
       Node(
         List(
           ConditionNode(
             Count(
               Warrior(Enemy),
-              List(Attacking(Self), CanAttack(Self)),
+              List(Attacking(Self, (400, 200)), CanAttack(Self, (600, 200))),
               CountCondition.GreaterThan(0)
             ),
             List(
               ConditionNode(
                 Count(
                   Self,
-                  List(LessThan(0.5f, HealthPercentage)),
+                  List(LessThan(50f, HealthPercentage, (400, 500))),
                   CountCondition.GreaterThan(0)
                 ),
                 List(
                   ActionNode(
                     Flee(
                       Warrior(Enemy),
-                      List(Attacking(Self)),
+                      List(Attacking(Self, (600, 600))),
                       Lowest(DistanceFromClosest(Self))
                     ),
-                    (300, 500)
+                    (500, 500)
                   )
                 ),
-                (300, 400)
+                (500, 400)
               )
             ),
-            (300, 20)
+            (500, 20)
           ),
           basicBehavior(battle).tree
         ),
@@ -393,4 +470,30 @@ object Behavior {
       ),
       battle
     )
+
+  def basicHealerBehavior(battle: RTSPBattle) : Behavior = 
+    Behavior(
+      Node(
+        List(
+          ActionNode(
+            Attack(
+              Warrior(Ally),
+              List(GreaterThan(1f, DistanceFromClosest(Self), (100, 200))),
+              Lowest(Health)
+            ),
+            (100, 100)
+          ),
+          ActionNode(
+            Move(
+              Warrior(Ally),
+              List(GreaterThan(1f, DistanceFromClosest(Self), (200, 200))),
+              Lowest(Health)
+            ),
+            (200, 100)
+        )),
+        (400, 50)
+      ),
+      battle
+    )
+
 }

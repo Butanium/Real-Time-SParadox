@@ -252,6 +252,8 @@ class GameObject(
 
   // Todo: add another ordering that depends on the parent Zindex (useless for draw but useful for events)
   def order: (Int, Int) = ((if active then zIndex else -1), id)
+  
+  def inverseOrder: (Int, Int) = ((if active then -zIndex else 1), -id)
 
   def globalPosition: Vector2[Float] =
     globalTransform.transformPoint(position)

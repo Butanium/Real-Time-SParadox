@@ -26,6 +26,7 @@ class GameUnit(
 
   def takeDamage(damage: Int) =
     health_ -= damage
+    health_ = health_.min(maxHealth)
 
   /** Called when this GameUnit dies (health <= 0). Will be checked only when
     * the GameUnit is updated.

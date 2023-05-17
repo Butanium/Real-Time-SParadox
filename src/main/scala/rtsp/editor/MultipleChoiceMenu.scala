@@ -4,6 +4,17 @@ import engine2D.GameEngine
 import engine2D.objects.ButtonObject
 import rtsp.Constants
 
+/** A menu with multiple choice buttons
+  *
+  * @param buttons
+  *   The buttons to display
+  * @param uiParent
+  *   The parent menu
+  * @param saveState
+  *   If true, the last selected button will be highlighted
+  * @param engine
+  *   The game engine
+  */
 class MultipleChoiceMenu(
     buttons: List[ButtonObject],
     uiParent: Option[Menu],
@@ -14,14 +25,9 @@ class MultipleChoiceMenu(
     b.makeSquare()
     b.zIndex = 1
     if saveState then
+      // Save the current state of the button
       val onClicked = b.onClicked
       b.onClicked = () => {
-        // println( todo remove
-        //   s"Clicked and saved state. active = ${b.active}, name: ${b.textObject.text.string}, parent: ${b.parent}"
-        // )
-        // println(
-        //   s"menu active: ${active}, uiparent: ${uiParent}, parent ${parent}"
-        // )
         buttons.foreach(_.resetOutline())
         b.background.outlineColor = sfml.graphics.Color.Green()
         onClicked()
@@ -29,6 +35,7 @@ class MultipleChoiceMenu(
   })
   addChildren(buttons: _*)
   if uiParent.isDefined then active = false
+  // Resize and position the buttons
   val buttonWidth =
     (engine.window.size.x.toFloat - Constants.EditorC.MENU_PADDING * buttons.length.toFloat) / buttons.length.toFloat
   buttons.zipWithIndex.foreach { case (button, index) =>

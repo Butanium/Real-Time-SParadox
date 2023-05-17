@@ -24,9 +24,7 @@ abstract class GeneralBench[T <: GameObject](
     benchArray(i) = entity
     takenSlots += 1
     entity.position = positionOfIndex(i)
-    println(s"pbj : ${positionOfIndex(i)}, entity : ${entity.position}")
     engine.spawn(entity)
-    println(s"entity after spawn : ${entity.position}\n")
     return true
 
   def removeEntity(entity: T): Unit = {

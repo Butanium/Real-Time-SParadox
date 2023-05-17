@@ -23,8 +23,8 @@ import rtsp.Constants.NUMBER_OF_WARRIORS
  */
 
 class RTSPWarrior(
-    engine: GameEngine,
-    val battle: RTSPBattle,
+    engine: RTSPGameEngine,
+    battle: RTSPBattle,
     val team: Int,
     var maxHP: Int,
     var range: Int,
@@ -41,13 +41,22 @@ class RTSPWarrior(
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
     with Buyable
     with OnHover {
+  // Ouvre l'éditeur de comportement
+  listenToBoundsClicked(
+    Mouse.Button.Right,
+    this,
+    true,
+    () => {
+      engine.behaviorEditor.open(this)
+    }
+  )
 
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   val healthBar = new HealthBar(this, engine)
   healthBar.zIndex = 3
   // Compense le fait que l'origine du sprite du warrior est au centre
   healthBar.addOffset(
-    (-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)
+    (sprite.globalBounds.width / 2f, sprite.globalBounds.height / 2f)
   )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
@@ -105,6 +114,7 @@ class RTSPWarrior(
     target.takeDamage(attackDamage)
   }
   def attack(target: RTSPWarrior): Unit = {
+    sprite.color = sfml.graphics.Color(255, 150, 150);
     if debug then
       println(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"
@@ -135,7 +145,6 @@ class RTSPWarrior(
     sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Red();
         attack(target);
       case Move(target) =>
         executeMove(target.position); currentAttackDelay = attackDelay
@@ -180,6 +189,11 @@ class RTSPWarrior(
     super.onUpdate()
   }
 
+  override def markForDeletion(): Unit = {
+    super.markForDeletion()
+    healthBar.markForDeletion()
+  }
+
   private def resetSprite() = {
     sprite.color = sfml.graphics.Color.White()
   }
@@ -200,7 +214,7 @@ class RTSPWarrior(
 
 object RTSPWarrior {
   def createArcher(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -225,7 +239,7 @@ object RTSPWarrior {
       name = "Archer"
     )
   def createBarbarian(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -248,7 +262,7 @@ object RTSPWarrior {
       debug = debug
     )
   def createGiant(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -273,7 +287,7 @@ object RTSPWarrior {
     w.scale(1.5f, 1.5f)
     w
   def createMage(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -298,7 +312,7 @@ object RTSPWarrior {
       name = "Mage"
     )
   def createHealer(
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior,
@@ -324,7 +338,7 @@ object RTSPWarrior {
     )
 
   private val warriorTypes: Array[
-    (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
+    (RTSPGameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
   ] = new Array(NUMBER_OF_WARRIORS)
   warriorTypes(Constants.ID_ARCHER) = createArcher
   warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
@@ -333,7 +347,7 @@ object RTSPWarrior {
   warriorTypes(Constants.ID_HEALER) = createHealer
   def apply(
       typeId: Int,
-      engine: GameEngine,
+      engine: RTSPGameEngine,
       battle: RTSPBattle,
       team: Int,
       behavior: Behavior = null,

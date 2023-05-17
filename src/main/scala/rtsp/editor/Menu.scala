@@ -6,6 +6,8 @@ import engine2D.objects.RectangleObject
 import rtsp.Constants
 import engine2D.Game
 import engine2D.objects.ButtonObject
+import sfml.window.Mouse.Button
+import engine2D.eventHandling.MouseEvent
 
 class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
     extends GameObject(engine) {
@@ -22,6 +24,11 @@ class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
     engine.window.size.y.toFloat,
     engine
   )
+  // Make sure that no mouse event is propagated what is behind the menu
+  background.listenToMouseEvent(
+    MouseEvent.MouseInBounds(background, true),
+    () => ()
+  )
   background.fillColor = sfml.graphics.Color(0, 0, 0, 150)
   addChildren(background)
   val goToParentButton = new ButtonObject(
@@ -36,8 +43,9 @@ class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
   goToParentButton.zIndex = 1
   addChildren(goToParentButton)
   var onClose: () => Unit = () => ()
-
+  var onOpen: () => Unit = () => ()
   def open(): Unit = {
+    onOpen()
     active = true
     uiParent.foreach(_.active = false)
   }

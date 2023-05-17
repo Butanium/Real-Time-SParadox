@@ -22,7 +22,7 @@ class NodeGame(window: RenderWindow)
   var engine: RTSPGameEngine = RTSPGameEngine(3f / 60, window, debug = false)
   override def init(): Unit =
     val firstNode =
-      NodeObject(NodeType.Root, BehaviorTree.Node(List.empty, (window.size.x / 2f, window.size.y / 2f) ), engine)
+      NodeObject(NodeType.Root, rtsp.editor.BehaviorNode.BNode(BehaviorTree.Node(List.empty, (window.size.x / 2f, window.size.y / 2f) )), engine)
     firstNode.position = (window.size.x / 2f, window.size.y / 2f)
     engine.spawn(firstNode)
 }
