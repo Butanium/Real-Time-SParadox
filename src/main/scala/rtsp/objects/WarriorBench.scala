@@ -39,6 +39,7 @@ class WarriorBench(
         sellingBin.sell(
           warrior
         )
+        battle._teams(warrior.team) -= warrior
       // drop on bench / too many warriors in battle / too far from base cases
       else if (
         rectangle.contains(warrior.position) ||

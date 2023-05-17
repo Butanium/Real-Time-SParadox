@@ -13,7 +13,7 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
   // Lancer la bataille: faire bouger les warriors non morts
   private val team0 = SortedSet.empty[RTSPWarrior]
   private val team1 = SortedSet.empty[RTSPWarrior]
-  private val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
+  val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
   private def warriorsAndBases = team0 ++ team1 ++ bases
   val bases = Array[RTSPBase](null, null)
   def addBase(base: RTSPBase, player: Int): Unit = {
@@ -46,7 +46,7 @@ class RTSPBattle(val engine: RTSPGameEngine, val debug: Boolean = false) {
     }
     _active = newActive
 
-  private val losers = SortedSet[Int]()
+  val losers = SortedSet[Int]()
 
   /** Ajoute un perdant à la liste des perdants
     * @param id
