@@ -25,7 +25,8 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   var currentLine: LineObject = null
   var selector: Selector = Selector.Lowest(metric)
   var notCondition = false
-  var countCondition: CountCondition = CountCondition.Equals(0)
+  var conditionValue = 0
+  var countCondition: CountCondition = CountCondition.Equals(conditionValue)
   def createNode(parentNode: NodeObject, line: LineObject) =
     active = true
     currentNode = parentNode
@@ -37,6 +38,7 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     val behavior: BehaviorTree = nodeType match
       case NodeType.Node => Node(List.empty, currentNode.follower.position)
       case NodeType.Condition => {
+        countCondition.value = conditionValue
         var condition = Condition.Count(target, List.empty, countCondition)
         if (notCondition) condition = Condition.Not(condition)
         ConditionNode(condition, List.empty, currentNode.follower.position)
@@ -80,8 +82,8 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
     nodeType = NodeType.Node
   }
   def onClickedCondition() = {
-    // nodeType = NodeType.Condition
-    // conditionMenu.open()
+    nodeType = NodeType.Condition
+    conditionMenu.open()
   }
   def onClickedFilter() = {}
   def onClickedAction(): Unit = {
@@ -90,9 +92,9 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   }
   val nodeButton = ButtonObject("Node", onClickedNode, engine)
   val conditionButton =
-    ButtonObject("Condition (not Implemented)", onClickedCondition, engine)
+    ButtonObject("Condition", onClickedCondition, engine)
   val filterButton =
-    ButtonObject("Filter (not implemented)", onClickedFilter, engine)
+    ButtonObject("Filter\n(not implemented)", onClickedFilter, engine)
   val actionButton = ButtonObject("Action", onClickedAction, engine)
   val typeButtons =
     List(nodeButton, actionButton, conditionButton, filterButton)
@@ -150,6 +152,122 @@ class NodeCreationMenu(engine: RTSPGameEngine) extends GameObject(engine) {
   )
   addChildren(actionMenu)
   actionTargetMenu.uiParent = Some(actionMenu)
+
+  /* ----- Condition Menu ----- */
+  val conditionTargetMenu = makeTargetMenu
+  val notButton: ButtonObject = ButtonObject(
+    "If",
+    () => {
+      notCondition = !notCondition
+      notButton.changeText(if notCondition then "If not" else "If")
+    },
+    engine
+  )
+  val countConditionButton = ButtonObject(
+    "Count Condition",
+    () => {
+      countConditionMenu.open()
+    },
+    engine
+  )
+  val conditionTargetButton = ButtonObject(
+    "Target",
+    () => {
+      conditionTargetMenu.open()
+    },
+    engine
+  )
+  val conditionMenu: MultipleChoiceMenu = MultipleChoiceMenu(
+    List(notButton, countConditionButton, conditionTargetButton),
+    Some(nodeTypeMenu),
+    false,
+    engine
+  )
+  addChildren(conditionMenu)
+  conditionTargetMenu.uiParent = Some(conditionMenu)
+
+
+  /* ----- Count Condition Menu ----- */
+  val conditionValueButton = ButtonObject(
+    "Value",
+    () => {
+      conditionValueMenu.open()
+    },
+    engine
+  )
+  val operatorButton = ButtonObject(
+    "Operator",
+    () => {
+      operatorMenu.open()
+    },
+    engine
+  )
+  val countConditionMenu: MultipleChoiceMenu = MultipleChoiceMenu(
+    List(conditionValueButton, operatorButton),
+    Some(conditionMenu),
+    false,
+    engine
+  )
+  addChildren(countConditionMenu)
+
+  /* ----- Condition Value Menu ----- */
+  val currentValueButton: ButtonObject = ButtonObject(
+    "0",
+    () => {
+      conditionValue = 0
+      currentValueButton.changeText("0")
+    },
+    engine
+  )
+  def addValueButton(value: Int): ButtonObject =
+    ButtonObject(
+      if value > 0 then "+" + value.toString else value.toString,
+      () => {
+        conditionValue += value
+        currentValueButton.changeText(conditionValue.toString)
+      },
+      engine
+    )
+  val addValueButtons: List[ButtonObject] = List(1, -1).map(addValueButton)
+  val conditionValueMenu = MultipleChoiceMenu(
+    currentValueButton :: addValueButtons,
+    Some(countConditionMenu),
+    false,
+    engine
+  )
+  addChildren(conditionValueMenu)
+  
+
+  /* ----- Conditon operator Menu ----- */
+  val operatorMenu = MultipleChoiceMenu(
+    List(
+      ButtonObject(
+        "==",
+        () => {
+          countCondition = CountCondition.Equals(conditionValue)
+        },
+        engine
+      ),
+      ButtonObject(
+        "<",
+        () => {
+          countCondition = CountCondition.LessThan(conditionValue)
+        },
+        engine
+      ),
+      ButtonObject(
+        ">",
+        () => {
+          countCondition = CountCondition.GreaterThan(conditionValue)
+        },
+        engine
+      )
+    ),
+    Some(countConditionMenu),
+    true,
+    engine
+  )
+  addChildren(operatorMenu)
 
   /* ----- Target Menu ----- */
   def makeTargetMenu: MultipleChoiceMenu =

@@ -8,7 +8,7 @@ class ButtonObject(
     val text: String,
     var onClicked: () => Unit,
     engine: engine2D.GameEngine,
-    var legend: String = "",
+    var legend: String = ""
 ) extends GameObject(engine)
     with RectBounds
     with Boundable {
@@ -18,23 +18,30 @@ class ButtonObject(
   textObject.zIndex = 1
   textObject.fillColor = sfml.graphics.Color(255, 255, 255)
   var background: RectangleObject = RectangleObject(0, 0, engine) // dummy
+  background.fillColor = sfml.graphics.Color(0, 0, 0, 150)
+  background.outlineColor = sfml.graphics.Color(150, 150, 150, 200)
+  background.outlineThickness = 3f
+  addChildren(background)
+
   def changeBackground(width: Float, height: Float) =
     background.destroy()
-    background = RectangleObject(
+    val newBackground = RectangleObject(
       width,
       height,
       engine
     )
-    background.fillColor = sfml.graphics.Color(0, 0, 0, 150)
-    background.outlineColor = sfml.graphics.Color(150, 150, 150, 200)
-    background.outlineThickness = 3f
-    addChildren(background)
+    newBackground.fillColor = background.fillColor
+    newBackground.outlineColor = background.outlineColor
+    newBackground.outlineThickness = background.outlineThickness
+    addChildren(newBackground)
     textObject.text.position = (
       (width - textObject.text.localBounds.width) / 2f,
       (height - textObject.text.localBounds.height) / 2f
     )
-  def resetOutline() = background.outlineColor = sfml.graphics.Color(150, 150, 150, 200)
-  private def activated() = 
+    background = newBackground
+  def resetOutline() = background.outlineColor =
+    sfml.graphics.Color(150, 150, 150, 200)
+  private def activated() =
     onClicked()
   listenToBoundsClicked(Button.Left, this, true, this.activated)
   changeBackground(

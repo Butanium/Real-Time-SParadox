@@ -15,7 +15,7 @@ class LineObject(
     var addPos2: Vector2[Float],
     engine: rtsp.RTSPGameEngine
 ) extends ShapeObject(
-      sfml.graphics.RectangleShape(1f, 1f),
+      sfml.graphics.RectangleShape((1f, 1f)),
       engine
     ) {
   zIndex = 2

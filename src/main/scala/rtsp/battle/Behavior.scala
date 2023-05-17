@@ -71,10 +71,10 @@ enum Condition {
   )
 }
 
-enum CountCondition {
-  case Equals(value: Int)
-  case LessThan(value: Int)
-  case GreaterThan(value: Int)
+enum CountCondition(var value: Int) {
+  case Equals(_value: Int) extends CountCondition(_value)
+  case LessThan(_value: Int) extends CountCondition(_value)
+  case GreaterThan(_value: Int) extends CountCondition(_value)
 }
 
 enum BehaviorTree(var position: Vector2[Float]) {
@@ -87,6 +87,90 @@ enum BehaviorTree(var position: Vector2[Float]) {
       children: List[BehaviorTree],
       _position: Vector2[Float]
   ) extends BehaviorTree(_position)
+}
+
+def teamString(team: Team): String =
+  team match
+    case Team.Enemy => "Enemy"
+    case Team.Ally  => "Ally"
+
+def targetString(target: Target): String =
+  target match
+    case Target.Warrior(team) => s"Warrior (${teamString(team)})"
+    case Target.Base(team)    => s"Base (${teamString(team)})"
+    case Target.Self          => "Self"
+
+def metricString(metric: Metric): String =
+  metric match
+    case Metric.DistanceFromClosest(target) =>
+      s"Distance from ${targetString(target)}"
+    case Metric.Health           => "Health"
+    case Metric.HealthPercentage => "Health percentage"
+
+def selectorString(selector: Selector): String =
+  selector match
+    case Selector.Lowest(metric)  => s"Lowest ${metricString(metric)}"
+    case Selector.Highest(metric) => s"Highest ${metricString(metric)}"
+
+def actionString(action: Action): String =
+  import Action.*
+  action match
+    case Attack(target, _, selector) =>
+      s"Attack [${selectorString(selector)}]\n${targetString(target)}"
+    case Move(target, _, selector) =>
+      s"Move to [${selectorString(selector)}]\n${targetString(target)}"
+    case Flee(target, _, selector) =>
+      s"Flee from [${selectorString(selector)}]\n${targetString(target)}"
+    case Idle(_) => "Idle"
+
+def filterString(filter: Filter): String =
+  import Filter.*
+  filter match
+    case All => "All"
+    case LessThan(value, metric) =>
+      s"${metricString(metric)} < $value"
+    case GreaterThan(value, metric) =>
+      s"${metricString(metric)} > $value"
+    case Equals(value, metric) =>
+      s"${metricString(metric)} = $value"
+    case Not(filter) =>
+      s"Not [${filterString(filter)}]"
+    case Attacking(target) =>
+      s"Attacking ${targetString(target)}"
+    case AttackedBy(target) =>
+      s"Attacked by ${targetString(target)}"
+    case MovingTo(target) =>
+      s"Moving to ${targetString(target)}"
+    case ApproachedBy(target) =>
+      s"Approached by ${targetString(target)}"
+    case FleeingFrom(target) =>
+      s"Fleeing from ${targetString(target)}"
+    case FleedBy(target) =>
+      s"Fleed by ${targetString(target)}"
+    case CanAttack(target) =>
+      s"Can attack ${targetString(target)}"
+    case CanBeAttackedBy(target) =>
+      s"Can be attacked by ${targetString(target)}"
+    case Idling => "Idling"
+
+def conditionString(condition: Condition): String =
+  condition match
+    case Condition.Not(condition) => s"Not [${conditionString(condition)}]"
+    case Condition.Count(target, _, countCondition) =>
+      countCondition match
+        case CountCondition.Equals(value) =>
+          s"[${targetString(target)}] = $value"
+        case CountCondition.LessThan(value) =>
+          s"[${targetString(target)}] < $value"
+        case CountCondition.GreaterThan(value) =>
+          s"[${targetString(target)}] > $value"
+
+def behaviorString(behavior: BehaviorTree): String = {
+  import BehaviorTree._
+  behavior match
+    case ActionNode(action, _)          => actionString(action)
+    case Node(children, _)              => "Node"
+    case ConditionNode(condition, _, _) => conditionString(condition)
 }
 
 class Behavior(var tree: BehaviorTree, val battle: RTSPBattle) {

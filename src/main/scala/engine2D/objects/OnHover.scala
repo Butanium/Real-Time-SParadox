@@ -7,6 +7,7 @@ trait OnHover {
   var engine: GameEngine
   def listenToMouseEvent(mouseEvent: MouseEvent, action: () => Unit): Unit
   def initShowOnHover(toShow: GameObject, bounds: Boundable) =
+    toShow.active = false
     listenToMouseEvent(
       MouseEvent.MouseInBounds(bounds, true),
       () => {

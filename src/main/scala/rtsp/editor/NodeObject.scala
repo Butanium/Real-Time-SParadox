@@ -15,6 +15,9 @@ import rtsp.RTSPGameEngine
 import sfml.system.Vector2
 import engine2D.objects.TextObject
 import rtsp.battle.Behavior
+import engine2D.objects.OnHover
+import rtsp.battle.behaviorString
+import engine2D.objects.ButtonObject
 
 class CyclicDependencyException extends Exception("Cyclic dependency detected")
 
@@ -36,12 +39,29 @@ enum ConversionState:
   case Doing
   case New
 
+/** A NodeObject is a graphical representation of a node in a behavior tree.
+  * It is used in the behavior editor.
+  * @param nodeType The type of the node
+  * @param behavior The behavior tree associated to the node
+  * @param engine The game engine
+  */
 class NodeObject(
     var nodeType: NodeType,
     behavior: BehaviorTree,
     engine: RTSPGameEngine
 ) extends RectangleObject(NODE_WIDTH, NODE_HEIGHT, engine)
-    with Grabbable(Mouse.Button.Left, engine) {
+    with Grabbable(Mouse.Button.Left, engine)
+    with OnHover {
+  // Tooltip text displayed when hovering the node
+  val tooltip = ButtonObject(behaviorString(behavior), () => (), engine)
+  tooltip.zIndex = 4
+  engine.behaviorEditor.add(tooltip)
+  // The tooltip is at the bottom of the window
+  tooltip.position = (0f, engine.window.size.y - tooltip.height - 30)
+  initShowOnHover(tooltip, this)
+
+  this.outlineColor = Color(150, 150, 150)
+  this.outlineThickness = 6f
   import NodeType.*
   // ajout du NodeObject à la liste des NodeObjects
   var conversionState =
@@ -58,9 +78,9 @@ class NodeObject(
 
   // définition des booléens associés au NodeObject
   def canHaveChild: Boolean = nodeType match
-    case Filter    => false
+    case Filter => false
     case _      => true
-   
+
   def canHaveParent: Boolean = nodeType match
     case Root => false
     case _    => true
@@ -145,6 +165,8 @@ class NodeObject(
   override protected def onUpdate(): Unit =
     if follower.active then
       follower.position = engine.mouseManager.mouseState.worldPos
+    tooltip.changeText(behaviorString(behavior), adaptBackground = true)
+    tooltip.position = (0f, engine.window.size.y - tooltip.height - 30)
     super.onUpdate()
 
   override protected def onDeletion(): Unit =
@@ -153,6 +175,7 @@ class NodeObject(
 
   override def markForDeletion(): Unit =
     linesLinked.foreach(_.markForDeletion())
+    tooltip.markForDeletion()
     super.markForDeletion()
 
   def toBehaviorTree: BehaviorTree =
@@ -175,6 +198,8 @@ class NodeObject(
       conversionState = ConversionState.Done
       behavior
 
+  /** Créer un lien entre deux NodeObject
+    */
   def linkTo(node: NodeObject): Unit =
     val line = LineObject(
       LINE_THICKNESS,
