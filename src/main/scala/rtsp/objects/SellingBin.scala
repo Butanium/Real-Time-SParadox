@@ -11,9 +11,9 @@ import engine2D.objects.TextObject
 
 class SellingBin(engine: GameEngine, player: Player)
     extends GameObject(engine) {
-  position = (engine.window.size.x * 0.85f, engine.window.size.y * 0.20f)
+  position = (engine.window.size.x * 0.15f, engine.window.size.y * 0.60f)
   val rectangle = RectangleObject(
-    engine.window.size.x * 0.35f,
+    engine.window.size.x * 0.3f,
     engine.window.size.y * 0.1f,
     engine
   )

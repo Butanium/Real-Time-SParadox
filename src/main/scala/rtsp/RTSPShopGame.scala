@@ -165,8 +165,9 @@ class RTSPShopGame(window: RenderWindow)
 
   def startBattle() =
     battle.battleWarriors.foreach((warrior) => {
-      warrior.engine = engineBattle
-      engineBattle.spawn(warrior)
+      if !(warrior.benched) then
+        warrior.engine = engineBattle
+        engineBattle.spawn(warrior)
     })
     engine = engineBattle
     battle.active = true
