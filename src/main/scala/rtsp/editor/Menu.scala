@@ -43,8 +43,9 @@ class Menu(private var _uiParent: Option[Menu], engine: GameEngine)
   goToParentButton.zIndex = 1
   addChildren(goToParentButton)
   var onClose: () => Unit = () => ()
-
+  var onOpen: () => Unit = () => ()
   def open(): Unit = {
+    onOpen()
     active = true
     uiParent.foreach(_.active = false)
   }

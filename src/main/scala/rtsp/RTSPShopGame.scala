@@ -67,7 +67,7 @@ class RTSPShopGame(window: RenderWindow)
       RTSPWarrior.createMage(
         engine,
         battle,
-        0,
+        player.id,
         Behavior.basicBehavior(battle),
         debug
       )
@@ -75,7 +75,7 @@ class RTSPShopGame(window: RenderWindow)
       RTSPWarrior.createHealer(
         engine,
         battle,
-        0,
+        player.id,
         Behavior.basicBehavior(battle),
         debug
       )
@@ -102,8 +102,9 @@ class RTSPShopGame(window: RenderWindow)
     )
     background.zIndex = -1
     engine.spawn(background)
-    val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE)
-    val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE)
+    val sellingBin = SellingBin(engine, player)
+    val warriorBench = WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
+    val benchEffects = EffectBench(engine, player, battle, BENCH_SIZE, sellingBin)
     val shopWarrior = Shop(
       player,
       INIT_NB_BUYABLE_SHOP,
@@ -154,7 +155,7 @@ class RTSPShopGame(window: RenderWindow)
     else engine = engineP0
 
   def startBattle() =
-    battle.warriors.foreach((warrior) => {
+    battle.battleWarriors.foreach((warrior) => {
       warrior.engine = engineBattle
       engineBattle.spawn(warrior)
     })

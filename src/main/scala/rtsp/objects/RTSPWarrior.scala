@@ -114,7 +114,7 @@ class RTSPWarrior(
     target.takeDamage(attackDamage)
   }
   def attack(target: RTSPWarrior): Unit = {
-    sprite.color = sfml.graphics.Color(255, 0, 0, 50);
+    sprite.color = sfml.graphics.Color(255, 150, 150);
     if debug then
       println(
         f"${id} can attack target ${target.id}: ${canAttack(target)}, distance: ${distanceTo(target)}"

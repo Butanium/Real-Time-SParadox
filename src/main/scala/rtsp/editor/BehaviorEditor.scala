@@ -20,12 +20,18 @@ class BehaviorEditor(engine: rtsp.RTSPGameEngine) extends GameObject(engine) {
     currentWarrior = warrior
     active = true
     menu.open()
-    root = NodeObject.fromBehavior(currentWarrior.behavior.tree, this, engine, isRoot = true)
+    root = NodeObject.fromBehavior(
+      currentWarrior.behavior.tree,
+      this,
+      engine,
+      isRoot = true
+    )
     root.nodeType = NodeType.Root
   }
   def saveBehavior() = {
-    println("Saving Behavior")
-    try currentWarrior.behavior.tree = root.toBehaviorTree
+    try
+      currentWarrior.behavior.tree = root.toBehaviorTree
+      println("Behavior saved!")
     // catch only Cyclic Dependency Exception
     catch
       case e: CyclicDependencyException =>

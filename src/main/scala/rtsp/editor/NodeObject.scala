@@ -16,8 +16,9 @@ import sfml.system.Vector2
 import engine2D.objects.TextObject
 import rtsp.battle.Behavior
 import engine2D.objects.OnHover
-import rtsp.battle.behaviorString
 import engine2D.objects.ButtonObject
+import rtsp.battle.Filter
+import rtsp.battle.Condition
 
 class CyclicDependencyException extends Exception("Cyclic dependency detected")
 
@@ -33,6 +34,20 @@ enum ConversionState:
   case Doing
   case New
 
+/** In our behavior tree, filters aren't nodes, but we need to represent them
+  * graphically. This enum is used be able to pass a filter to the NodeObject
+  */
+enum BehaviorNode:
+  case BNode(node: BehaviorTree)
+  case FilterNode(filter: Filter)
+  def isFilter: Boolean = this match
+    case FilterNode(_) => true
+    case _             => false
+  override def toString: String =
+    this match
+      case BNode(node)        => node.toString
+      case FilterNode(filter) => filter.toString
+
 /** A NodeObject is a graphical representation of a node in a behavior tree. It
   * is used in the behavior editor.
   * @param nodeType
@@ -44,13 +59,13 @@ enum ConversionState:
   */
 class NodeObject(
     var nodeType: NodeType,
-    behavior: BehaviorTree,
+    behavior: BehaviorNode,
     engine: RTSPGameEngine
 ) extends RectangleObject(NODE_WIDTH, NODE_HEIGHT, engine)
     with Grabbable(Mouse.Button.Left, engine)
     with OnHover {
   // Tooltip text displayed when hovering the node
-  val tooltip = ButtonObject(behaviorString(behavior), () => (), engine)
+  val tooltip = ButtonObject(behavior.toString, () => (), engine)
   tooltip.zIndex = 4
   engine.behaviorEditor.add(tooltip)
   // The tooltip is at the bottom of the window
@@ -59,7 +74,7 @@ class NodeObject(
 
   this.outlineColor = Color(150, 150, 150)
   this.outlineThickness = 6f
-  import NodeType.*
+
   // ajout du NodeObject à la liste des NodeObjects
   var conversionState =
     ConversionState.New // Is used to avoid cyclic behavior tree
@@ -76,11 +91,11 @@ class NodeObject(
 
   // définition des booléens associés au NodeObject
   def canHaveChild: Boolean = nodeType match
-    case Filter => false
-    case _      => true
+    case NodeType.Filter => false
+    case _               => true
 
   def canHaveParent: Boolean = nodeType match
-    case Root => false
+    case NodeType.Root => false
     case _    => true
 
   if canHaveChild then
@@ -141,12 +156,7 @@ class NodeObject(
       (NODE_WIDTH / 2f - NODE_CIRCLE_RADIUS / 2f, -(NODE_CIRCLE_RADIUS / 2f))
 
   // Définition du texte écrit sur le NodeObject en fonction de son type
-  val textNodeType: String = nodeType match
-    case Node      => "Node"
-    case Condition => "Condition"
-    case Filter    => "Filter"
-    case Action    => "Action"
-    case Root      => "Root"
+  val textNodeType: String = nodeType.toString
   val textType = new TextObject(textNodeType, engine, charSize = 16)
   textType.fillColor = Color.Red()
   addChildren(textType)
@@ -162,7 +172,7 @@ class NodeObject(
   override protected def onUpdate(): Unit =
     if follower.active then
       follower.position = engine.mouseManager.mouseState.worldPos
-    tooltip.changeText(behaviorString(behavior), adaptBackground = true)
+    tooltip.changeText(behavior.toString, adaptBackground = true)
     tooltip.position = (0f, engine.window.size.y - tooltip.height - 30)
     super.onUpdate()
 
@@ -175,25 +185,63 @@ class NodeObject(
     tooltip.markForDeletion()
     super.markForDeletion()
 
+  def toFilter: Filter =
+    behavior match
+      case BehaviorNode.FilterNode(filter) => filter
+      case _ => throw Exception("BNode should not be converted to Filter")
+
+  def toCondition(condition: Condition): Condition = {
+    condition match
+      case Condition.Count(target, filter, countCondition) =>
+        Condition.Count(
+          target,
+          childrenNode
+            .filter(_.nodeType == NodeType.Filter)
+            .map(_.toFilter)
+            .toList,
+          countCondition
+        )
+      case Condition.Not(condition) => Condition.Not(toCondition(condition))
+  }
+
   def toBehaviorTree: BehaviorTree =
-    if this.conversionState == ConversionState.Done then this.behavior
-    else if this.conversionState == ConversionState.Doing then
-      throw CyclicDependencyException()
-    else
-      this.conversionState = ConversionState.Doing
-      val behavior = this.behavior match
-        case BehaviorTree.ActionNode(action, _) =>
-          BehaviorTree.ActionNode(action, position)
-        case rtsp.battle.BehaviorTree.Node(_, _) =>
-          BehaviorTree.Node(childrenNode.sortBy(_.position.x).map(_.toBehaviorTree).toList, position)
-        case BehaviorTree.ConditionNode(condition, _, _) =>
-          BehaviorTree.ConditionNode(
-            condition,
-            childrenNode.sortBy(_.position.x).map(_.toBehaviorTree).toList,
-            position
-          )
-      conversionState = ConversionState.Done
-      behavior
+    behavior match
+      case BehaviorNode.FilterNode(filter) =>
+        throw Exception("FilterNode should not be converted to BehaviorTree")
+      case BehaviorNode.BNode(behavior) =>
+        if this.conversionState == ConversionState.Done then behavior
+        else if this.conversionState == ConversionState.Doing then
+          throw CyclicDependencyException()
+        else
+          this.conversionState = ConversionState.Doing
+          val nodeBehavior = behavior match
+            case BehaviorTree.ActionNode(action, _) =>
+              action.filters = childrenNode
+                .filter(_.nodeType == NodeType.Filter)
+                .map(_.toFilter)
+                .toList
+              BehaviorTree.ActionNode(action, position)
+            case rtsp.battle.BehaviorTree.Node(_, _) =>
+              BehaviorTree.Node(
+                childrenNode
+                  .filter(_.nodeType != NodeType.Filter)
+                  .sortBy(_.position.x)
+                  .map(_.toBehaviorTree)
+                  .toList,
+                position
+              )
+            case BehaviorTree.ConditionNode(condition, _, _) =>
+              BehaviorTree.ConditionNode(
+                condition,
+                childrenNode
+                  .filter(_.nodeType != NodeType.Filter)
+                  .sortBy(_.position.x)
+                  .map(_.toBehaviorTree)
+                  .toList,
+                position
+              )
+          conversionState = ConversionState.Done
+          nodeBehavior
 
   /** Créer un lien entre deux NodeObject
     */
@@ -215,6 +263,7 @@ class NodeObject(
 }
 
 object NodeObject {
+  import BehaviorNode.*
   val nodeList: ListBuffer[NodeObject] = ListBuffer.empty
   def isInNode(point: Vector2[Float], node: NodeObject) =
     node.nodeType != NodeType.Root && node.contains(point)
@@ -222,6 +271,16 @@ object NodeObject {
     nodeList
       .sortBy(_.inverseOrder)
       .find(node => node != from && isInNode(point, node))
+
+  def fromFilter(
+      filter: Filter,
+      parent: GameObject,
+      engine: RTSPGameEngine
+  ): NodeObject =
+    val n = NodeObject(NodeType.Filter, BehaviorNode.FilterNode(filter), engine)
+    n.position = filter.position
+    parent.add(n)
+    n
 
   def fromBehavior(
       behavior: BehaviorTree,
@@ -231,22 +290,28 @@ object NodeObject {
   ): NodeObject =
     val n = behavior match
       case BehaviorTree.ActionNode(action, _) =>
+        val childrenNodes = action.filters.map(fromFilter(_, parent, engine))
         if isRoot then throw Exception("Root node cannot be an action node")
-        NodeObject(NodeType.Action, behavior, engine)
+        val n = NodeObject(NodeType.Action, BNode(behavior), engine)
+        childrenNodes.foreach(n.linkTo(_))
+        n
       case BehaviorTree.Node(children, _) =>
         val childrenNodes = children.map(fromBehavior(_, parent, engine))
         val n = NodeObject(
           if isRoot then NodeType.Root else NodeType.Node,
-          behavior,
+          BNode(behavior),
           engine
         )
         childrenNodes.foreach(n.linkTo(_))
         n
       case BehaviorTree.ConditionNode(condition, children, _) =>
-        val childrenNodes = children.map(fromBehavior(_, parent, engine))
-        val n = NodeObject(
-          if isRoot then NodeType.Root else NodeType.Condition,
-          behavior,
+        val childrenNodes = 
+          children.map(fromBehavior(_, parent, engine))
+          ++
+          condition.filters.map(fromFilter(_, parent, engine))
+        if isRoot then throw Exception("Root node cannot be an action node")
+        val n = NodeObject(NodeType.Condition,
+          BNode(behavior),
           engine
         )
         childrenNodes.foreach(n.linkTo(_))

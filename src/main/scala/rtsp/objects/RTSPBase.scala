@@ -42,10 +42,19 @@ class RTSPBase(
   /** Base is not grabbable */
   override def isGrabbable_=(value: Boolean): Unit = {}
 
+  val spriteScale = Vector2[Float](
+    sprite.globalBounds.width,
+    sprite.globalBounds.height
+  )
+  val padding = spriteScale * (1 / 2f) * (if player.id == 0 then -1f else 1f)
+  position = Vector2(
+    ARENA_BOUNDS.width,
+    ARENA_BOUNDS.height
+  ) * (1 - player).toFloat + padding
   // Circle that represents the warrior drop radius around the base using SFML
   val circle = CircleObject(WARRIOR_DROP_RADIUS, engine)
   circle.position = player.id match {
-    case 0 => Vector2(-WARRIOR_DROP_RADIUS + engine.window.size.x - 50, -WARRIOR_DROP_RADIUS + 500)
+    case 0 => position - Vector2(WARRIOR_DROP_RADIUS, WARRIOR_DROP_RADIUS)
     case 1 => Vector2(-WARRIOR_DROP_RADIUS + 50, -WARRIOR_DROP_RADIUS + 50)
   }
   circle.fillColor = sfml.graphics.Color.Transparent()
