@@ -197,7 +197,7 @@ class RTSPShopGame(window: RenderWindow)
     engine.spawn(switchPlayerButton)
 
   override def init() = {
-    val basePlayer0 = RTSPBase(engineP0, battle, player0)
+    val basePlayer0 = RTSPBase(engineBattle, battle, player0)
     engineP0.spawn(basePlayer0)
     engineP1.spawn(basePlayer0)
     engineBattle.spawn(basePlayer0)
@@ -205,7 +205,7 @@ class RTSPShopGame(window: RenderWindow)
       basePlayer0,
       player0
     )
-    val basePlayer1 = RTSPBase(engineP0, battle, player1)
+    val basePlayer1 = RTSPBase(engineBattle, battle, player1)
     engineP0.spawn(basePlayer1)
     engineP1.spawn(basePlayer1)
     engineBattle.spawn(basePlayer1)
