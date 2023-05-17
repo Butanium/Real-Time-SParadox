@@ -76,7 +76,7 @@ class RTSPShopGame(window: RenderWindow)
         engine,
         battle,
         player.id,
-        Behavior.basicBehavior(battle),
+        Behavior.basicHealerBehavior(battle),
         debug
       )
     case _ => throw new Exception(s"Invalid warrior id $id")

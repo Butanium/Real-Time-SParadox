@@ -432,7 +432,7 @@ object Behavior {
       battle
     )
 
-  def advancedBehavior(battle: RTSPBattle) =
+  def advancedBehavior(battle: RTSPBattle) : Behavior =
     Behavior(
       Node(
         List(
@@ -470,4 +470,30 @@ object Behavior {
       ),
       battle
     )
+
+  def basicHealerBehavior(battle: RTSPBattle) : Behavior = 
+    Behavior(
+      Node(
+        List(
+          ActionNode(
+            Attack(
+              Warrior(Ally),
+              List(GreaterThan(1f, DistanceFromClosest(Self), (100, 200))),
+              Lowest(Health)
+            ),
+            (100, 100)
+          ),
+          ActionNode(
+            Move(
+              Warrior(Ally),
+              List(GreaterThan(1f, DistanceFromClosest(Self), (200, 200))),
+              Lowest(Health)
+            ),
+            (200, 100)
+        )),
+        (400, 50)
+      ),
+      battle
+    )
+
 }
