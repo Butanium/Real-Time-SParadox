@@ -85,7 +85,7 @@ class GameEngine(
     *   The GameObjects to spawn.
     */
   def spawn(gameObjects: GameObject*): Unit = addGameObjects(gameObjects: _*)
-  
+
   /** Remove GameObjects from the game engine.
    * @param gameObjects
    *  The GameObjects to remove.

@@ -37,11 +37,16 @@ object Constants {
   val STARTING_MONEY: Int = 600
   val ID_BARBARIAN: Int = 0
   val ID_ARCHER: Int = 1
+  val ID_GIANT: Int = 2
+  val ID_MAGE: Int = 3
+  val ID_HEALER: Int = 4
+  val MAX_WARRIORS_IN_BATTLE: Int = 7
+  val WARRIOR_DROP_RADIUS: Float = 350f
   val BENCH_SIZE: Int = 4
   val BENCH_WIDTH_RATIO: Float = 1f
   val BENCH_HEIGHT_RATIO: Float = 0.2f
   val NUMBER_OF_POTIONS: Int = 3
-  val NUMBER_OF_WARRIORS: Int = 3
+  val NUMBER_OF_WARRIORS: Int = 5
   val HEALT_BAR_WIDTH: Float = 30f
   val HEALT_BAR_HEIGHT: Float = 5f
   val INIT_LIMIT_OF_WARRIORS: Int = 3

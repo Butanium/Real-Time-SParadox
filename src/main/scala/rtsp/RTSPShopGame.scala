@@ -27,9 +27,7 @@ class RTSPShopGame(window: RenderWindow)
   val engineP0 = new RTSPGameEngine(3f / 60, window, debug = false)
   val engineP1 = new RTSPGameEngine(3f / 60, window, debug = false)
   val engineBattle = new RTSPGameEngine(3f / 60, window, debug = false)
-
   var engine: RTSPGameEngine = engineP0
-
   val player0 = Player(0, "Player 0")
   val player1 = Player(1, "Player 1")
   val battle = RTSPBattle(engineBattle, debug)
@@ -62,6 +60,22 @@ class RTSPShopGame(window: RenderWindow)
         engine,
         battle,
         player.id,
+        Behavior.basicBehavior(battle),
+        debug
+      )
+    case 3 =>
+      RTSPWarrior.createMage(
+        engine,
+        battle,
+        0,
+        Behavior.basicBehavior(battle),
+        debug
+      )
+    case 4 =>
+      RTSPWarrior.createHealer(
+        engine,
+        battle,
+        0,
         Behavior.basicBehavior(battle),
         debug
       )

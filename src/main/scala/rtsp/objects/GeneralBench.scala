@@ -14,21 +14,8 @@ abstract class GeneralBench[T <: GameObject](
     player: Player,
     battle: RTSPBattle,
     size: Int,
-    array: Array[T],
+    val benchArray: Array[T],
 ) extends GameObject(engine) {
-  var x = engine.window.size.x
-  var y = engine.window.size.y / 19
-  val benchArray = array
-  /*
-  if (benchType == "warrior") then // todo remove and do this in the RTSPShopGame code instead
-    x = engine.window.size.x
-    y = engine.window.size.y / 16
-  else if (benchType == "effect") then
-    var benchArray = new Array[Effect](size)
-    x = engine.window.size.x
-    y = engine.window.size.y / 19
-  else throw new Exception("Invalid bench type, must be warrior or effect")
-  */
   var takenSlots = 0
 
   def addBought(entity: T): Boolean =
@@ -54,8 +41,6 @@ abstract class GeneralBench[T <: GameObject](
     return Vector2[Float](x, y)
   }
   def isNotFull: Boolean = takenSlots < BENCH_SIZE
-  val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
-  addChildren(rectangle)
 
   def addDropped(entity: T): Boolean = {
     // placer l'effect dans la bonne case de l'array quand il est déposé sur le banc
