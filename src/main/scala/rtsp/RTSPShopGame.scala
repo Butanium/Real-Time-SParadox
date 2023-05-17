@@ -281,6 +281,7 @@ class RTSPShopGame(window: RenderWindow)
     () => (),
     engineBattle
   )
+  timeLeft.zIndex = 2
   timeLeft.position = (engine.window.size.x * 0.85f, engine.window.size.y * 0f)
   timeLeft.changeBackground(
     engineBattle.window.size.x * 0.15f,
