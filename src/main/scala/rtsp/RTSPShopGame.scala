@@ -21,6 +21,7 @@ import engine2D.objects.TextObject
 import engine2D.objects.CircleObject
 import sfml.system.Vector2
 import Constants.BattleC.*
+import engine2D.objects.RectangleObject
 
 class RTSPShopGame(window: RenderWindow)
     extends Game[RTSPGameEngine](
@@ -109,6 +110,7 @@ class RTSPShopGame(window: RenderWindow)
     background.zIndex = -1
     engine.spawn(background)
     val sellingBin = SellingBin(engine, player)
+    sellingBin.zIndex = 2
     val warriorBench =
       WarriorBench(engine, player, battle, BENCH_SIZE, sellingBin)
     val benchEffects =
@@ -150,6 +152,7 @@ class RTSPShopGame(window: RenderWindow)
       window.size.y * (0.9f - BENCH_HEIGHT_RATIO) - 50
     )
     val switchButton = SwitchButton(shopWarrior, shopEffects, engine)
+    switchButton.zIndex = 2
     engine.spawn(
       warriorBench,
       benchEffects,
@@ -180,6 +183,7 @@ class RTSPShopGame(window: RenderWindow)
       startBattle,
       engine
     )
+    startButton.zIndex = 2
     startButton.position =
       (engine.window.size.x * 0.75f, engine.window.size.y * 0.08f)
     startButton.changeBackground(
@@ -196,6 +200,7 @@ class RTSPShopGame(window: RenderWindow)
       switchPlayer,
       engine
     )
+    switchPlayerButton.zIndex = 2
     switchPlayerButton.position =
       (engine.window.size.x * 0.75f, engine.window.size.y * 0.16f)
     switchPlayerButton.changeBackground(
@@ -254,6 +259,21 @@ class RTSPShopGame(window: RenderWindow)
     initBenchesAndShops(engineP1, player1)
     createButtons(engineP0)
     createButtons(engineP1)
+
+    val rectangleBounds = RectangleObject(
+      ARENA_BOUNDS.width,
+      ARENA_BOUNDS.height,
+      engineBattle
+    )
+    rectangleBounds.position = (4f, 4f)
+    rectangleBounds.zIndex = 1
+    rectangleBounds.fillColor = Color.Transparent()
+    rectangleBounds.outlineColor = Color(102, 51, 0)
+    rectangleBounds.outlineThickness = 4
+    engineP0.spawn(rectangleBounds)
+    engineP1.spawn(rectangleBounds)
+    engineBattle.spawn(rectangleBounds)
+
   }
 
   val timeLeft = ButtonObject(
@@ -288,7 +308,7 @@ class RTSPShopGame(window: RenderWindow)
           if battle.losers(0) then
             if battle.losers(1) then endMessage = "It's a draw!"
             else endMessage = player1.name + " wins!"
-          else endMessage = player0.name +" wins!"
+          else endMessage = player0.name + " wins!"
           engine = engineEnd
           val endText = TextObject(endMessage, engineEnd)
           endText.characterSize = 50
