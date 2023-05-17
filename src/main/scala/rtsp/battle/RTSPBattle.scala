@@ -29,6 +29,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   }
   def teams = _teams
   def enemies(team: Int) = _teams(1 - team)
+  def warriorsInBattle(team: Int) = _teams(team).filter(w => !w.benched).size
   def battleWarriors = team0.toList ++ (team1.toList)
   def active = _active
   def active_=(newActive: Boolean): Unit =

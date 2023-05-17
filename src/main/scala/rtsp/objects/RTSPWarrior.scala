@@ -11,9 +11,11 @@ import engine2D.objects.Grabbable
 import sfml.window.Mouse
 import sfml.system.Vector2
 import rtsp.Constants
+import rtsp.Constants.BattleC.*
 import engine2D.objects.RectangleObject
 import sfml.graphics.Color
 import engine2D.objects.OnHover
+import rtsp.Constants.NUMBER_OF_WARRIORS
 
 /*
   Utiliser l'arbre de comportement
@@ -37,15 +39,16 @@ class RTSPWarrior(
     val name: String = "TemplateWarrior"
 ) extends GameUnit(maxHP, speed, engine)
     with Grabbable(Mouse.Button.Left, engine, debug = debug)
-    with Buyable 
-    with OnHover
-    {
-  
+    with Buyable
+    with OnHover {
+
   var sprite = SpriteObject(TextureManager.getTexture(spriteTexture), engine)
   val healthBar = new HealthBar(this, engine)
   healthBar.zIndex = 3
   // Compense le fait que l'origine du sprite du warrior est au centre
-  healthBar.addOffset((-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)) 
+  healthBar.addOffset(
+    (-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)
+  )
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
 
@@ -92,6 +95,9 @@ class RTSPWarrior(
   var initialPosition: Vector2[Float] = Vector2(0, 0)
   private var currentAttackDelay = attackDelay
   add(sprite)
+  def performAttack(target: RTSPWarrior): Unit = {
+    target.takeDamage(attackDamage)
+  }
   def attack(target: RTSPWarrior): Unit = {
     if debug then
       println(
@@ -99,7 +105,7 @@ class RTSPWarrior(
       )
     rooted = true
     if (currentAttackDelay < 0) then {
-      target.takeDamage(attackDamage)
+      performAttack(target)
       currentAttackDelay = attackDelay
     } else { currentAttackDelay -= engine.deltaTime }
   }
@@ -123,7 +129,8 @@ class RTSPWarrior(
     sprite.color = sfml.graphics.Color.White()
     action match
       case Attack(target) =>
-        sprite.color = sfml.graphics.Color.Red(); attack(target);
+        sprite.color = sfml.graphics.Color.Red();
+        attack(target);
       case Move(target) =>
         executeMove(target.position); currentAttackDelay = attackDelay
       case Flee(target) =>
@@ -149,6 +156,21 @@ class RTSPWarrior(
         println(s"  behavior: $behavior")
     }
     executeAction(currentAction)
+    if (!benched && !grabbed) then { // warriors in battle don't cross the arena bounds
+      if (position.x < ARENA_BOUNDS.left) {
+        position = (ARENA_BOUNDS.left, position.y)
+      }
+      if (position.x > ARENA_BOUNDS.width) {
+        position = (ARENA_BOUNDS.width, position.y)
+      }
+      if (position.y < ARENA_BOUNDS.top) {
+        position = (position.x, ARENA_BOUNDS.top)
+      }
+      if (position.y > ARENA_BOUNDS.height) {
+        position = (position.x, ARENA_BOUNDS.height)
+      }
+    }
+
     super.onUpdate()
   }
 
@@ -179,20 +201,22 @@ object RTSPWarrior {
       debug: Boolean = false,
       benched: Boolean = false
   ) =
-    new RTSPWarrior(
+    new RangeWarrior[Arrow](
       engine,
       battle,
       team,
       maxHP = 1000,
       range = 100,
-      attackDamage = 10,
+      attackDamage = 15,
       attackDelay = 1f,
       speed = 10f,
       behavior,
       "warriors/archer.png",
-      name = "Archer",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
       price = 4,
-      debug = debug
+      name = "Archer"
     )
   def createBarbarian(
       engine: GameEngine,
@@ -210,7 +234,7 @@ object RTSPWarrior {
       range = 10,
       attackDamage = 20,
       attackDelay = 0.5f,
-      speed = 20f,
+      speed = 15f,
       behavior,
       "warriors/warrior.png",
       name = "Barbarian",
@@ -237,17 +261,70 @@ object RTSPWarrior {
       behavior,
       "warriors/giant.png",
       name = "Giant",
-      price = 2,
+      price = 3,
       debug = debug
     )
     w.scale(1.5f, 1.5f)
     w
+  def createMage(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    new RangeWarrior[Arrow](
+      engine,
+      battle,
+      team,
+      maxHP = 1800,
+      range = 70,
+      attackDamage = 25,
+      attackDelay = 1f,
+      speed = 15f,
+      behavior,
+      "warriors/mage.png",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
+      price = 5,
+      name = "Mage"
+    )
+  def createHealer(
+      engine: GameEngine,
+      battle: RTSPBattle,
+      team: Int,
+      behavior: Behavior,
+      debug: Boolean = false,
+      benched: Boolean = false
+  ) =
+    new RangeWarrior[Arrow](
+      engine,
+      battle,
+      team,
+      maxHP = 1900,
+      range = 80,
+      attackDamage = -30,
+      attackDelay = 1.5f,
+      speed = 10f,
+      behavior,
+      "warriors/healer.png",
+      Arrow.factory,
+      debug = debug,
+      benched = benched,
+      price = 5,
+      name = "Healer"
+    )
 
   private val warriorTypes: Array[
     (GameEngine, RTSPBattle, Int, Behavior, Boolean, Boolean) => RTSPWarrior
-  ] = new Array(2)
+  ] = new Array(NUMBER_OF_WARRIORS)
   warriorTypes(Constants.ID_ARCHER) = createArcher
   warriorTypes(Constants.ID_BARBARIAN) = createBarbarian
+  warriorTypes(Constants.ID_GIANT) = createGiant
+  warriorTypes(Constants.ID_MAGE) = createMage
+  warriorTypes(Constants.ID_HEALER) = createHealer
   def apply(
       typeId: Int,
       engine: GameEngine,
