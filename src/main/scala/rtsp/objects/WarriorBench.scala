@@ -14,13 +14,12 @@ class WarriorBench(
     player: Player,
     battle: RTSPBattle,
     size: Int
-) extends GeneralBench(
+) extends GeneralBench[RTSPWarrior](
       engine,
       player,
       battle,
       size,
-      new Array[RTSPWarrior](size),
-      "warrior"
+      new Array[RTSPWarrior](size)
     ) {
   override def addBought(warrior: RTSPWarrior): Boolean = { // renvoie faux si le banc est plein (achat impossible)
     if !super.addBought(warrior) then return false

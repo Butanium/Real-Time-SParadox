@@ -48,6 +48,12 @@ class RTSPWarrior(
   healthBar.addOffset((-sprite.globalBounds.width / 2f, -sprite.globalBounds.height / 2f)) 
   engine.spawn(healthBar)
   initShowOnHover(healthBar, this)
+  battle.engine.spawn(healthBar)
+  private val currentEngine = engine
+  engine = battle.engine
+  initShowOnHover(healthBar, this) // Va instancier les évenements sur l'engine battle
+  engine = currentEngine
+
 
   /** The amount of frames the warrior is stunned */
   private var stunTime = 0

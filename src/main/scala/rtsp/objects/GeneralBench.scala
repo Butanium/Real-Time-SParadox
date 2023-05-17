@@ -15,10 +15,9 @@ abstract class GeneralBench[T <: GameObject](
     battle: RTSPBattle,
     size: Int,
     array: Array[T],
-    benchType: String // todo remove
 ) extends GameObject(engine) {
-  var x = 0
-  var y = 0
+  var x = engine.window.size.x
+  var y = engine.window.size.y / 19
   val benchArray = array
   /*
   if (benchType == "warrior") then // todo remove and do this in the RTSPShopGame code instead
@@ -38,7 +37,9 @@ abstract class GeneralBench[T <: GameObject](
     benchArray(i) = entity
     takenSlots += 1
     entity.position = positionOfIndex(i)
+    println(s"pbj : ${positionOfIndex(i)}, entity : ${entity.position}")
     engine.spawn(entity)
+    println(s"entity after spawn : ${entity.position}\n")
     return true
 
   def removeEntity(entity: T): Unit = {
@@ -54,9 +55,6 @@ abstract class GeneralBench[T <: GameObject](
   }
   def isNotFull: Boolean = takenSlots < BENCH_SIZE
   val rectangle = RectangleObject(x.toFloat, y.toFloat, engine)
-  if (benchType == "warrior") then rectangle.fillColor = Color(165, 245, 73, 80)
-  else if (benchType == "effect") then
-    rectangle.fillColor = Color(165, 73, 245, 50)
   addChildren(rectangle)
 
   def addDropped(entity: T): Boolean = {

@@ -5,14 +5,16 @@ import rtsp.objects.RTSPBase
 import rtsp.Constants
 import sfml.system.Vector2
 import scala.collection.mutable.ListBuffer
+import rtsp.RTSPGameEngine
 
-class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
+class RTSPBattle(val engine : RTSPGameEngine, val debug: Boolean = false) {
   private var _active = false
   // Lancer la bataille: faire bouger les warriors non morts
   private val team0 = SortedSet.empty[RTSPWarrior]
   private val team1 = SortedSet.empty[RTSPWarrior]
   private val _teams = Array[SortedSet[RTSPWarrior]](team0, team1)
-  private def warriors = team0 ++ team1 ++ bases
+  private def warriorsAndBases = team0 ++ team1 ++ bases
+  def warriors = team0 ++ team1
   val bases = Array[RTSPBase](null, null)
   def addBase(base: RTSPBase, player: Int): Unit = {
     bases(player) = base
@@ -64,7 +66,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   def reset(): Unit = {
     if debug then println("reset battle")
     battleWarriors.foreach(w => {
-      w.reset(); w.isGrabbable = w.team == player.id
+      w.reset(); w.isGrabbable = true
     })
     active = false
     losers.clear()
@@ -74,7 +76,7 @@ class RTSPBattle(player: rtsp.Player, val debug: Boolean = false) {
   def step(): Boolean = {
     // On effectue une étape de combat, et on renvoie la liste de perdants à chaque étape (dès qu'elle n'est plus vide, le combat est terminé)
     if (active) then {
-      warriors
+      warriorsAndBases
         .filter(w => w.active && !w.benched)
         .foreach(w => w.behavior.evaluate(w))
     }

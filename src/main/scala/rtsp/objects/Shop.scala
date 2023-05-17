@@ -11,15 +11,16 @@ import sfml.graphics.Color
 
 import util.Random
 import rtsp.Constants
+import rtsp.RTSPGameEngine
 class Shop[T <: Buyable with GameObject](
     val player: Player,
     initNbBuyable: Int,
     maxNbBuyable: Int,
     poolRepartition: Array[Float],
     battle: RTSPBattle,
-    idToBuyable: (Int, Player, RTSPBattle) => T,
+    idToBuyable: (Int, Player, RTSPBattle, RTSPGameEngine) => T,
     bench: GeneralBench[T],
-    engine: GameEngine
+    engine: RTSPGameEngine
 ) extends GameObject(engine) {
   // définit la taille du shop
   var height: Float = engine.window.size.y * SHOP_HEIGHT_RATIO
@@ -74,7 +75,7 @@ class Shop[T <: Buyable with GameObject](
   // fonction pour remplacer aléatoirement un objet du shop, à définir
   def replace(index: Int) =
     val random_id_object: Int = pool.get_random()
-    buttons(index).changeBuyable(idToBuyable(random_id_object, player, battle))
+    buttons(index).changeBuyable(idToBuyable(random_id_object, player, battle, engine))
 
   // fonction pour initialiser un objet du shop à un certain index
   def init(index: Int) =
@@ -82,7 +83,7 @@ class Shop[T <: Buyable with GameObject](
     var newButton =
       ShopButton(
         index,
-        idToBuyable(random_id_object, player, battle),
+        idToBuyable(random_id_object, player, battle, engine),
         player,
         this,
         engine
@@ -145,7 +146,7 @@ class Shop[T <: Buyable with GameObject](
   // On modifie onUpdate pour que le montant de money soit actualisé
   override def onUpdate() = {
     moneyText.string =
-      "Money:" + player.money.toString + "  -  Warrior Limit:" + player.limitOfWarriors
+      "   Money: " + player.money.toString + "  -  Warrior Limit: " + player.limitOfWarriors
         .toString()
     buttonUpgrade.changeText(
         "Upgrade limit: " + priceUpgrade(player.limitOfWarriors).toString(),

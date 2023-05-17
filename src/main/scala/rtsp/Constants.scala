@@ -45,4 +45,5 @@ object Constants {
   val HEALT_BAR_WIDTH: Float = 30f
   val HEALT_BAR_HEIGHT: Float = 5f
   val INIT_LIMIT_OF_WARRIORS: Int = 3
+  val BATTLE_DURATION: Int = 30
 }

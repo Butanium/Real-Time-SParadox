@@ -15,7 +15,7 @@ class LineObject(
     var addPos2: Vector2[Float],
     engine: engine2D.GameEngine
 ) extends ShapeObject(
-      sfml.graphics.RectangleShape(1f, 1f),
+      sfml.graphics.RectangleShape((1f, 1f)),
       engine
     ) {
   val line = drawable.asInstanceOf[sfml.graphics.RectangleShape]

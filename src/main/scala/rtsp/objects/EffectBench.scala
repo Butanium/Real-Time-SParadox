@@ -14,8 +14,7 @@ class EffectBench(
       player,
       battle,
       size,
-      new Array[Effect](size),
-      "effect"
+      new Array[Effect](size)
     ) {
   override def addBought(effect: Effect): Boolean = {
     if !super.addBought(effect) then return false
