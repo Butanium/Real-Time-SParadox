@@ -203,6 +203,10 @@ class NodeObject(
         )
       case Condition.Not(condition) => Condition.Not(toCondition(condition))
   }
+  def resetConverstionState : Unit =
+    if conversionState != ConversionState.New then 
+      conversionState = ConversionState.New
+      childrenNode.foreach(_.resetConverstionState) 
 
   def toBehaviorTree: BehaviorTree =
     behavior match

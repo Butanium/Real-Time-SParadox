@@ -38,6 +38,7 @@ class BehaviorEditor(engine: rtsp.RTSPGameEngine) extends GameObject(engine) {
       case e: CyclicDependencyException =>
         println("Could not save behavior: Cyclic Dependency")
       case e: Exception => throw e
+    root.resetConverstionState
   }
   menu.onClose = () => {
     destroyChildren(NodeObject.nodeList.toList: _*)
