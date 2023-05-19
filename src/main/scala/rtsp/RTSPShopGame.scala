@@ -315,10 +315,12 @@ class RTSPShopGame(window: RenderWindow)
           endText.characterSize = 50
           engineEnd.spawn(endText)
         player0.earnMoney(
-          2 * battle.enemies(player0.id).count(w => !w.active && !w.benched)
+          2 +
+            2 * battle.enemies(player0.id).count(w => !w.active && !w.benched)
         )
         player1.earnMoney(
-          2 * battle.enemies(player1.id).count(w => !w.active && !w.benched)
+          2 +
+            2 * battle.enemies(player1.id).count(w => !w.active && !w.benched)
         )
         battle.reset()
         battle
